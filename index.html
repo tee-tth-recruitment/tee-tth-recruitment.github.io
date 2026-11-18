@@ -976,8 +976,17 @@ function loadSmsLog(btn) {
 /* ---------- ব্যবহারকারী (মালিক) ---------- */
 function page_users() {
   return '<div class="ph"><h2>ব্যবহারকারী</h2><span class="sp"></span><button class="btn pri" onclick="editUser()">' + icon('plus') + 'নতুন ব্যবহারকারী</button></div>' +
-    '<div class="note" style="margin-bottom:14px">যাঁকে যোগ করবেন, তিনি নিজের ইমেইলে কোড নিয়ে ঢুকবেন। কে কী পারবেন, টিক দিয়ে ঠিক করুন — সার্ভারও তা-ই মানে। সব বদল লগে থাকে।</div><div id="ulist"><div class="loading"><span class="spin"></span></div></div>';
+    '<div class="note" style="margin-bottom:14px">যাঁকে যোগ করবেন, তিনি নিজের ইমেইলে কোড নিয়ে ঢুকবেন। কে কী পারবেন, টিক দিয়ে ঠিক করুন — সার্ভারও তা-ই মানে। সব বদল লগে থাকে।</div>' +
+    '<div class="card" style="margin-bottom:14px"><h3>' + icon('share') + 'অ্যাপের লিংক (কর্মীদের দেওয়ার জন্য)</h3>' +
+    '<div class="btns" style="flex-wrap:nowrap;margin-bottom:6px"><input class="in" id="appShort" placeholder="যেমন https://tee.com.bd/recruitment" value="' + esc(S.boot.settings.appShort || '') + '"><button class="btn sm" onclick="saveAppShort(this)">সেভ</button></div>' +
+    '<div class="hint tiny" style="margin-bottom:10px">ওয়েবসাইটের শর্টনারে লক্ষ্য দিন ' + esc(S.boot.site) + '/ — তারপর এখানে বসান। খালি থাকলে মূল ঠিকানা।</div>' +
+    '<div class="btns"><button class="btn sm" onclick="copyText(appLink())">' + icon('copy') + 'শুধু লিংক কপি</button><button class="btn sm" onclick="copyText(staffMsg())">' + icon('copy') + 'কর্মীকে পাঠানোর বার্তা কপি</button>' +
+    (navigator.share ? '<button class="btn sm" onclick="navigator.share({title:\'শিক্ষক নিয়োগ ২০২৭\',text:staffMsg()})">' + icon('share') + 'শেয়ার</button>' : '') + '</div></div>' +
+    '<div id="ulist"><div class="loading"><span class="spin"></span></div></div>';
 }
+function appLink() { var u = String(S.boot.settings.appShort || '').trim(); return u ? (/^https?:\/\//.test(u) ? u : 'https://' + u) : S.boot.site + '/'; }
+function staffMsg() { return 'শিক্ষক নিয়োগ ২০২৭ — অফিসের অ্যাপ\n' + appLink() + '\n\nআপনার যে ইমেইল যোগ করা হয়েছে, সেটা দিয়ে "লগইন কোড পাঠান" চাপুন — ইমেইলে আসা ৬ অঙ্কের কোড দিয়ে ঢুকবেন। ফোনে খুলে "Add to Home screen" দিলে অ্যাপের মতো থাকবে।'; }
+function saveAppShort(btn) { busy(btn, callServer('apiSaveSettings', [{ appShort: $('appShort').value.trim() }])).then(function (r) { S.boot.settings = r.settings; toast('সেভ হয়েছে'); }); }
 function after_users() { callServer('apiUsers').then(function (u) { S.users = u; drawUsers(); }, function (e) { $('ulist').textContent = e.message; }); }
 function drawUsers() {
   var u = S.users;
