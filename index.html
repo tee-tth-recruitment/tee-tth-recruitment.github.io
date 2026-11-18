@@ -455,7 +455,7 @@ function page_home() {
   h += '<div class="grid g2"><div class="card"><h3>' + icon('form') + 'আবেদন ফর্ম<span class="sp"></span>' +
     (f.id ? '<span class="chip ' + (f.open ? 'ok' : 'bad') + '">' + (f.open ? 'চালু' : 'বন্ধ') + '</span>' : '<span class="chip">তৈরি হয়নি</span>') + '</h3>' +
     '<div class="kv"><dt>শেষ তারিখ</dt><dd>' + ymdBn(S.boot.settings.deadline) + '</dd><dt>লিখিত পরীক্ষা</dt><dd>' + ymdBn(S.boot.settings.examDate) + '</dd>' +
-    '<dt>ফলাফল</dt><dd>' + ymdBn(S.boot.settings.resultDate) + '</dd><dt>প্রশিক্ষণ</dt><dd>' + ymdBn(S.boot.settings.trainingFrom) + ' – ' + ymdBn(S.boot.settings.trainingTo) + '</dd></div>' +
+    '<dt>ফলাফল</dt><dd>' + ymdBn(S.boot.settings.resultDate) + '</dd><dt>প্রশিক্ষণ</dt><dd>' + ymdBn(S.boot.settings.trainingFrom) + ' থেকে ' + ymdBn(S.boot.settings.trainingTo) + '</dd></div>' +
     (f.url ? '<div class="btns" style="margin-top:12px"><a class="btn sm" href="' + esc(S.boot.site) + '/apply/" target="_blank">' + icon('ext') + 'প্রার্থীর ফর্ম</a></div>' : '') + '</div>';
   // বিষয়ভিত্তিক সংখ্যা
   var rows = S.boot.subjects.map(function (s) { return [s.cls, s.subject, c.bySubject[s.cls + '|' + s.subject] || 0, s.active]; });
@@ -538,7 +538,7 @@ function drawApplicant(a) {
   if (ed && a.status === 'cancelled') acts.push('<button class="btn" onclick="doRestore(this,\'' + esc(a.roll || a.responseId) + '\')">' + icon('renew') + 'ফেরাও</button>');
   if (acts.length) h += '<div class="btns" style="margin-bottom:14px">' + acts.join('') + '</div>';
   var kv = [['নাম (ইংরেজি)', a.nameEn], ['মোবাইল', N(a.mobile)], ['বিকল্প মোবাইল', N(a.mobile2)], ['ইমেইল', a.email], ['ঠিকানা', a.address],
-            ['প্রতিষ্ঠান', a.institution], ['বিভাগ', a.dept], ['বর্ষ', a.year], ['SSC', a.ssc], ['HSC', a.hsc], ['মাধ্যম', a.medium], ['ফ্রি সময়', a.freeTime],
+            ['স্নাতক শিক্ষাপ্রতিষ্ঠান', a.institution], ['বিভাগ', a.dept], ['বর্ষ', a.year], ['SSC', a.ssc], ['HSC', a.hsc], ['মাধ্যম', a.medium], ['ফ্রি সময়', a.freeTime],
             ['অভিজ্ঞতা', a.experience], ['কীভাবে জানলেন', a.source], ['জমার সময়', dtx(a.submittedAt)], ['অনুমোদন', dtx(a.approvedAt)], ['নোট', a.note],
             ['শেষ বদল', a.updatedBy ? dtx(a.updatedAt) + ' · ' + a.updatedBy : '']];
   h += '<dl class="kv">' + kv.filter(function (x) { return x[1]; }).map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + esc(x[1]) + '</dd>'; }).join('') + '</dl>';
@@ -565,7 +565,7 @@ function doCancel(k) {
   });
 }
 var EDIT_F = [['nameBn', 'নাম (বাংলা)'], ['nameEn', 'নাম (ইংরেজি)'], ['mobile', 'মোবাইল'], ['mobile2', 'বিকল্প মোবাইল'], ['address', 'ঠিকানা'], ['institution', 'প্রতিষ্ঠান'],
-              ['dept', 'বিভাগ'], ['year', 'বর্ষ'], ['ssc', 'SSC'], ['hsc', 'HSC'], ['medium', 'মাধ্যম'], ['freeTime', 'ফ্রি সময়'], ['experience', 'অভিজ্ঞতা'], ['note', 'নোট (শুধু অফিস দেখে)']];
+              ['dept', 'বিভাগ'], ['year', 'বর্ষ'], ['ssc', 'SSC'], ['hsc', 'HSC'], ['experience', 'অভিজ্ঞতা'], ['note', 'নোট (শুধু অফিস দেখে)']];
 function editApplicant() {
   var a = S.cur;
   var opts = S.boot.subjects.map(function (s) { var v = s.cls + '|' + s.subject; return '<option value="' + esc(v) + '"' + (a.cls === s.cls && a.subject === s.subject ? ' selected' : '') + '>' + esc(s.cls + ' — ' + s.subject) + (s.active ? '' : ' (বন্ধ)') + '</option>'; }).join('');
@@ -683,6 +683,7 @@ function page_form() {
     fld('fConfirm', 'জমার পরের বার্তা', s.confirmMsg, true) +
     fld('fClosed', 'আবেদন বন্ধ থাকলে বার্তা', s.closedMsg, true) +
     '<div class="fld">' + sw('fManual', s.manualApprove, 'সব আবেদন হাতে দেখে অনুমোদন (চালু থাকলে কেউ নিজে রোল পাবেন না)') + '</div>' +
+    '<div class="fld">' + sw('fTxtMan', s.formTextsManual, 'ফর্মের শিরোনাম ও বিজ্ঞপ্তি গুগল ফর্মে হাতে সাজিয়েছি — অ্যাপ যেন আর না বদলায়') + '<div class="hint">চালু করলে মোটা অক্ষর ইত্যাদি হাতের সাজ থাকবে, কিন্তু তারিখ বদলালে ফর্মের বিজ্ঞপ্তি নিজে বদলাবে না — হাতে বদলাতে হবে।</div></div>' +
     '<button class="btn pri" onclick="saveFormTexts(this)">সেভ (ফর্মেও যাবে)</button></div>';
   return h;
 }
@@ -708,7 +709,7 @@ function createForm(btn) { busy(btn, callServer('apiCreateForm')).then(function 
 function syncForm(btn) { busy(btn, callServer('apiSyncForm')).then(function (r) { S.boot.form = r.form; render(); toast('ফর্ম হালনাগাদ হয়েছে'); }); }
 function formOpen(btn, open) { busy(btn, callServer('apiFormOpen', [open])).then(function (r) { S.boot.form = r.form; render(); toast(open ? 'আবেদন চালু' : 'আবেদন বন্ধ'); }); }
 function saveFormTexts(btn) {
-  busy(btn, callServer('apiSaveSettings', [{ formTitle: $('fTitle').value, noticeBody: $('fNotice').value, warning: $('fWarn').value, confirmMsg: $('fConfirm').value, closedMsg: $('fClosed').value, manualApprove: $('fManual').checked }])).then(function (r) {
+  busy(btn, callServer('apiSaveSettings', [{ formTitle: $('fTitle').value, noticeBody: $('fNotice').value, warning: $('fWarn').value, confirmMsg: $('fConfirm').value, closedMsg: $('fClosed').value, manualApprove: $('fManual').checked, formTextsManual: $('fTxtMan').checked }])).then(function (r) {
     S.boot.settings = r.settings; render(); toast('সেভ হয়েছে' + (r.formNote ? ' — ' + r.formNote : ''), 4500);
   });
 }
