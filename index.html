@@ -164,6 +164,7 @@ a{color:var(--pri)}
 textarea.in{min-height:90px;resize:vertical;line-height:1.55}
 .fld{margin-bottom:12px}
 .fld>label{display:block;font-size:13px;color:var(--tx2);margin-bottom:5px}
+.fld>label.sw{display:inline-flex;color:var(--tx);font-size:14px;margin-bottom:0}
 .fld .hint{font-size:12px;color:var(--tx3);margin-top:4px}
 .chip{display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--card2);border:1px solid var(--line);white-space:nowrap}
 .chip.ok{background:var(--okb);color:var(--ok);border-color:transparent}.chip.bad{background:var(--badb);color:var(--bad);border-color:transparent}
@@ -446,6 +447,8 @@ function page_home() {
   if (!f.id && can('form')) warn.push('গুগল ফর্ম এখনো তৈরি হয়নি — <a href="#" onclick="go(\'form\');return false">আবেদন ফর্ম</a> পাতায় তৈরি করুন।');
   if (f.id && !f.photoItem && can('form')) warn.push('ফর্মে "ছবি" প্রশ্ন নেই — <a href="#" onclick="go(\'form\');return false">যোগ করার নিয়ম দেখুন</a>।');
   if (!S.boot.smsReady && can('sms')) warn.push('SMS গেটওয়ে বসানো নেই — <a href="#" onclick="go(\'sms\');return false">SMS</a> পাতায় বসান, নইলে প্রার্থীরা রোল ও প্রবেশপত্রের লিংক পাবেন না।');
+  var q = S.boot.smsQueue || {};
+  if (q.total && (can('sms') || can('applicants_edit'))) warn.push(N(q.total) + 'টি SMS পাঠানো বাকি — <a href="#" onclick="go(\'sms\');return false">SMS পাতা থেকে "সব বাকি SMS পাঠাও"</a> চাপুন।');
   if (warn.length) h += '<div class="note warn" style="margin-bottom:14px">⚠️ ' + warn.join('<br>⚠️ ') + '</div>';
   var st = [['মোট আবেদন', c.total, 'acc', 'all'], ['আজ', c.today, '', 'all'], ['অনুমোদিত', c.approved, 'ok', 'approved'],
             ['সমস্যা', c.problem, 'bad', 'problem'], ['অপেক্ষায়', c.pending, 'warn', 'pending'], ['বাতিল', c.cancelled, '', 'cancelled']];
@@ -779,6 +782,7 @@ function sampleFill(t) {
 }
 function page_sms() {
   var s = S.boot.settings, h = '<div class="ph"><h2>SMS</h2></div>';
+  h += queueCard();
   h += '<div class="card"><h3>' + icon('sms') + 'বার্তার লেখা</h3><div class="tiny" style="margin-bottom:10px">ঘর: {রোল} {নাম} {লিংক} {তারিখ} {সময়} {শ্রেণি} {বিষয়} — বাংলা SMS-এ ৭০ অক্ষরে এক ভাগ; ভাগ যত কম, খরচ তত কম।</div>' +
     ['approve', 'problem', 'update'].map(function (k) {
       return '<div class="fld"><label>' + SMS_KIND[k] + (k !== 'update' ? ' &nbsp;' + sw('on_' + k, (s.smsOn || {})[k]) : '') + '</label><textarea class="in" id="tp_' + k + '" rows="3" oninput="partsOf(\'' + k + '\')">' + esc((s.smsTpl || {})[k]) + '</textarea><div class="parts" id="pp_' + k + '"></div></div>';
@@ -789,11 +793,58 @@ function page_sms() {
   h += '<div class="card"><h3>' + icon('log') + 'SMS-খাতা (সাম্প্রতিক)<span class="sp"></span><button class="btn sm" onclick="loadSmsLog(this)">' + icon('renew') + '</button></h3><div id="slog"><div class="loading"><span class="spin"></span></div></div></div>';
   return h;
 }
+var QK = { approve: 'অনুমোদন (রোল + প্রবেশপত্র)', problem: 'আবেদনে সমস্যা', update: 'প্রবেশপত্র বদল' };
+function queueCard() {
+  var s = S.boot.settings, q = S.boot.smsQueue || { total: 0 }, auto = s.smsMode === 'auto';
+  return '<div class="card" id="qcard"><h3>' + icon('send') + 'বাকি SMS<span class="sp"></span><span class="chip ' + (q.total ? 'warn' : 'ok') + '">' + (q.total ? N(q.total) + 'টি বাকি' : 'কিছু বাকি নেই') + '</span></h3>' +
+    '<div class="tabs" style="margin-bottom:10px">' + ['approve', 'problem', 'update'].map(function (k) { return '<button style="cursor:default">' + QK[k] + '<span>' + N(q[k] || 0) + '</span></button>'; }).join('') + '</div>' +
+    '<div class="btns" style="margin-bottom:12px"><button class="btn gold" id="qSend"' + (q.total ? '' : ' disabled') + '>' + icon('send') + 'সব বাকি SMS পাঠাও</button><button class="btn" onclick="checkIp(this)">MiMSMS আমাকে কোন IP হিসেবে দেখছে?</button></div>' +
+    '<div id="qOut" class="tiny" style="white-space:pre-wrap;margin-bottom:10px"></div>' +
+    '<div class="fld">' + sw('smsAuto', auto, 'জমা হলেই SMS নিজে যাবে (স্বয়ংক্রিয়)') + '<div class="hint">' +
+    (auto ? 'চালু: কিন্তু MiMSMS শুধু তালিকার IP মানে — স্বয়ংক্রিয় SMS গুগলের বদলাতে-থাকা IP থেকে যায়, তাই আটকে যেতে পারে।' : 'বন্ধ (এখন যেভাবে চলছে): আবেদন এলে রোল ও প্রবেশপত্র সঙ্গে সঙ্গে তৈরি হয়, SMS এখানে জমা থাকে — অফিস থেকে "সব বাকি SMS পাঠাও" চাপলে যায় (SSC26-এর মেনুর মতো)। দিনে কয়েকবার চাপুন।') + '</div></div></div>';
+}
+function after_queue() {
+  if (!$('qSend')) return;
+  $('qSend').onclick = function () { sendQueue(this); };
+  $('smsAuto').onchange = function () {
+    var on = this.checked;
+    busy(null, callServer('apiSaveSettings', [{ smsMode: on ? 'auto' : 'manual' }])).then(function (r) { S.boot.settings = r.settings; render(); toast(on ? 'স্বয়ংক্রিয় চালু' : 'হাতে চেপে পাঠানো চালু'); });
+  };
+}
+function sendQueue(btn) {
+  var kinds = ['approve', 'problem', 'update'], tot = 0, bad = 0, out = $('qOut');
+  btn.disabled = true;
+  function next() {
+    var k = kinds[0];
+    if (!k) return done('');
+    out.textContent = QK[k] + ' — পাঠানো হচ্ছে… (গেছে ' + N(tot) + ')';
+    callServer('apiSmsSendBatch', [k]).then(function (r) {
+      tot += r.sent; bad += r.failed;
+      if (r.blocked) return done('⛔ MiMSMS আটকাচ্ছে ("IP Black List") — নিচের বোতামে IP দেখে MiMSMS-এর তালিকায় যোগ করুন, তারপর আবার চাপুন।');
+      if (r.failed && !r.sent) return done('❌ যায়নি: ' + r.error);
+      if (!r.left || !r.sent) kinds.shift();
+      next();
+    }, function (e) { done('❌ ' + e.message); });
+  }
+  function done(msg) {
+    btn.disabled = false;
+    out.textContent = '✅ ' + N(tot) + 'টি গেছে' + (bad ? ' · ' + N(bad) + 'টি যায়নি' : '') + (msg ? '\n' + msg : '');
+    callServer('apiSmsQueue').then(function (q) { S.boot.smsQueue = q; var c = $('qcard'); if (c) { var keep = out.textContent; c.outerHTML = queueCard(); after_queue(); $('qOut').textContent = keep; } });
+    if (typeof loadSmsLog === 'function' && $('slog')) loadSmsLog();
+  }
+  next();
+}
+function checkIp(btn) {
+  busy(btn, callServer('apiMyIp')).then(function (r) {
+    $('qOut').textContent = 'MiMSMS এখন আপনাকে দেখছে: ' + (r.ip || 'জানা যায়নি') + '\nএটা MiMSMS → Developer Option → "Add IP & Domain"-এ (Domain: localhost) না থাকলে যোগ করুন। অফিসের ইন্টারনেট কয়েকটা IP পালা করে ব্যবহার করে — কয়েকবার দেখে সবগুলো যোগ করুন।';
+  });
+}
 function partsOf(k) {
   var t = sampleFill($('tp_' + k).value), n = smsParts(t);
   $('pp_' + k).innerHTML = 'নমুনায় ' + N(t.length) + ' অক্ষর · <b>' + N(n) + ' ভাগ</b>';
 }
 function after_sms() {
+  after_queue();
   ['approve', 'problem', 'update'].forEach(partsOf);
   callServer('apiSmsConfig').then(function (c) {
     $('gw').innerHTML = '<div class="tiny" style="margin-bottom:10px">SSC26-এর একই গেটওয়ে। ওই শিটের মেনু → ইমেইল ও SMS → "SMS Settings"-এ যা আছে, হুবহু এখানে দিন।</div>' +
