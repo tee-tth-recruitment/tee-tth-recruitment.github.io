@@ -758,7 +758,8 @@ function page_form() {
     fld('fTitle', 'ফর্মের শিরোনাম', s.formTitle) +
     fld('fNotice', 'বিজ্ঞপ্তি (ফর্মের ওপরে)', s.noticeBody, true, '{শেষ তারিখ} {পরীক্ষার তারিখ} {সময়} {ফলের তারিখ} {প্রশিক্ষণের তারিখ} — এগুলো সেটিংসের তারিখ থেকে নিজে বসবে।') +
     fld('fWarn', '⚠️ জরুরি কথা (বড় অক্ষরে দেখায়)', s.warning, true) +
-    fld('fConfirm', 'জমার পরের বার্তা', s.confirmMsg, true) +
+    fld('fConfirm', 'জমার পরের বার্তা', s.confirmMsg, true, '{প্রবেশপত্রের লিংক} — নিচের "প্রবেশপত্র খোঁজার ছোট লিংক" বসবে।') +
+    fld('fAdmShort', 'প্রবেশপত্র খোঁজার ছোট লিংক (ঐচ্ছিক)', s.admitShort, false, 'যেমন https://tee.com.bd/admit — ওয়েবসাইটের শর্টনারে লক্ষ্য দিন ' + S.boot.site + '/a/ । খালি থাকলে সাইটের লিংক দেখাবে।') +
     fld('fClosed', 'আবেদন বন্ধ থাকলে বার্তা', s.closedMsg, true) +
     '<div class="fld">' + sw('fManual', s.manualApprove, 'সব আবেদন হাতে দেখে অনুমোদন (চালু থাকলে কেউ নিজে রোল পাবেন না)') + '</div>' +
     '<div class="fld">' + sw('fTxtMan', s.formTextsManual, 'ফর্মের শিরোনাম ও বিজ্ঞপ্তি গুগল ফর্মে হাতে সাজিয়েছি — অ্যাপ যেন আর না বদলায়') + '<div class="hint">চালু করলে মোটা অক্ষর ইত্যাদি হাতের সাজ থাকবে, কিন্তু তারিখ বদলালে ফর্মের বিজ্ঞপ্তি নিজে বদলাবে না — হাতে বদলাতে হবে।</div></div>' +
@@ -793,7 +794,7 @@ function forceSync(btn) {
 function syncForm(btn) { busy(btn, callServer('apiSyncForm')).then(function (r) { S.boot.form = r.form; render(); toast('ফর্ম হালনাগাদ হয়েছে'); }); }
 function formOpen(btn, open) { busy(btn, callServer('apiFormOpen', [open])).then(function (r) { S.boot.form = r.form; render(); toast(open ? 'আবেদন চালু' : 'আবেদন বন্ধ'); }); }
 function saveFormTexts(btn) {
-  busy(btn, callServer('apiSaveSettings', [{ formTitle: $('fTitle').value, noticeBody: $('fNotice').value, warning: $('fWarn').value, confirmMsg: $('fConfirm').value, closedMsg: $('fClosed').value, manualApprove: $('fManual').checked, formTextsManual: $('fTxtMan').checked }])).then(function (r) {
+  busy(btn, callServer('apiSaveSettings', [{ formTitle: $('fTitle').value, noticeBody: $('fNotice').value, warning: $('fWarn').value, confirmMsg: $('fConfirm').value, closedMsg: $('fClosed').value, admitShort: $('fAdmShort').value.trim(), manualApprove: $('fManual').checked, formTextsManual: $('fTxtMan').checked }])).then(function (r) {
     S.boot.settings = r.settings; render(); toast('সেভ হয়েছে' + (r.formNote ? ' — ' + r.formNote : ''), 4500);
   });
 }
