@@ -232,7 +232,7 @@ function msgBox(title, body) {
   root.innerHTML = '<div class="box scr"><img class="lg" src="../assets/tee-logo.png" alt=""><img class="lg" src="../assets/tth-logo.png" alt=""><h1>' + title + '</h1>' + body + '</div>';
 }
 function findForm(err) {
-  msgBox('প্রবেশপত্র খুঁজুন', '<p>SMS-এ পাওয়া রোল নম্বর আর আবেদনের মোবাইল নম্বর দিন।</p>' +
+  msgBox('প্রবেশপত্র খুঁজুন', '<p>ইমেইল বা SMS-এ পাওয়া রোল নম্বর আর আবেদনের মোবাইল নম্বর দিন।</p>' +
     '<input id="fr" inputmode="numeric" placeholder="রোল নম্বর (৬ অঙ্ক)"><input id="fm" inputmode="tel" placeholder="মোবাইল নম্বর"><button class="go" id="fgo">খুঁজুন</button><div class="err" id="fe">' + esc(err || '') + '</div>');
   document.getElementById('fgo').onclick = function () {
     var b = this; b.disabled = true; b.textContent = 'খুঁজছি…';
