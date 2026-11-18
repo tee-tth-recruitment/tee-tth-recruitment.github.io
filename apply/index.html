@@ -22,7 +22,7 @@ p{color:#aab6d6;line-height:1.7}
 a.go{display:inline-block;margin-top:10px;background:linear-gradient(180deg,#e6c77d,#c39a45);color:#1b1404;padding:12px 22px;border-radius:12px;font-weight:700;text-decoration:none}
 .dev{font-size:12px;color:#7b88ab;margin-top:26px}
 </style>
-<script>var API_URL = 'https://script.google.com/macros/s/AKfycbyfL1EUYdUrfEqIwvBVi2Ia8J8sEqXA4Byo78EaccmH-9oIb3YAnHil0SjlUS-YdFCH/exec';</script>
+<script>var FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSce-t4uirwDk4v2JRY2nANKgpz8iZa74wiwWqB7sv2S0CdU8w/viewform'; if (FORM_URL) location.replace(FORM_URL);</script>
 </head>
 <body>
 <div class="c"><div class="b">
@@ -32,16 +32,8 @@ a.go{display:inline-block;margin-top:10px;background:linear-gradient(180deg,#e6c
   <div class="dev">Developed By: Md. Ashraful Islam</div>
 </div></div>
 <script>
-function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: 'apiApplyInfo', args: [] }) })
-  .then(function (r) { return r.json(); })
-  .then(function (j) {
-    if (!j.ok) throw new Error(j.error);
-    var d = j.data;
-    if (d.open && d.url) { location.replace(d.url); document.getElementById('m').innerHTML = '<p>ফর্ম না খুললে নিচে চাপুন।</p><a class="go" href="' + esc(d.url) + '">আবেদন ফর্ম খুলুন</a>'; }
-    else document.getElementById('m').innerHTML = '<p>' + esc(d.closedMsg || 'এখন আবেদন বন্ধ।').replace(/\n/g, '<br>') + '</p>';
-  })
-  .catch(function () { document.getElementById('m').innerHTML = '<p>খোলা যায়নি — ইন্টারনেট দেখে পাতাটা আবার খুলুন।</p><a class="go" href="">আবার চেষ্টা</a>'; });
+// ৪ সেকেন্ডেও ফর্ম না খুললে (খুব ধীর ইন্টারনেট) — তখনই শুধু বোতাম দেখাও
+setTimeout(function () { document.getElementById('m').innerHTML = '<p>ফর্ম খুলতে দেরি হচ্ছে — নিচে চাপুন।</p><a class="go" href="' + FORM_URL + '">আবেদন ফর্ম খুলুন</a>'; }, 4000);
 </script>
 </body>
 </html>

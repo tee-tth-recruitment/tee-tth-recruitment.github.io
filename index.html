@@ -659,7 +659,7 @@ function moveClass(gi, d) {
 }
 
 /* ---------- আবেদন ফর্ম ---------- */
-function applyUrl() { return S.boot.site + '/apply/'; }
+function applyUrl() { var u = String((S.boot.settings || {}).shareUrl || '').trim(); return u ? (/^https?:\/\//.test(u) ? u : 'https://' + u) : S.boot.site + '/apply/'; }
 function page_form() {
   var f = S.boot.form, s = S.boot.settings, h = '<div class="ph"><h2>আবেদন ফর্ম</h2></div>';
   if (!f.id) {
@@ -673,6 +673,7 @@ function page_form() {
     '<button class="btn" onclick="syncForm(this)">' + icon('renew') + 'ফর্ম হালনাগাদ</button></div></div>';
   h += '<div class="card"><h3>' + icon('share') + 'ছড়ানোর লিংক ও QR</h3><div class="qrbox"><div class="qr" id="fqr"></div><div style="flex:1;min-width:200px">' +
     '<div style="font-weight:700;word-break:break-all;margin-bottom:6px">' + esc(applyUrl()) + '</div><div class="tiny" style="margin-bottom:10px">পোস্টারে এই QR দিন। ফর্ম কখনো বদলালেও এই লিংক আর QR ঠিক থাকবে; আবেদন বন্ধ থাকলে এখানেই "বন্ধ" বার্তা দেখাবে।</div>' +
+    '<div class="fld" style="margin-bottom:10px"><label>নিজের ছোট লিংক (ঐচ্ছিক)</label><div class="btns" style="flex-wrap:nowrap"><input class="in" id="shUrl" placeholder="যেমন tpl.com.bd/teacher" value="' + esc(s.shareUrl || '') + '"><button class="btn sm" onclick="saveShare(this)">সেভ</button></div><div class="hint">ওয়েবসাইটের শর্টনারে লিংকটা গুগল ফর্মে বা ' + esc(S.boot.site) + '/apply/-এ পাঠান, তারপর এখানে দিন — QR, কপি, শেয়ার এটাই ব্যবহার করবে।</div></div>' +
     '<div class="btns"><button class="btn sm" onclick="copyText(applyUrl())">' + icon('copy') + 'কপি</button><button class="btn sm" onclick="dlQR()">' + icon('dl') + 'QR নামান (বড়)</button>' +
     (navigator.share ? '<button class="btn sm" onclick="navigator.share({title:\'শিক্ষক নিয়োগ ২০২৭\',url:applyUrl()})">' + icon('share') + 'শেয়ার</button>' : '') + '</div></div></div></div></div>';
   if (!f.photoItem) h += '<div class="card" style="border-color:var(--warn)"><h3 style="color:var(--warn)">' + icon('alert') + 'ছবির প্রশ্ন যোগ করুন (একবারই)</h3><div class="muted" style="line-height:1.8">গুগল কোড দিয়ে ছবি আপলোডের প্রশ্ন বানাতে দেয় না, তাই এটা হাতে যোগ করতে হবে:<br>' +
@@ -710,6 +711,7 @@ function dlQR() {
   x.font = '44px "Noto Sans Bengali", sans-serif'; x.fillText(applyUrl().replace('https://', ''), W / 2, W + 135);
   var a = document.createElement('a'); a.download = 'abedon-qr.png'; a.href = c.toDataURL('image/png'); a.click();
 }
+function saveShare(btn) { busy(btn, callServer('apiSaveSettings', [{ shareUrl: $('shUrl').value.trim() }])).then(function (r) { S.boot.settings = r.settings; render(); toast('সেভ হয়েছে — QR এখন এই লিংকের'); }); }
 function createForm(btn) { busy(btn, callServer('apiCreateForm')).then(function (r) { S.boot.form = r.form; S.boot.settings = r.settings; render(); toast('ফর্ম তৈরি হয়েছে — এবার ছবির প্রশ্ন যোগ করুন।', 6000); }); }
 function syncForm(btn) { busy(btn, callServer('apiSyncForm')).then(function (r) { S.boot.form = r.form; render(); toast('ফর্ম হালনাগাদ হয়েছে'); }); }
 function formOpen(btn, open) { busy(btn, callServer('apiFormOpen', [open])).then(function (r) { S.boot.form = r.form; render(); toast(open ? 'আবেদন চালু' : 'আবেদন বন্ধ'); }); }
