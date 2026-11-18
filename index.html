@@ -816,7 +816,7 @@ function saveSmsTexts(btn) {
 }
 function smsTest(btn) {
   busy(btn, callServer('apiSmsTest', [$('tMob').value, $('tTxt').value])).then(function (r) {
-    $('tOut').textContent = (r.ok ? '✅ গেছে' : '❌ যায়নি — ' + r.error) + '\nগেটওয়ের উত্তর (' + r.code + '): ' + r.reply; loadSmsLog();
+    $('tOut').textContent = (r.ok ? '✅ গেছে' : '❌ যায়নি — ' + r.error) + '\nগেটওয়ের উত্তর (' + r.code + '): ' + r.reply + (r.ip ? '\nগুগল সার্ভারের IP (এইবার): ' + r.ip : ''); loadSmsLog();
   });
 }
 function loadSmsLog(btn) {
