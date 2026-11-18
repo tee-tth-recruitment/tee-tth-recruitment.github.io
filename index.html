@@ -237,6 +237,15 @@ table.t th{color:var(--tx2);font-weight:600;font-size:13px}
 .rule-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:start;margin-bottom:8px}
 .rule-row .n{color:var(--tx3);padding-top:10px;text-align:right;font-size:13px}
 .rule-row textarea.in{min-height:58px}
+
+/* একসঙ্গে বাছাই */
+.ck{display:inline-flex;align-items:center;gap:6px;cursor:pointer;flex:none}
+.ck input{width:18px;height:18px;accent-color:var(--acc);cursor:pointer}
+.selrow{display:flex;align-items:center;gap:12px;margin:0 0 8px 14px;font-size:13.5px;color:var(--tx2)}
+.row.picked{border-color:var(--acc);background:var(--card2)}
+.bulk{position:sticky;bottom:12px;z-index:15;margin-top:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--acc);border-radius:14px;padding:10px 14px;box-shadow:var(--sh)}
+.bulk b{color:var(--acc);margin-right:6px}
+@media (max-width:860px){.bulk{bottom:72px}}
 </style>
 </head>
 <body>
@@ -484,33 +493,93 @@ function page_applicants() {
   h += '<div class="bar"><input class="in" id="aq" placeholder="রোল, নাম বা মোবাইল দিয়ে খুঁজুন…" value="' + esc(af.q) + '">' +
     '<select class="sel" id="acls"><option value="">সব শ্রেণি</option>' + classes.map(function (c) { return '<option' + (af.cls === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select>' +
     '<select class="sel" id="asub"><option value="">সব বিষয়</option>' + subs.map(function (s) { return '<option value="' + esc(s.subject) + '"' + (af.subj === s.subject ? ' selected' : '') + '>' + esc((af.cls ? '' : s.cls + ' · ') + s.subject) + '</option>'; }).join('') + '</select></div>';
-  h += '<div class="list" id="alist"></div>';
+  h += '<div class="selrow"><label class="ck"><input type="checkbox" id="selAll"> <span id="selAllTx">সব বাছাই</span></label><span class="tiny" id="selCnt"></span></div>';
+  h += '<div class="list" id="alist"></div><div class="bulk hide" id="bulk"></div>';
   return h;
 }
-function after_applicants() {
-  $('aq').oninput = function () { S.af.q = this.value; drawList(); };
-  $('acls').onchange = function () { S.af.cls = this.value; S.af.subj = ''; render(); };
-  $('asub').onchange = function () { S.af.subj = this.value; drawList(); };
-  drawList();
-}
-function drawList() {
+/* ---------- একসঙ্গে অনেকজন ---------- */
+function rowKey(a) { return String(a.roll || a.rid); }
+function visibleList() {
   var af = S.af, q = af.q.trim().toLowerCase().replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); });
-  var L = (S.boot.applicants || []).filter(function (a) {
+  return (S.boot.applicants || []).filter(function (a) {
     if (af.tab !== 'all' && a.status !== af.tab) return false;
     if (af.cls && a.cls !== af.cls) return false;
     if (af.subj && a.subject !== af.subj) return false;
     if (q && (String(a.roll) + ' ' + a.nameBn + ' ' + a.nameEn + ' ' + a.mobile).toLowerCase().indexOf(q) === -1) return false;
     return true;
   });
+}
+function selKeys() { return Object.keys(S.sel || {}).filter(function (k) { return S.sel[k]; }); }
+function toggleSel(k, on) { S.sel = S.sel || {}; S.sel[k] = on; drawBulk(); }
+function drawBulk() {
+  var keys = selKeys(), b = $('bulk'); if (!b) return;
+  var vis = visibleList().slice(0, 300), allOn = vis.length && vis.every(function (a) { return (S.sel || {})[rowKey(a)]; });
+  if ($('selAll')) $('selAll').checked = !!allOn;
+  if ($('selCnt')) $('selCnt').textContent = keys.length ? N(keys.length) + 'জন বাছাই করা' : '';
+  if (!keys.length) { b.classList.add('hide'); return; }
+  b.classList.remove('hide');
+  var ed = can('applicants_edit');
+  b.innerHTML = '<b>' + N(keys.length) + 'জন</b>' +
+    (ed ? '<button class="btn sm ok" onclick="bulkDo(this,\'approve\')">' + icon('check') + 'অনুমোদন</button>' +
+      '<button class="btn sm" onclick="bulkDo(this,\'email\')">' + icon('send') + 'ইমেইল আবার</button>' +
+      '<button class="btn sm" onclick="bulkDo(this,\'sms\')">' + icon('sms') + 'SMS পাঠাও</button>' : '') +
+    '<button class="btn sm" onclick="bulkCsv()">' + icon('dl') + 'এক্সেলে নামাও</button>' +
+    (ed ? '<button class="btn sm bad" onclick="bulkDo(this,\'cancel\')">' + icon('x') + 'বাতিল</button>' : '') +
+    '<button class="btn sm ghost" onclick="S.sel={};drawList()">বাছাই মুছুন</button>';
+}
+var BULK_NAME = { approve: 'অনুমোদন', email: 'ইমেইল আবার পাঠানো', sms: 'SMS পাঠানো', cancel: 'বাতিল' };
+function bulkDo(btn, action) {
+  var keys = selKeys(); if (!keys.length) return;
+  if (keys.length > 150) return toast('এক চাপে বড়জোর ১৫০ জন — বাছাই কমান।');
+  var extra = action === 'cancel' ? '<div class="fld" style="margin-top:10px"><label>বাতিলের কারণ</label><input class="in" data-x="reason" placeholder="যেমন: ভুল তথ্য"></div>' : '';
+  var warn = action === 'sms' ? '<br><span class="tiny">অফিসের ব্রডব্যান্ডে থেকে পাঠান — MiMSMS শুধু তালিকার IP মানে।</span>' : action === 'email' ? '<br><span class="tiny">শুধু অনুমোদিতদের যাবে; Gmail-এর দৈনিক সীমা প্রায় ১০০টা।</span>' : '';
+  confirmBox(BULK_NAME[action], N(keys.length) + 'জন প্রার্থীর ' + BULK_NAME[action] + ' করবেন?' + warn, 'হ্যাঁ, করুন', extra).then(function (x) {
+    if (!x) return;
+    if (action === 'cancel' && !(x.reason || '').trim()) return toast('কারণ লিখুন');
+    busy(btn, callServer('apiBulk', [action, keys, { reason: x.reason || '' }])).then(function (r) {
+      S.boot.applicants = r.applicants; S.sel = {}; drawList();
+      var msg = N(r.ok) + 'জনের হয়েছে' + (r.fail ? ' · ' + N(r.fail) + 'জনের হয়নি' : '') + (r.skip ? ' · ' + N(r.skip) + 'জন বাদ (প্রযোজ্য নয়)' : '');
+      if (r.blocked) msg += ' — MiMSMS IP আটকাচ্ছে';
+      toast(msg, 6000);
+      if (r.errors && r.errors.length) confirmBox('যাদের হয়নি', r.errors.map(esc).join('<br>'), 'ঠিক আছে');
+      reload();
+    });
+  });
+}
+function bulkCsv() {
+  var keys = selKeys(), set = {}; keys.forEach(function (k) { set[k] = 1; });
+  var L = (S.boot.applicants || []).filter(function (a) { return set[rowKey(a)]; });
+  var head = ['রোল', 'নাম', 'নাম (ইংরেজি)', 'মোবাইল', 'শ্রেণি', 'বিষয়', 'প্রতিষ্ঠান', 'অবস্থা', 'সমস্যা', 'জমার সময়', 'ইমেইল', 'SMS'];
+  var rows = L.map(function (a) {
+    return [a.roll, a.nameBn, a.nameEn, a.mobile, a.cls, a.subject, a.institution, (ST[a.status] || [a.status])[0], a.problems, dtx(a.submittedAt),
+            a.mail === 1 ? 'গেছে' : a.mail === 0 ? 'বাকি' : 'নেই', a.smsApprove ? 'গেছে' : 'বাকি'];
+  });
+  var csv = [head].concat(rows).map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
+  var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'prarthi-' + new Date().toISOString().slice(0, 10) + '.csv'; a.click();
+}
+function after_applicants() {
+  $('aq').oninput = function () { S.af.q = this.value; drawList(); };
+  $('acls').onchange = function () { S.af.cls = this.value; S.af.subj = ''; render(); };
+  $('asub').onchange = function () { S.af.subj = this.value; drawList(); };
+  $('selAll').onchange = function () { var on = this.checked; S.sel = S.sel || {}; visibleList().slice(0, 300).forEach(function (a) { S.sel[rowKey(a)] = on; }); drawList(); };
+  drawList();
+}
+function drawList() {
+  var L = visibleList();
   var more = L.length > 300;
+  S.sel = S.sel || {};
   $('alist').innerHTML = L.length ? L.slice(0, 300).map(function (a) {
-    var st = ST[a.status] || ['?', ''];
-    return '<div class="row" onclick="openApplicant(\'' + esc(a.roll || a.rid) + '\')"><span class="rl">' + (a.roll ? N(a.roll) : '—') + '</span>' +
+    var st = ST[a.status] || ['?', ''], k = rowKey(a);
+    return '<div class="row' + (S.sel[k] ? ' picked' : '') + '" onclick="openApplicant(\'' + esc(k) + '\')">' +
+      '<label class="ck" onclick="event.stopPropagation()"><input type="checkbox"' + (S.sel[k] ? ' checked' : '') + ' onchange="toggleSel(\'' + esc(k) + '\',this.checked);this.closest(\'.row\').classList.toggle(\'picked\',this.checked)"></label>' +
+      '<span class="rl">' + (a.roll ? N(a.roll) : '—') + '</span>' +
       '<div class="nm"><b>' + esc(a.nameBn || a.nameEn || '(নাম নেই)') + '</b><small>' + esc(a.cls) + ' · ' + esc(a.subject) + ' · ' + N(a.mobile) + (a.problems ? ' · ⚠ ' + esc(a.problems) : '') + '</small></div>' +
       (a.status === 'approved' ? (a.mail === 1 ? '<span class="chip ok" title="রোল ও প্রবেশপত্রের ইমেইল গেছে">ইমেইল গেছে</span>' : a.mail === 0 ? '<span class="chip warn" title="ইমেইল এখনো যায়নি — দৈনিক সীমা শেষ হলে পরদিন নিজে যাবে">ইমেইল বাকি</span>' : '<span class="chip">ইমেইল নেই</span>') +
         (a.smsApprove ? ' <span class="chip ok">SMS গেছে</span>' : ' <span class="chip" title="SMS জমা আছে — SMS পাতা থেকে পাঠানো যাবে">SMS বাকি</span>') : '') +
       '<span class="chip ' + st[1] + '">' + st[0] + '</span></div>';
   }).join('') + (more ? '<div class="tiny" style="text-align:center">প্রথম ৩০০ জন দেখানো হলো — খুঁজে বা ছেঁকে নির্দিষ্ট করুন।</div>' : '') : '<div class="empty">' + icon('users') + 'কোনো প্রার্থী নেই।</div>';
+  drawBulk();
 }
 function findMissing(btn) {
   busy(btn, callServer('apiProcessPending')).then(function (r) {
