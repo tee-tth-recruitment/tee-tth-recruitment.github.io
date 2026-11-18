@@ -156,7 +156,7 @@ var root = document.getElementById('root');
 var SIG_ASHRAFUL = '<svg viewBox="0 0 860 240" aria-hidden="true"><g fill="none" stroke="#14275a" stroke-linecap="round" stroke-linejoin="round"><path d="M26 82 C28 75 34 72 44 72 C200 63 400 55 548 48 C556 48 562 46 568 42" stroke-width="4.4"/><path d="M46 186 C66 144 90 102 112 64 C120 102 130 146 140 174 C146 188 158 182 166 164" stroke-width="4.8"/><path d="M512 26 C504 84 492 140 480 178 C476 190 486 192 496 176" stroke-width="4.6"/><path d="M90 208 C300 214 600 202 800 152" stroke-width="4"/></g><ellipse cx="107" cy="136" rx="7" ry="6" fill="#14275a"/><text x="164" y="162" font-family="Mrs Saint Delafield" font-size="98" fill="#14275a">shraful</text><text x="494" y="162" font-family="Mrs Saint Delafield" font-size="98" fill="#14275a">slam</text><ellipse cx="812" cy="146" rx="6.5" ry="5.6" fill="#14275a"/></svg>';
 function sigImg(sg) {
   var i = (sg && sg.img) || '';
-  if (i === 'site:ashraful') return SIG_ASHRAFUL;
+  if (i === 'site:ashraful') return '<img src="../assets/ashraful-signature.png" alt="">';
   if (i === 'site:sumon') return '<img src="../assets/sumon-sir-signature.png" alt="">';
   return i ? '<img src="' + esc(i) + '" alt="">' : '';
 }

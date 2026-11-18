@@ -794,6 +794,9 @@ function page_sms() {
     '<div class="tiny" style="margin-bottom:10px">প্রার্থী ফর্মে যে গুগল ইমেইলে সাইন-ইন করেন, সেখানে যায় — IP-র কোনো বাধা নেই, তাই অনুমোদনের সঙ্গে সঙ্গে নিজে যায় (প্রবেশপত্রের বোতামসহ)। Gmail-এর সীমা দিনে প্রায় ১০০টা; বেশি হলে বাকিগুলো পরদিন নিজে যায়। ঘর: {নাম} {রোল} {শ্রেণি} {বিষয়} {তারিখ} {সময়} {কেন্দ্র}</div>' +
     '<div class="fld">' + sw('em_ap', eo.approve, 'অনুমোদনের ইমেইল (রোল + প্রবেশপত্র)') + '</div>' + fld('em_aps', 'বিষয় (Subject)', et.approveSubject) + fld('em_apb', 'লেখা', et.approve, true) +
     '<div class="fld">' + sw('em_pr', eo.problem, 'আবেদনে সমস্যার ইমেইল') + '</div>' + fld('em_prs', 'বিষয় (Subject)', et.problemSubject) + fld('em_prb', 'লেখা', et.problem, true) +
+    '<div class="fld">' + sw('em_rm', eo.remind, 'পরীক্ষার আগে মনে করানোর ইমেইল (প্রবেশপত্রের বোতামসহ)') + '</div>' +
+    '<div class="fld"><label>কত দিন আগে থেকে শুরু</label><input class="in" type="number" min="1" max="7" id="em_rd" value="' + esc(s.remindDays || 2) + '" style="max-width:120px"><div class="hint">Gmail দিনে প্রায় ১০০টা ইমেইল পাঠাতে দেয় — প্রার্থী বেশি হলে দিন বাড়ান (যেমন ৪০০ জন হলে ৫ দিন)।</div></div>' +
+    fld('em_rms', 'বিষয় (Subject)', et.remindSubject) + fld('em_rmb', 'লেখা', et.remind, true) +
     '<button class="btn pri" onclick="saveMail(this)">সেভ</button></div>';
   h += '<div class="card"><h3>' + icon('key') + 'গেটওয়ে<span class="sp"></span><span class="chip ' + (S.boot.smsReady ? 'ok' : 'bad') + '">' + (S.boot.smsReady ? 'বসানো আছে' : 'বসানো নেই') + '</span></h3><div id="gw"><div class="loading"><span class="spin"></span></div></div></div>';
   h += '<div class="card"><h3>' + icon('send') + 'পরীক্ষা SMS</h3><div class="grid g2"><div class="fld"><label>মোবাইল</label><input class="in" id="tMob" placeholder="01XXXXXXXXX"></div><div class="fld"><label>লেখা (খালি থাকলে নমুনা)</label><input class="in" id="tTxt"></div></div>' +
@@ -848,7 +851,7 @@ function checkIp(btn) {
   });
 }
 function saveMail(btn) {
-  busy(btn, callServer('apiSaveSettings', [{ emailOn: { approve: $('em_ap').checked, problem: $('em_pr').checked }, emailTpl: { approveSubject: $('em_aps').value.trim(), approve: $('em_apb').value.trim(), problemSubject: $('em_prs').value.trim(), problem: $('em_prb').value.trim() } }])).then(function (r) { S.boot.settings = r.settings; toast('সেভ হয়েছে'); });
+  busy(btn, callServer('apiSaveSettings', [{ emailOn: { approve: $('em_ap').checked, problem: $('em_pr').checked, remind: $('em_rm').checked }, remindDays: Math.max(1, Math.min(7, +$('em_rd').value || 2)), emailTpl: { approveSubject: $('em_aps').value.trim(), approve: $('em_apb').value.trim(), problemSubject: $('em_prs').value.trim(), problem: $('em_prb').value.trim(), remindSubject: $('em_rms').value.trim(), remind: $('em_rmb').value.trim() } }])).then(function (r) { S.boot.settings = r.settings; toast('সেভ হয়েছে'); });
 }
 function partsOf(k) {
   var t = sampleFill($('tp_' + k).value), n = smsParts(t);
