@@ -528,7 +528,7 @@ function drawApplicant(a) {
   var h = '<div class="dh"><h3>' + esc(a.nameBn || a.nameEn) + '</h3><button class="btn sm ghost" onclick="closeLayer()">' + icon('x') + '</button></div>';
   h += '<div class="pf">' + (a.photo ? '<img class="ph35" src="' + a.photo + '" alt="">' : '<div class="ph35">ছবি নেই</div>') +
     '<div><div style="font-size:24px;font-weight:800;color:var(--acc)">' + (a.roll ? N(a.roll) : 'রোল নেই') + '</div>' +
-    '<div style="margin:6px 0"><span class="chip ' + st[1] + '">' + st[0] + '</span> ' + (a.status === 'approved' ? (a.smsApprove ? '<span class="chip ok">SMS গেছে</span>' : '<span class="chip warn">SMS যায়নি</span>') : '') + '</div>' +
+    '<div style="margin:6px 0"><span class="chip ' + st[1] + '">' + st[0] + '</span> ' + (a.status === 'approved' ? (a.smsApprove ? '<span class="chip ok">SMS গেছে</span>' : '<span class="chip warn">SMS বাকি</span>') + ' ' + (a.emailApprove ? '<span class="chip ok">ইমেইল গেছে</span>' : (a.email ? '<span class="chip warn">ইমেইল বাকি</span>' : '<span class="chip">ইমেইল নেই</span>')) : '') + '</div>' +
     '<div class="muted">' + esc(a.cls) + ' শ্রেণি · ' + esc(a.subject) + '</div></div></div>';
   if (a.problems) h += '<div class="note bad" style="margin-bottom:10px">⚠️ ' + esc(a.problems) + '</div>';
   if (a.status === 'cancelled') h += '<div class="note" style="margin-bottom:10px">বাতিলের কারণ: ' + esc(a.cancelReason) + '</div>';
@@ -536,6 +536,7 @@ function drawApplicant(a) {
   if (ed && (a.status === 'problem' || a.status === 'pending')) acts.push('<button class="btn ok" onclick="doApprove(this,\'' + esc(a.roll || a.responseId) + '\')">' + icon('check') + 'অনুমোদন দিন</button>');
   if (a.admitLink) acts.push('<a class="btn" href="' + esc(a.admitLink) + '" target="_blank">' + icon('id') + 'প্রবেশপত্র</a><button class="btn" onclick="copyText(\'' + esc(a.admitLink) + '\')">' + icon('copy') + 'লিংক</button>');
   if (ed && a.status === 'approved') acts.push('<button class="btn" onclick="doResend(this,\'' + esc(a.roll) + '\')">' + icon('send') + 'SMS আবার</button>');
+  if (ed && a.status === 'approved' && a.email) acts.push('<button class="btn" onclick="doResendMail(this,\'' + esc(a.roll) + '\')">' + icon('send') + 'ইমেইল আবার</button>');
   if (ed) acts.push('<button class="btn" onclick="editApplicant()">' + icon('edit') + 'সংশোধন</button>');
   if (ed && a.status !== 'cancelled') acts.push('<button class="btn bad" onclick="doCancel(\'' + esc(a.roll || a.responseId) + '\')">' + icon('x') + 'বাতিল</button>');
   if (ed && a.status === 'cancelled') acts.push('<button class="btn" onclick="doRestore(this,\'' + esc(a.roll || a.responseId) + '\')">' + icon('renew') + 'ফেরাও</button>');
@@ -556,6 +557,7 @@ function applyRow(a) {
 function after(a) { drawApplicant(a); applyRow(a); if (S.page === 'applicants') drawList(); reload(); }
 function doApprove(btn, k) { busy(btn, callServer('apiApprove', [k])).then(function (a) { toast('অনুমোদিত — রোল ' + N(a.roll) + (a._sms ? ', SMS গেছে' : ', SMS যায়নি')); after(a); }); }
 function doResend(btn, k) { busy(btn, callServer('apiResendSms', [k])).then(function () { toast('SMS গেছে'); callServer('apiApplicant', [k]).then(after); }); }
+function doResendMail(btn, k) { busy(btn, callServer('apiResendEmail', [k])).then(function () { toast('ইমেইল গেছে'); callServer('apiApplicant', [k]).then(after); }); }
 function doRestore(btn, k) { busy(btn, callServer('apiRestore', [k])).then(function (a) { toast('ফেরানো হলো'); after(a); }); }
 function doCancel(k) {
   var a = S.cur;
@@ -787,6 +789,12 @@ function page_sms() {
     ['approve', 'problem', 'update'].map(function (k) {
       return '<div class="fld"><label>' + SMS_KIND[k] + (k !== 'update' ? ' &nbsp;' + sw('on_' + k, (s.smsOn || {})[k]) : '') + '</label><textarea class="in" id="tp_' + k + '" rows="3" oninput="partsOf(\'' + k + '\')">' + esc((s.smsTpl || {})[k]) + '</textarea><div class="parts" id="pp_' + k + '"></div></div>';
     }).join('') + '<button class="btn pri" onclick="saveSmsTexts(this)">সেভ</button></div>';
+  var et = s.emailTpl || {}, eo = s.emailOn || {};
+  h += '<div class="card"><h3>' + icon('send') + 'ইমেইল<span class="sp"></span><span class="chip ok">নিজে নিজে যায়</span></h3>' +
+    '<div class="tiny" style="margin-bottom:10px">প্রার্থী ফর্মে যে গুগল ইমেইলে সাইন-ইন করেন, সেখানে যায় — IP-র কোনো বাধা নেই, তাই অনুমোদনের সঙ্গে সঙ্গে নিজে যায় (প্রবেশপত্রের বোতামসহ)। Gmail-এর সীমা দিনে প্রায় ১০০টা; বেশি হলে বাকিগুলো পরদিন নিজে যায়। ঘর: {নাম} {রোল} {শ্রেণি} {বিষয়} {তারিখ} {সময়} {কেন্দ্র}</div>' +
+    '<div class="fld">' + sw('em_ap', eo.approve, 'অনুমোদনের ইমেইল (রোল + প্রবেশপত্র)') + '</div>' + fld('em_aps', 'বিষয় (Subject)', et.approveSubject) + fld('em_apb', 'লেখা', et.approve, true) +
+    '<div class="fld">' + sw('em_pr', eo.problem, 'আবেদনে সমস্যার ইমেইল') + '</div>' + fld('em_prs', 'বিষয় (Subject)', et.problemSubject) + fld('em_prb', 'লেখা', et.problem, true) +
+    '<button class="btn pri" onclick="saveMail(this)">সেভ</button></div>';
   h += '<div class="card"><h3>' + icon('key') + 'গেটওয়ে<span class="sp"></span><span class="chip ' + (S.boot.smsReady ? 'ok' : 'bad') + '">' + (S.boot.smsReady ? 'বসানো আছে' : 'বসানো নেই') + '</span></h3><div id="gw"><div class="loading"><span class="spin"></span></div></div></div>';
   h += '<div class="card"><h3>' + icon('send') + 'পরীক্ষা SMS</h3><div class="grid g2"><div class="fld"><label>মোবাইল</label><input class="in" id="tMob" placeholder="01XXXXXXXXX"></div><div class="fld"><label>লেখা (খালি থাকলে নমুনা)</label><input class="in" id="tTxt"></div></div>' +
     '<button class="btn" onclick="smsTest(this)">' + icon('send') + 'পাঠান</button><pre id="tOut" class="tiny" style="white-space:pre-wrap;margin:10px 0 0"></pre></div>';
@@ -838,6 +846,9 @@ function checkIp(btn) {
   busy(btn, callServer('apiMyIp')).then(function (r) {
     $('qOut').textContent = 'MiMSMS এখন আপনাকে দেখছে: ' + (r.ip || 'জানা যায়নি') + '\nএটা MiMSMS → Developer Option → "Add IP & Domain"-এ (Domain: localhost) না থাকলে যোগ করুন। অফিসের ইন্টারনেট কয়েকটা IP পালা করে ব্যবহার করে — কয়েকবার দেখে সবগুলো যোগ করুন।';
   });
+}
+function saveMail(btn) {
+  busy(btn, callServer('apiSaveSettings', [{ emailOn: { approve: $('em_ap').checked, problem: $('em_pr').checked }, emailTpl: { approveSubject: $('em_aps').value.trim(), approve: $('em_apb').value.trim(), problemSubject: $('em_prs').value.trim(), problem: $('em_prb').value.trim() } }])).then(function (r) { S.boot.settings = r.settings; toast('সেভ হয়েছে'); });
 }
 function partsOf(k) {
   var t = sampleFill($('tp_' + k).value), n = smsParts(t);
