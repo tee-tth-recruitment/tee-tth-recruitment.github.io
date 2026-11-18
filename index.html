@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>শিক্ষক নিয়োগ ২০২৭</title>
+<meta name="theme-color" content="#0f1a3a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="assets/tth-logo.png">
+<link rel="apple-touch-icon" href="assets/tth-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Baloo+Da+2:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+/* =========================================================
+ *  শিক্ষক নিয়োগ ২০২৭ — অফিসের অ্যাপ
+ *  API_URL = Apps Script ("Anyone" deployment)-এর /exec লিংক।
+ *  পাতাটা খোলা, কিন্তু কোনো তথ্য রাখে না; নিরাপত্তা = লগইন টোকেন (সার্ভার যাচাই করে)।
+ * ========================================================= */
+var API_URL = 'https://script.google.com/macros/s/AKfycbyfL1EUYdUrfEqIwvBVi2Ia8J8sEqXA4Byo78EaccmH-9oIb3YAnHil0SjlUS-YdFCH/exec';
+
+// github.io-র সব পাতা এক জায়গায় জিনিস রাখে — তাই প্রতিটা চাবি "rc_" দিয়ে শুরু
+var AUTH_KEY = 'rc_auth', BOOT_KEY = 'rc_boot_v1';
+var AUTH = '';
+try { AUTH = localStorage.getItem(AUTH_KEY) || ''; } catch (e) {}
+function setAuth(t) {
+  AUTH = t || '';
+  try { if (AUTH) localStorage.setItem(AUTH_KEY, AUTH); else { localStorage.removeItem(AUTH_KEY); localStorage.removeItem(BOOT_KEY); } } catch (e) {}
+}
+
+var THEME = 'dark';
+try { THEME = localStorage.getItem('rc_theme') || 'dark'; } catch (e) {}
+function applyTheme() {
+  var t = THEME === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : THEME;
+  document.documentElement.setAttribute('data-theme', t);
+}
+applyTheme();
+
+/* text/plain POST — preflight লাগে না; ৪৫ সেকেন্ডে না এলে থামে */
+function callServer(fn, args) {
+  var ctl = window.AbortController ? new AbortController() : null;
+  var tm = ctl ? setTimeout(function () { ctl.abort(); }, 45000) : 0;
+  return fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ fn: fn, args: args || [], auth: AUTH }),
+    signal: ctl ? ctl.signal : undefined
+  }).then(function (r) {
+    clearTimeout(tm);
+    if (!r.ok) throw new Error('সার্ভার সাড়া দিচ্ছে না (' + r.status + ')');
+    return r.json().catch(function () { throw new Error('সার্ভারের উত্তর বোঝা যায়নি।'); });
+  }, function () {
+    clearTimeout(tm);
+    throw new Error('সার্ভারে পৌঁছানো যায়নি — ইন্টারনেট দেখুন।');
+  }).then(function (j) {
+    if (!j || !j.ok) throw new Error((j && j.error) || 'অজানা ত্রুটি।');
+    return j.data;
+  });
+}
+
+/* ব্যক্তিগত লোগো "Matra Logic" — Developed By-এর সামনে */
+function markSvg(cls) {
+  return '<svg class="mk ' + (cls || '') + '" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="mkg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6c77d"/><stop offset="1" stop-color="#c39a45"/></linearGradient></defs>' +
+    '<path d="M8 18H92M16 88 40 18 64 88" fill="none" stroke="url(#mkg)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M84 18V88" fill="none" stroke="url(#mkg)" stroke-width="9" stroke-linecap="round"/>' +
+    '<circle cx="40" cy="64" r="7.5" fill="url(#mkg)"/></svg>';
+}
+</script>
+<style>
+:root{
+  --bg:#0b1226;--bg2:#101a36;--card:#141f3f;--card2:#1a2750;--line:#26355f;--line2:#33447a;
+  --tx:#e9eefb;--tx2:#aab6d6;--tx3:#7b88ab;--acc:#e6c77d;--acc2:#c39a45;--pri:#5b8cff;--pri2:#3f6fe6;
+  --ok:#34d399;--okb:rgba(52,211,153,.14);--bad:#f87171;--badb:rgba(248,113,113,.14);--warn:#fbbf24;--warnb:rgba(251,191,36,.14);--info:#60a5fa;--infob:rgba(96,165,250,.14);
+  --sh:0 10px 30px rgba(0,0,0,.35);--r:14px;
+}
+:root[data-theme="light"]{
+  --bg:#f3f5fb;--bg2:#e9edf7;--card:#ffffff;--card2:#f6f8fd;--line:#dde3f0;--line2:#c9d2e6;
+  --tx:#14203f;--tx2:#4a5675;--tx3:#7b86a3;--acc:#a8802f;--acc2:#8a6620;--pri:#2d5be3;--pri2:#2047bd;
+  --ok:#0f9f6e;--okb:rgba(15,159,110,.1);--bad:#d33b3b;--badb:rgba(211,59,59,.09);--warn:#b7791f;--warnb:rgba(183,121,31,.1);--info:#2563eb;--infob:rgba(37,99,235,.08);
+  --sh:0 8px 24px rgba(20,32,63,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:'Noto Sans Bengali',sans-serif;font-size:15px;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--pri)}
+.hide{display:none!important}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ---------- লগইন ---------- */
+.gate{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(600px 400px at 15% 0%,rgba(91,140,255,.18),transparent 70%),radial-gradient(600px 400px at 90% 100%,rgba(230,199,125,.14),transparent 70%),var(--bg)}
+.gbox{width:100%;max-width:400px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 24px;box-shadow:var(--sh)}
+.glogos{display:flex;justify-content:center;gap:14px;margin-bottom:14px}
+.glogos img{width:62px;height:62px;border-radius:50%;background:#fff;object-fit:contain;padding:3px;box-shadow:0 0 0 2px var(--acc)}
+.gbox h1{margin:0;text-align:center;font-family:'Baloo Da 2',sans-serif;font-size:26px;line-height:1.2}
+.gbox .sub{text-align:center;color:var(--tx2);margin:6px 0 20px;font-size:14px}
+.gbox label{display:block;font-size:13px;color:var(--tx2);margin:12px 0 6px}
+.gmsg{min-height:20px;font-size:13px;margin-top:10px;color:var(--bad)}
+.gmsg.ok{color:var(--ok)}
+
+/* ---------- কাঠামো ---------- */
+.app{display:flex;min-height:100vh}
+.side{width:240px;flex:none;background:var(--bg2);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:16px 12px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 16px}
+.brand img{width:38px;height:38px;border-radius:50%;background:#fff;padding:2px;object-fit:contain}
+.brand b{font-family:'Baloo Da 2',sans-serif;font-size:18px;line-height:1.1;display:block}
+.brand small{color:var(--tx3);font-size:12px}
+.me{margin:0 8px 12px;padding:8px 12px;border-radius:999px;background:linear-gradient(90deg,rgba(230,199,125,.22),rgba(230,199,125,.06));border:1px solid rgba(230,199,125,.4);font-size:13px;color:var(--acc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav{display:flex;flex-direction:column;gap:3px;overflow:auto;flex:1}
+.nav button{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;padding:10px 12px;border-radius:10px;color:var(--tx2);cursor:pointer;text-align:left;font-size:14.5px}
+.nav button:hover{background:var(--card)}
+.nav button.on{background:var(--card2);color:var(--tx);box-shadow:inset 3px 0 0 var(--acc)}
+.nav .cnt{margin-left:auto;background:var(--badb);color:var(--bad);border-radius:999px;padding:0 8px;font-size:12px}
+.dev{font-size:11.5px;color:var(--tx3);padding:12px 8px 0;display:flex;align-items:center;gap:6px;border-top:1px solid var(--line);margin-top:10px}
+.dev .mk{width:16px;height:16px}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{display:none}
+.page{padding:22px 26px 90px;max-width:1180px;width:100%}
+.ph{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.ph h2{margin:0;font-family:'Baloo Da 2',sans-serif;font-size:26px;line-height:1.2}
+.ph .sp{flex:1}
+.bnav{display:none}
+
+@media (max-width:860px){
+  .side{display:none}
+  .top{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+  .top img{width:32px;height:32px;border-radius:50%;background:#fff;padding:2px}
+  .top b{font-family:'Baloo Da 2',sans-serif;font-size:17px;flex:1}
+  .page{padding:16px 14px 96px}
+  .ph h2{font-size:22px}
+  .bnav{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--bg2);border-top:1px solid var(--line);z-index:30;padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+  .bnav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;font-size:11px;color:var(--tx3);cursor:pointer}
+  .bnav button.on{color:var(--acc)}
+}
+
+/* ---------- টুকরো ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.card+.card{margin-top:14px}
+.card h3{margin:0 0 12px;font-size:16.5px;display:flex;align-items:center;gap:8px}
+.card h3 .sp{flex:1}
+.muted{color:var(--tx2)}.tiny{font-size:12.5px;color:var(--tx3)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:860px){.g2,.g3{grid-template-columns:1fr}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;cursor:pointer;text-align:left;color:inherit}
+.stat:hover{border-color:var(--line2)}
+.stat small{color:var(--tx2);font-size:13px;display:block}
+.stat b{font-size:28px;font-weight:800;display:block;margin-top:2px}
+.stat.ok b{color:var(--ok)}.stat.bad b{color:var(--bad)}.stat.warn b{color:var(--warn)}.stat.acc b{color:var(--acc)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line2);background:var(--card2);color:var(--tx);padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;white-space:nowrap;text-decoration:none}
+.btn:hover{border-color:var(--tx3)}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn.pri:hover{background:var(--pri2)}
+.btn.gold{background:linear-gradient(180deg,var(--acc),var(--acc2));border-color:var(--acc2);color:#1b1404}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#04261a}
+.btn.bad{color:var(--bad);border-color:rgba(248,113,113,.45);background:var(--badb)}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:8px}
+.btn.ghost{background:none}
+.btn:disabled{opacity:.55;cursor:default}
+.btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.in,.sel,textarea.in{width:100%;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;outline:none}
+.in:focus,.sel:focus{border-color:var(--pri)}
+textarea.in{min-height:90px;resize:vertical;line-height:1.55}
+.fld{margin-bottom:12px}
+.fld>label{display:block;font-size:13px;color:var(--tx2);margin-bottom:5px}
+.fld .hint{font-size:12px;color:var(--tx3);margin-top:4px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--card2);border:1px solid var(--line);white-space:nowrap}
+.chip.ok{background:var(--okb);color:var(--ok);border-color:transparent}.chip.bad{background:var(--badb);color:var(--bad);border-color:transparent}
+.chip.warn{background:var(--warnb);color:var(--warn);border-color:transparent}.chip.info{background:var(--infob);color:var(--info);border-color:transparent}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{border:1px solid var(--line);background:var(--card);padding:7px 13px;border-radius:999px;cursor:pointer;color:var(--tx2);font-size:13.5px}
+.tabs button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.tabs button span{opacity:.8;margin-left:4px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.bar .in,.bar .sel{width:auto;flex:1;min-width:160px}
+.note{padding:10px 12px;border-radius:10px;background:var(--infob);color:var(--tx);font-size:13.5px;line-height:1.55;border:1px solid transparent}
+.note.warn{background:var(--warnb)}.note.bad{background:var(--badb)}.note.ok{background:var(--okb)}
+.sw{position:relative;display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.sw input{display:none}
+.sw i{width:42px;height:24px;border-radius:999px;background:var(--line2);position:relative;transition:.2s;flex:none}
+.sw i::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+i{background:var(--ok)}
+.sw input:checked+i::after{left:21px}
+
+/* তালিকা */
+.list{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer}
+.row:hover{border-color:var(--line2)}
+.row .rl{font-weight:800;color:var(--acc);min-width:66px;font-variant-numeric:tabular-nums}
+.row .nm{flex:1;min-width:0}
+.row .nm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .nm small{color:var(--tx3);font-size:12.5px}
+.empty{padding:40px 10px;text-align:center;color:var(--tx3);display:flex;flex-direction:column;align-items:center;gap:8px}
+.empty .ic{width:36px;height:36px}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+table.t th,table.t td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.t th{color:var(--tx2);font-weight:600;font-size:13px}
+.tw{overflow:auto}
+
+/* শ্রেণি-বিষয় */
+.cls{border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden;background:var(--card)}
+.cls .ch{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--card2);border-bottom:1px solid var(--line)}
+.cls .ch .in{max-width:220px;font-weight:700}
+.cls .sr{display:grid;grid-template-columns:28px minmax(0,1fr) 90px auto auto;gap:8px;align-items:center;padding:7px 12px;border-bottom:1px solid var(--line)}
+.cls .sr:last-child{border-bottom:0}
+.cls .sr .n{color:var(--tx3);font-size:12px;text-align:right}
+.cls .sr.off .in{opacity:.5;text-decoration:line-through}
+.cls .use{font-size:11.5px;color:var(--info)}
+@media (max-width:600px){.cls .sr{grid-template-columns:minmax(0,1fr) 70px auto}.cls .sr .n,.cls .sr .mv{display:none}}
+
+/* ড্রয়ার / মোডাল */
+.ov{position:fixed;inset:0;background:rgba(5,10,25,.6);z-index:50;display:flex;justify-content:flex-end}
+.dr{width:min(560px,100%);height:100%;background:var(--bg);border-left:1px solid var(--line);overflow:auto;padding:18px 18px 40px;animation:slin .18s ease}
+@keyframes slin{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+.dr .dh{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.dr .dh h3{margin:0;flex:1;font-size:19px}
+.md{margin:auto;width:min(480px,94%);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--sh)}
+.ov.c{justify-content:center;align-items:center}
+.pf{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+.pf .ph35{width:105px;height:135px;border-radius:8px;background:var(--card2);border:1px solid var(--line);object-fit:cover;flex:none;display:grid;place-items:center;color:var(--tx3);font-size:12px;text-align:center}
+.kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:6px 10px;font-size:14px}
+.kv dt{color:var(--tx3)}.kv dd{margin:0;word-break:break-word}
+.qrbox{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.qrbox .qr{width:150px;height:150px;background:#fff;padding:8px;border-radius:10px}
+.qrbox .qr svg{width:100%;height:100%}
+.parts{font-size:12px;color:var(--tx3);margin-top:4px}.parts b{color:var(--warn)}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:12px;z-index:90;box-shadow:var(--sh);display:flex;gap:12px;align-items:center;max-width:92vw;font-size:14px}
+.toast button{background:none;border:0;color:var(--acc);font-weight:700;cursor:pointer}
+.spin{width:18px;height:18px;border:2.5px solid var(--line2);border-top-color:var(--acc);border-radius:50%;animation:sp 0.8s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:60px;color:var(--tx3)}
+.perm{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.perm label{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-size:13.5px}
+.perm label small{display:block;color:var(--tx3);font-size:12px}
+.rule-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:start;margin-bottom:8px}
+.rule-row .n{color:var(--tx3);padding-top:10px;text-align:right;font-size:13px}
+.rule-row textarea.in{min-height:58px}
+</style>
+</head>
+<body>
+
+<!-- লগইন -->
+<div class="gate hide" id="gate">
+  <div class="gbox">
+    <div class="glogos"><img src="assets/tee-logo.png" alt=""><img src="assets/tth-logo.png" alt=""></div>
+    <h1>শিক্ষক নিয়োগ ২০২৭</h1>
+    <div class="sub">টেকনিক ইজি এডুকেশন ও টেকনিক টিচিং হোম</div>
+    <div id="gStep1">
+      <label for="gEmail">আপনার ইমেইল</label>
+      <input class="in" id="gEmail" type="email" autocomplete="email" placeholder="name@gmail.com">
+      <button class="btn pri" id="gSend" style="width:100%;margin-top:14px">লগইন কোড পাঠান</button>
+    </div>
+    <div id="gStep2" class="hide">
+      <label for="gCode">ইমেইলে আসা ৬ অঙ্কের কোড</label>
+      <input class="in" id="gCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" style="letter-spacing:6px;font-size:20px;text-align:center">
+      <button class="btn pri" id="gVerify" style="width:100%;margin-top:14px">ঢুকুন</button>
+      <button class="btn ghost sm" id="gBack" style="width:100%;margin-top:8px">← অন্য ইমেইল</button>
+    </div>
+    <div class="gmsg" id="gMsg"></div>
+    <div class="dev" style="justify-content:center;border:0">Developed By: Md. Ashraful Islam</div>
+  </div>
+</div>
+
+<!-- অ্যাপ -->
+<div class="app hide" id="app">
+  <aside class="side">
+    <div class="brand"><img src="assets/tth-logo.png" alt=""><div><b>শিক্ষক নিয়োগ ২০২৭</b><small>টেকনিক</small></div></div>
+    <div class="me" id="meBox"></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="dev" id="devSide"></div>
+  </aside>
+  <div class="main">
+    <header class="top"><img src="assets/tth-logo.png" alt=""><b id="topTitle">শিক্ষক নিয়োগ ২০২৭</b><button class="btn sm ghost" id="topMore" aria-label="আরও">☰</button></header>
+    <main class="page" id="page"><div class="loading"><span class="spin"></span> লোড হচ্ছে…</div></main>
+  </div>
+  <nav class="bnav" id="bnav"></nav>
+</div>
+
+<div id="layer"></div>
+
+<script>
+/* ═════════════ শিক্ষক নিয়োগ ২০২৭ — মূল: সাহায্য, লগইন, মেনু, হোম, প্রার্থী ═════════════ */
+var $ = function (id) { return document.getElementById(id); };
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function N(x) { return String(x == null ? '' : x).replace(/[0-9]/g, function (d) { return '০১২৩৪৫৬৭৮৯'[d]; }); }
+var MON = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+function pad(n) { return ('0' + n).slice(-2); }
+function dtx(ms) {
+  if (!ms) return '';
+  var d = new Date(ms), h = d.getHours(), ap = h < 12 ? 'AM' : 'PM';
+  return N(d.getDate()) + ' ' + MON[d.getMonth()] + ', ' + N((h % 12 || 12) + ':' + pad(d.getMinutes())) + ' ' + ap;
+}
+function ymdBn(s) { if (!s) return ''; var p = String(s).slice(0, 10).split('-'); return p.length < 3 ? N(s) : N(p[2] + '/' + p[1] + '/' + p[0]); }
+
+var ICONS = {
+  home: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
+  users: 'M16 20v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1|M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z|M22 20v-1a4 4 0 0 0-3-3.87|M16 3.13a4 4 0 0 1 0 7.75',
+  book: 'M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z|M4 19V5|M8 7h8',
+  form: 'M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z|M14 3v5h5|M9 13h6|M9 17h4',
+  set: 'M4 6h10|M18 6h2|M4 12h4|M12 12h8|M4 18h12|M14 4v4|M8 10v4|M16 16v4',
+  sms: 'M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 20.5l1.6-5.4A8.5 8.5 0 1 1 21 11.5z',
+  key: 'M15 7a4 4 0 1 1-3.9 5H3v3h3v3h3v-3h2.1A4 4 0 0 1 15 7z',
+  log: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z|M12 7v5l3 2',
+  lock: 'M6 11h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1z|M8 11V8a4 4 0 0 1 8 0v3',
+  search: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z|m20 20-3.5-3.5', plus: 'M12 5v14|M5 12h14', x: 'M6 6l12 12|M18 6 6 18',
+  check: 'M5 12.5 10 17 19 7', up: 'm6 14 6-6 6 6', down: 'm6 10 6 6 6-6', trash: 'M4 7h16|M10 11v6|M14 11v6|M6 7l1 13h10l1-13|M9 7V4h6v3',
+  ext: 'M14 4h6v6|M20 4l-9 9|M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5', copy: 'M9 9h11v11H9z|M5 15H4V4h11v1',
+  dl: 'M12 4v12|m6 10 6 6 6-6|M4 20h16', renew: 'M3 12a9 9 0 0 1 15.5-6.2L21 8|M21 3v5h-5|M21 12a9 9 0 0 1-15.5 6.2L3 16|M3 21v-5h5',
+  alert: 'M12 9v4|M12 17h.01|M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
+  edit: 'M4 20h4L19 9l-4-4L4 16z|m13.5 6.5 4 4', send: 'M22 2 11 13|M22 2 15 22l-4-9-9-4z', out: 'M15 4h4v16h-4|M10 8l-4 4 4 4|M6 12h10',
+  menu: 'M4 6h16|M4 12h16|M4 18h16', share: 'M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|m8.6 13.5 6.8 4|m15.4 6.5-6.8 4',
+  id: 'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z|M9 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z|M6 16c.5-1.5 1.7-2 3-2s2.5.5 3 2|M14 10h4|M14 14h4'
+};
+function icon(n) { return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || '').split('|').map(function (d) { return '<path d="' + d + '"/>'; }).join('') + '</svg>'; }
+
+function toast(m, ms, act) {
+  document.querySelectorAll('.toast').forEach(function (x) { x.remove(); });
+  var el = document.createElement('div'); el.className = 'toast';
+  el.appendChild(document.createTextNode(m));
+  if (act) { var b = document.createElement('button'); b.textContent = act[0]; b.onclick = function () { el.remove(); act[1](); }; el.appendChild(b); }
+  document.body.appendChild(el); setTimeout(function () { el.remove(); }, ms || (act ? 7000 : 3200));
+}
+// বোতাম চাপলে: ঘুরন্ত চিহ্ন, শেষে ফেরত; ভুল হলে বার্তা
+function busy(btn, p) {
+  var old = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span>'; }
+  return p.then(function (r) { if (btn) { btn.disabled = false; btn.innerHTML = old; } return r; },
+    function (e) { if (btn) { btn.disabled = false; btn.innerHTML = old; } authFail(e); toast(e.message || String(e), 5000); throw e; });
+}
+function authFail(e) { if (e && /AUTH_REQUIRED/.test(e.message)) { setAuth(''); showGate(); } }
+function copyText(s) {
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(s).then(function () { toast('কপি হয়েছে'); }, function () { fb(); });
+  fb();
+  function fb() { var ta = document.createElement('textarea'); ta.value = s; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('কপি হয়েছে'); } catch (e) {} ta.remove(); }
+}
+function sw(id, on, label) { return '<label class="sw"><input type="checkbox" id="' + id + '"' + (on ? ' checked' : '') + '><i></i>' + (label || '') + '</label>'; }
+function smsParts(t) { var n = String(t || '').length; return !n ? 0 : (n <= 70 ? 1 : Math.ceil(n / 67)); }
+function closeLayer() { $('layer').innerHTML = ''; }
+function modal(html, cls) {
+  $('layer').innerHTML = '<div class="ov ' + (cls || 'c') + '" id="ov">' + html + '</div>';
+  $('ov').addEventListener('click', function (e) { if (e.target.id === 'ov') closeLayer(); });
+}
+function confirmBox(title, text, okText, extra) {
+  return new Promise(function (res) {
+    modal('<div class="md"><h3 style="margin:0 0 8px">' + esc(title) + '</h3><div class="muted" style="line-height:1.6">' + text + '</div>' + (extra || '') +
+      '<div class="btns" style="justify-content:flex-end;margin-top:16px"><button class="btn" id="cbNo">না</button><button class="btn pri" id="cbYes">' + esc(okText || 'হ্যাঁ') + '</button></div></div>');
+    $('cbNo').onclick = function () { closeLayer(); res(false); };
+    $('cbYes').onclick = function () { var x = {}; document.querySelectorAll('#ov [data-x]').forEach(function (el) { x[el.getAttribute('data-x')] = el.type === 'checkbox' ? el.checked : el.value; }); closeLayer(); res(x); };
+  });
+}
+
+/* ---------- অবস্থা ---------- */
+var S = { boot: null, page: 'home', af: { tab: 'all', q: '', cls: '', subj: '' }, subEdit: null, logs: null, sms: null, users: null, sec: null };
+var ST = { approved: ['অনুমোদিত', 'ok'], problem: ['সমস্যা', 'bad'], pending: ['অপেক্ষায়', 'warn'], cancelled: ['বাতিল', ''] };
+function can(p) { var me = S.boot && S.boot.me; return !!me && (me.owner || me.perms.indexOf(p) !== -1); }
+
+/* ---------- লগইন ---------- */
+function showGate() { $('app').classList.add('hide'); $('gate').classList.remove('hide'); closeLayer(); }
+function gmsg(t, ok) { $('gMsg').textContent = t || ''; $('gMsg').className = 'gmsg' + (ok ? ' ok' : ''); }
+function deviceName() {
+  var u = navigator.userAgent, os = /Android/.test(u) ? 'Android' : /iPhone|iPad/.test(u) ? 'iPhone' : /Windows/.test(u) ? 'Windows' : /Mac/.test(u) ? 'Mac' : 'ডিভাইস';
+  var br = /Edg\//.test(u) ? 'Edge' : /Chrome\//.test(u) ? 'Chrome' : /Firefox\//.test(u) ? 'Firefox' : /Safari\//.test(u) ? 'Safari' : 'ব্রাউজার';
+  return br + ' · ' + os;
+}
+$('gSend').onclick = function () {
+  var e = $('gEmail').value.trim(); if (!e) return gmsg('ইমেইল লিখুন।');
+  gmsg('');
+  busy($('gSend'), callServer('apiSendCode', [e])).then(function () {
+    $('gStep1').classList.add('hide'); $('gStep2').classList.remove('hide'); $('gCode').focus();
+    gmsg('ইমেইলটা তালিকায় থাকলে ১ মিনিটের মধ্যে কোড যাবে। স্প্যাম ফোল্ডারও দেখুন।', true);
+  }, function (err) { gmsg(err.message); });
+};
+$('gEmail').onkeydown = function (e) { if (e.key === 'Enter') $('gSend').click(); };
+$('gCode').onkeydown = function (e) { if (e.key === 'Enter') $('gVerify').click(); };
+$('gBack').onclick = function () { $('gStep2').classList.add('hide'); $('gStep1').classList.remove('hide'); gmsg(''); };
+$('gVerify').onclick = function () {
+  busy($('gVerify'), callServer('apiVerifyCode', [$('gEmail').value.trim(), $('gCode').value.trim(), deviceName()])).then(function (tok) {
+    setAuth(tok); gmsg(''); $('gCode').value = ''; start();
+  }, function (err) { gmsg(err.message); });
+};
+
+/* ---------- শুরু ---------- */
+function start() {
+  if (!AUTH) return showGate();
+  $('gate').classList.add('hide'); $('app').classList.remove('hide');
+  try { var c = JSON.parse(localStorage.getItem(BOOT_KEY) || 'null'); if (c && c.me) { S.boot = c; render(); } } catch (e) {}
+  return reload();
+}
+function reload() {
+  return callServer('apiBoot').then(function (b) {
+    S.boot = b; try { localStorage.setItem(BOOT_KEY, JSON.stringify(b)); } catch (e) {}
+    render();
+  }, function (e) {
+    authFail(e);
+    if (!S.boot) $('page').innerHTML = '<div class="empty">' + icon('alert') + esc(e.message) + '<button class="btn" onclick="reload()">আবার চেষ্টা</button></div>';
+    else toast(e.message, 5000);
+  });
+}
+
+var PAGES = [
+  ['home', 'হোম', 'home', null],
+  ['applicants', 'প্রার্থী', 'users', 'applicants'],
+  ['subjects', 'শ্রেণি ও বিষয়', 'book', 'subjects'],
+  ['form', 'আবেদন ফর্ম', 'form', 'form'],
+  ['settings', 'সেটিংস', 'set', 'settings'],
+  ['sms', 'SMS', 'sms', 'sms'],
+  ['users', 'ব্যবহারকারী', 'key', 'owner'],
+  ['log', 'লগ', 'log', 'log'],
+  ['security', 'নিরাপত্তা', 'lock', null]
+];
+function allowed(p) { return !p[3] || (p[3] === 'owner' ? S.boot.me.owner : can(p[3])); }
+function go(p) { S.page = p; render(); window.scrollTo(0, 0); try { history.replaceState(null, '', '#' + p); } catch (e) {} }
+
+function render() {
+  if (!S.boot) return;
+  var me = S.boot.me, pages = PAGES.filter(allowed);
+  if (!pages.some(function (p) { return p[0] === S.page; })) S.page = 'home';
+  var prob = (S.boot.counts.problem || 0) + (S.boot.counts.pending || 0);
+  $('meBox').textContent = (me.owner ? '👑 ' : '') + me.name + ' · ' + (S.boot.roleNames[me.role] || '');
+  $('nav').innerHTML = pages.map(function (p) {
+    return '<button class="' + (S.page === p[0] ? 'on' : '') + '" onclick="go(\'' + p[0] + '\')">' + icon(p[2]) + p[1] +
+      (p[0] === 'applicants' && prob ? '<span class="cnt">' + N(prob) + '</span>' : '') + '</button>';
+  }).join('');
+  $('devSide').innerHTML = markSvg() + 'Developed By: Md. Ashraful Islam';
+  var main = pages.slice(0, 4);
+  $('bnav').innerHTML = main.map(function (p) { return '<button class="' + (S.page === p[0] ? 'on' : '') + '" onclick="go(\'' + p[0] + '\')">' + icon(p[2]) + p[1] + '</button>'; }).join('') +
+    '<button onclick="moreMenu()">' + icon('menu') + 'আরও</button>';
+  $('topMore').onclick = moreMenu;
+  var f = window['page_' + S.page];
+  $('page').innerHTML = f ? f() : '';
+  var a = window['after_' + S.page]; if (a) a();
+}
+function moreMenu() {
+  var pages = PAGES.filter(allowed);
+  modal('<div class="md"><h3 style="margin:0 0 10px">সব পাতা</h3><div class="nav">' + pages.map(function (p) {
+    return '<button onclick="closeLayer();go(\'' + p[0] + '\')">' + icon(p[2]) + p[1] + '</button>';
+  }).join('') + '</div><div class="dev" style="justify-content:center">' + markSvg() + 'Developed By: Md. Ashraful Islam</div></div>');
+}
+
+/* ---------- হোম ---------- */
+function page_home() {
+  var c = S.boot.counts, f = S.boot.form, h = '';
+  h += '<div class="ph"><h2>হোম</h2><span class="sp"></span><button class="btn sm" onclick="busy(this,reload())">' + icon('renew') + 'হালনাগাদ</button></div>';
+  var warn = [];
+  if (!f.id && can('form')) warn.push('গুগল ফর্ম এখনো তৈরি হয়নি — <a href="#" onclick="go(\'form\');return false">আবেদন ফর্ম</a> পাতায় তৈরি করুন।');
+  if (f.id && !f.photoItem && can('form')) warn.push('ফর্মে "ছবি" প্রশ্ন নেই — <a href="#" onclick="go(\'form\');return false">যোগ করার নিয়ম দেখুন</a>।');
+  if (!S.boot.smsReady && can('sms')) warn.push('SMS গেটওয়ে বসানো নেই — <a href="#" onclick="go(\'sms\');return false">SMS</a> পাতায় বসান, নইলে প্রার্থীরা রোল ও প্রবেশপত্রের লিংক পাবেন না।');
+  if (warn.length) h += '<div class="note warn" style="margin-bottom:14px">⚠️ ' + warn.join('<br>⚠️ ') + '</div>';
+  var st = [['মোট আবেদন', c.total, 'acc', 'all'], ['আজ', c.today, '', 'all'], ['অনুমোদিত', c.approved, 'ok', 'approved'],
+            ['সমস্যা', c.problem, 'bad', 'problem'], ['অপেক্ষায়', c.pending, 'warn', 'pending'], ['বাতিল', c.cancelled, '', 'cancelled']];
+  h += '<div class="stats">' + st.map(function (x) {
+    return '<button class="stat ' + x[2] + '" onclick="' + (can('applicants') ? 'S.af.tab=\'' + x[3] + '\';go(\'applicants\')' : '') + '"><small>' + x[0] + '</small><b>' + N(x[1] || 0) + '</b></button>';
+  }).join('') + '</div>';
+  h += '<div class="grid g2"><div class="card"><h3>' + icon('form') + 'আবেদন ফর্ম<span class="sp"></span>' +
+    (f.id ? '<span class="chip ' + (f.open ? 'ok' : 'bad') + '">' + (f.open ? 'চালু' : 'বন্ধ') + '</span>' : '<span class="chip">তৈরি হয়নি</span>') + '</h3>' +
+    '<div class="kv"><dt>শেষ তারিখ</dt><dd>' + ymdBn(S.boot.settings.deadline) + '</dd><dt>লিখিত পরীক্ষা</dt><dd>' + ymdBn(S.boot.settings.examDate) + '</dd>' +
+    '<dt>ফলাফল</dt><dd>' + ymdBn(S.boot.settings.resultDate) + '</dd><dt>প্রশিক্ষণ</dt><dd>' + ymdBn(S.boot.settings.trainingFrom) + ' – ' + ymdBn(S.boot.settings.trainingTo) + '</dd></div>' +
+    (f.url ? '<div class="btns" style="margin-top:12px"><a class="btn sm" href="' + esc(S.boot.site) + '/apply/" target="_blank">' + icon('ext') + 'প্রার্থীর ফর্ম</a></div>' : '') + '</div>';
+  // বিষয়ভিত্তিক সংখ্যা
+  var rows = S.boot.subjects.map(function (s) { return [s.cls, s.subject, c.bySubject[s.cls + '|' + s.subject] || 0, s.active]; });
+  h += '<div class="card"><h3>' + icon('book') + 'বিষয়ভিত্তিক আবেদন</h3><div class="tw" style="max-height:340px"><table class="t"><tr><th>শ্রেণি</th><th>বিষয়</th><th style="text-align:right">আবেদন</th></tr>' +
+    rows.map(function (r) { return '<tr' + (r[3] ? '' : ' style="opacity:.5"') + '><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td><td style="text-align:right;font-weight:700">' + N(r[2]) + '</td></tr>'; }).join('') +
+    '</table></div></div></div>';
+  return h;
+}
+
+/* ---------- প্রার্থী ---------- */
+function page_applicants() {
+  var A = S.boot.applicants || [], af = S.af;
+  var cnt = { all: 0, approved: 0, problem: 0, pending: 0, cancelled: 0 };
+  A.forEach(function (a) { cnt.all++; cnt[a.status] = (cnt[a.status] || 0) + 1; });
+  var classes = []; S.boot.subjects.forEach(function (s) { if (classes.indexOf(s.cls) === -1) classes.push(s.cls); });
+  var subs = S.boot.subjects.filter(function (s) { return !af.cls || s.cls === af.cls; });
+  var h = '<div class="ph"><h2>প্রার্থী</h2><span class="sp"></span>' +
+    (can('applicants_edit') ? '<button class="btn sm" onclick="findMissing(this)" title="ফর্মে জমা হয়েছে কিন্তু তালিকায় আসেনি — এমন আবেদন খোঁজে">' + icon('renew') + 'বাদ পড়া আবেদন খুঁজুন</button>' : '') +
+    '<button class="btn sm" onclick="busy(this,reload())">' + icon('renew') + 'হালনাগাদ</button></div>';
+  h += '<div class="tabs">' + [['all', 'সব'], ['approved', 'অনুমোদিত'], ['problem', 'সমস্যা'], ['pending', 'অপেক্ষায়'], ['cancelled', 'বাতিল']].map(function (t) {
+    return '<button class="' + (af.tab === t[0] ? 'on' : '') + '" onclick="S.af.tab=\'' + t[0] + '\';render()">' + t[1] + '<span>' + N(cnt[t[0]] || 0) + '</span></button>';
+  }).join('') + '</div>';
+  h += '<div class="bar"><input class="in" id="aq" placeholder="রোল, নাম বা মোবাইল দিয়ে খুঁজুন…" value="' + esc(af.q) + '">' +
+    '<select class="sel" id="acls"><option value="">সব শ্রেণি</option>' + classes.map(function (c) { return '<option' + (af.cls === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select>' +
+    '<select class="sel" id="asub"><option value="">সব বিষয়</option>' + subs.map(function (s) { return '<option value="' + esc(s.subject) + '"' + (af.subj === s.subject ? ' selected' : '') + '>' + esc((af.cls ? '' : s.cls + ' · ') + s.subject) + '</option>'; }).join('') + '</select></div>';
+  h += '<div class="list" id="alist"></div>';
+  return h;
+}
+function after_applicants() {
+  $('aq').oninput = function () { S.af.q = this.value; drawList(); };
+  $('acls').onchange = function () { S.af.cls = this.value; S.af.subj = ''; render(); };
+  $('asub').onchange = function () { S.af.subj = this.value; drawList(); };
+  drawList();
+}
+function drawList() {
+  var af = S.af, q = af.q.trim().toLowerCase().replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); });
+  var L = (S.boot.applicants || []).filter(function (a) {
+    if (af.tab !== 'all' && a.status !== af.tab) return false;
+    if (af.cls && a.cls !== af.cls) return false;
+    if (af.subj && a.subject !== af.subj) return false;
+    if (q && (String(a.roll) + ' ' + a.nameBn + ' ' + a.nameEn + ' ' + a.mobile).toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  });
+  var more = L.length > 300;
+  $('alist').innerHTML = L.length ? L.slice(0, 300).map(function (a) {
+    var st = ST[a.status] || ['?', ''];
+    return '<div class="row" onclick="openApplicant(\'' + esc(a.roll || a.rid) + '\')"><span class="rl">' + (a.roll ? N(a.roll) : '—') + '</span>' +
+      '<div class="nm"><b>' + esc(a.nameBn || a.nameEn || '(নাম নেই)') + '</b><small>' + esc(a.cls) + ' · ' + esc(a.subject) + ' · ' + N(a.mobile) + (a.problems ? ' · ⚠ ' + esc(a.problems) : '') + '</small></div>' +
+      (a.status === 'approved' && !a.smsApprove ? '<span class="chip warn" title="অনুমোদনের SMS যায়নি">SMS যায়নি</span>' : '') +
+      '<span class="chip ' + st[1] + '">' + st[0] + '</span></div>';
+  }).join('') + (more ? '<div class="tiny" style="text-align:center">প্রথম ৩০০ জন দেখানো হলো — খুঁজে বা ছেঁকে নির্দিষ্ট করুন।</div>' : '') : '<div class="empty">' + icon('users') + 'কোনো প্রার্থী নেই।</div>';
+}
+function findMissing(btn) {
+  busy(btn, callServer('apiProcessPending')).then(function (r) {
+    S.boot.applicants = r.applicants; render();
+    toast(r.processed ? N(r.processed) + 'টি বাদ পড়া আবেদন তালিকায় আনা হলো।' : 'বাদ পড়া কোনো আবেদন নেই।');
+    reload();
+  });
+}
+
+function openApplicant(key) {
+  modal('<div class="dr" id="dr"><div class="loading"><span class="spin"></span> খুলছি…</div></div>', '');
+  callServer('apiApplicant', [key]).then(drawApplicant, function (e) { authFail(e); $('dr').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+}
+function drawApplicant(a) {
+  var st = ST[a.status] || ['?', ''], ed = can('applicants_edit');
+  var h = '<div class="dh"><h3>' + esc(a.nameBn || a.nameEn) + '</h3><button class="btn sm ghost" onclick="closeLayer()">' + icon('x') + '</button></div>';
+  h += '<div class="pf">' + (a.photo ? '<img class="ph35" src="' + a.photo + '" alt="">' : '<div class="ph35">ছবি নেই</div>') +
+    '<div><div style="font-size:24px;font-weight:800;color:var(--acc)">' + (a.roll ? N(a.roll) : 'রোল নেই') + '</div>' +
+    '<div style="margin:6px 0"><span class="chip ' + st[1] + '">' + st[0] + '</span> ' + (a.status === 'approved' ? (a.smsApprove ? '<span class="chip ok">SMS গেছে</span>' : '<span class="chip warn">SMS যায়নি</span>') : '') + '</div>' +
+    '<div class="muted">' + esc(a.cls) + ' শ্রেণি · ' + esc(a.subject) + '</div></div></div>';
+  if (a.problems) h += '<div class="note bad" style="margin-bottom:10px">⚠️ ' + esc(a.problems) + '</div>';
+  if (a.status === 'cancelled') h += '<div class="note" style="margin-bottom:10px">বাতিলের কারণ: ' + esc(a.cancelReason) + '</div>';
+  var acts = [];
+  if (ed && (a.status === 'problem' || a.status === 'pending')) acts.push('<button class="btn ok" onclick="doApprove(this,\'' + esc(a.roll || a.responseId) + '\')">' + icon('check') + 'অনুমোদন দিন</button>');
+  if (a.admitLink) acts.push('<a class="btn" href="' + esc(a.admitLink) + '" target="_blank">' + icon('id') + 'প্রবেশপত্র</a><button class="btn" onclick="copyText(\'' + esc(a.admitLink) + '\')">' + icon('copy') + 'লিংক</button>');
+  if (ed && a.status === 'approved') acts.push('<button class="btn" onclick="doResend(this,\'' + esc(a.roll) + '\')">' + icon('send') + 'SMS আবার</button>');
+  if (ed) acts.push('<button class="btn" onclick="editApplicant()">' + icon('edit') + 'সংশোধন</button>');
+  if (ed && a.status !== 'cancelled') acts.push('<button class="btn bad" onclick="doCancel(\'' + esc(a.roll || a.responseId) + '\')">' + icon('x') + 'বাতিল</button>');
+  if (ed && a.status === 'cancelled') acts.push('<button class="btn" onclick="doRestore(this,\'' + esc(a.roll || a.responseId) + '\')">' + icon('renew') + 'ফেরাও</button>');
+  if (acts.length) h += '<div class="btns" style="margin-bottom:14px">' + acts.join('') + '</div>';
+  var kv = [['নাম (ইংরেজি)', a.nameEn], ['মোবাইল', N(a.mobile)], ['বিকল্প মোবাইল', N(a.mobile2)], ['ইমেইল', a.email], ['ঠিকানা', a.address],
+            ['প্রতিষ্ঠান', a.institution], ['বিভাগ', a.dept], ['বর্ষ', a.year], ['SSC', a.ssc], ['HSC', a.hsc], ['মাধ্যম', a.medium], ['ফ্রি সময়', a.freeTime],
+            ['অভিজ্ঞতা', a.experience], ['কীভাবে জানলেন', a.source], ['জমার সময়', dtx(a.submittedAt)], ['অনুমোদন', dtx(a.approvedAt)], ['নোট', a.note],
+            ['শেষ বদল', a.updatedBy ? dtx(a.updatedAt) + ' · ' + a.updatedBy : '']];
+  h += '<dl class="kv">' + kv.filter(function (x) { return x[1]; }).map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + esc(x[1]) + '</dd>'; }).join('') + '</dl>';
+  $('dr').innerHTML = h; S.cur = a;
+}
+function applyRow(a) {
+  var L = S.boot.applicants || [];
+  for (var i = 0; i < L.length; i++) if ((a.roll && L[i].roll === a.roll) || L[i].rid === a.responseId) {
+    L[i] = { roll: a.roll, status: a.status, problems: a.problems, submittedAt: a.submittedAt, nameBn: a.nameBn, nameEn: a.nameEn, mobile: a.mobile, cls: a.cls, subject: a.subject, institution: a.institution, smsApprove: a.smsApprove ? 1 : 0, rid: a.responseId };
+  }
+}
+function after(a) { drawApplicant(a); applyRow(a); if (S.page === 'applicants') drawList(); reload(); }
+function doApprove(btn, k) { busy(btn, callServer('apiApprove', [k])).then(function (a) { toast('অনুমোদিত — রোল ' + N(a.roll) + (a._sms ? ', SMS গেছে' : ', SMS যায়নি')); after(a); }); }
+function doResend(btn, k) { busy(btn, callServer('apiResendSms', [k])).then(function () { toast('SMS গেছে'); callServer('apiApplicant', [k]).then(after); }); }
+function doRestore(btn, k) { busy(btn, callServer('apiRestore', [k])).then(function (a) { toast('ফেরানো হলো'); after(a); }); }
+function doCancel(k) {
+  var a = S.cur;
+  confirmBox('আবেদন বাতিল', esc(a.nameBn) + ' — বাতিল করবেন? প্রবেশপত্রের লিংকে "বাতিল" দেখাবে।', 'বাতিল করুন',
+    '<div class="fld" style="margin-top:10px"><label>কারণ (প্রার্থী প্রবেশপত্রের লিংকে দেখবেন)</label><input class="in" data-x="reason" placeholder="যেমন: ভুল তথ্য / নিজে প্রত্যাহার"></div>').then(function (x) {
+    if (!x) return;
+    if (!x.reason.trim()) return toast('কারণ লিখুন');
+    modal('<div class="dr" id="dr"><div class="loading"><span class="spin"></span></div></div>', '');
+    callServer('apiCancel', [k, x.reason]).then(function (a) { toast('বাতিল হলো'); after(a); }, function (e) { toast(e.message, 5000); openApplicant(k); });
+  });
+}
+var EDIT_F = [['nameBn', 'নাম (বাংলা)'], ['nameEn', 'নাম (ইংরেজি)'], ['mobile', 'মোবাইল'], ['mobile2', 'বিকল্প মোবাইল'], ['address', 'ঠিকানা'], ['institution', 'প্রতিষ্ঠান'],
+              ['dept', 'বিভাগ'], ['year', 'বর্ষ'], ['ssc', 'SSC'], ['hsc', 'HSC'], ['medium', 'মাধ্যম'], ['freeTime', 'ফ্রি সময়'], ['experience', 'অভিজ্ঞতা'], ['note', 'নোট (শুধু অফিস দেখে)']];
+function editApplicant() {
+  var a = S.cur;
+  var opts = S.boot.subjects.map(function (s) { var v = s.cls + '|' + s.subject; return '<option value="' + esc(v) + '"' + (a.cls === s.cls && a.subject === s.subject ? ' selected' : '') + '>' + esc(s.cls + ' — ' + s.subject) + (s.active ? '' : ' (বন্ধ)') + '</option>'; }).join('');
+  var h = '<div class="dh"><h3>সংশোধন — ' + esc(a.nameBn) + '</h3><button class="btn sm ghost" onclick="drawApplicant(S.cur)">' + icon('x') + '</button></div>';
+  h += '<div class="fld"><label>শ্রেণি ও বিষয়</label><select class="sel" id="e_cs">' + opts + '</select></div>';
+  h += EDIT_F.map(function (f) {
+    var long = f[0] === 'address' || f[0] === 'experience' || f[0] === 'note';
+    return '<div class="fld"><label>' + f[1] + '</label>' + (long ? '<textarea class="in" id="e_' + f[0] + '">' + esc(a[f[0]]) + '</textarea>' : '<input class="in" id="e_' + f[0] + '" value="' + esc(a[f[0]]) + '">') + '</div>';
+  }).join('');
+  h += '<div class="btns"><button class="btn pri" id="eSave">সেভ</button><button class="btn" onclick="drawApplicant(S.cur)">বাদ দিন</button></div>';
+  $('dr').innerHTML = h;
+  $('eSave').onclick = function () {
+    var p = {}; EDIT_F.forEach(function (f) { p[f[0]] = $('e_' + f[0]).value; });
+    var cs = $('e_cs').value.split('|'); p.cls = cs[0]; p.subject = cs.slice(1).join('|');
+    busy(this, callServer('apiUpdateApplicant', [a.roll || a.responseId, p])).then(function (x) { toast('সেভ হয়েছে'); after(x); });
+  };
+}
+
+/* ═════════════ বাকি পাতা: শ্রেণি-বিষয়, ফর্ম, সেটিংস, SMS, ব্যবহারকারী, লগ, নিরাপত্তা ═════════════ */
+
+/* ---------- শ্রেণি ও বিষয় ---------- */
+function subUse(s) { return (S.boot.counts.bySubject || {})[s.cls + '|' + s.subject] || 0; }
+function page_subjects() {
+  if (!S.subEdit) S.subEdit = JSON.parse(JSON.stringify(S.boot.subjects));
+  var L = S.subEdit, groups = [];
+  L.forEach(function (s, i) { var g = groups.filter(function (x) { return x.cls === s.cls; })[0]; if (!g) { g = { cls: s.cls, rows: [] }; groups.push(g); } g.rows.push(i); });
+  var dirty = JSON.stringify(L) !== JSON.stringify(S.boot.subjects);
+  var h = '<div class="ph"><h2>শ্রেণি ও বিষয়</h2><span class="sp"></span>' +
+    '<button class="btn sm" onclick="addClass()">' + icon('plus') + 'নতুন শ্রেণি</button>' +
+    '<button class="btn pri" id="subSave"' + (dirty ? '' : ' disabled') + '>সেভ</button></div>';
+  h += '<div class="note" style="margin-bottom:14px">এখানে যা থাকবে, গুগল ফর্মে প্রার্থীরা ঠিক সেটাই দেখবেন। সেভের পর "ফর্মে পাঠাও" দিলে ফর্ম নিজে হালনাগাদ হবে। ' +
+    'যে শ্রেণি-বিষয়ে আবেদন এসে গেছে, তার নাম বদলানো বা মোছা যায় না — শুধু বন্ধ করা যায় (ফর্ম থেকে সরে যায়)। "মোট নম্বর" লিখিত পরীক্ষার।</div>';
+  h += groups.map(function (g, gi) {
+    var used = g.rows.some(function (i) { return subUse(L[i]); });
+    return '<div class="cls"><div class="ch"><input class="in" value="' + esc(g.cls) + '" onchange="renameClass(\'' + esc(g.cls) + '\',this.value)"' + (used ? ' disabled title="এই শ্রেণিতে আবেদন আছে"' : '') + '> শ্রেণি' +
+      '<span class="sp" style="flex:1"></span>' +
+      '<button class="btn sm ghost" title="উপরে" onclick="moveClass(' + gi + ',-1)"' + (gi ? '' : ' disabled') + '>' + icon('up') + '</button>' +
+      '<button class="btn sm ghost" title="নিচে" onclick="moveClass(' + gi + ',1)"' + (gi < groups.length - 1 ? '' : ' disabled') + '>' + icon('down') + '</button>' +
+      '<button class="btn sm" onclick="addSubject(\'' + esc(g.cls) + '\')">' + icon('plus') + 'বিষয়</button></div>' +
+      g.rows.map(function (i, k) {
+        var s = L[i], u = subUse(s);
+        return '<div class="sr' + (s.active ? '' : ' off') + '"><span class="n">' + N(k + 1) + '</span>' +
+          '<div><input class="in" value="' + esc(s.subject) + '" onchange="S.subEdit[' + i + '].subject=this.value.trim();render()"' + (u ? ' disabled' : '') + '>' + (u ? '<div class="use">' + N(u) + 'টি আবেদন</div>' : '') + '</div>' +
+          '<input class="in" type="number" min="1" title="মোট নম্বর" value="' + esc(s.total) + '" onchange="S.subEdit[' + i + '].total=+this.value;render()">' +
+          '<label class="sw" title="চালু/বন্ধ"><input type="checkbox"' + (s.active ? ' checked' : '') + ' onchange="S.subEdit[' + i + '].active=this.checked;render()"><i></i></label>' +
+          '<span class="btns mv" style="flex-wrap:nowrap"><button class="btn sm ghost" onclick="moveSub(' + i + ',-1)">' + icon('up') + '</button><button class="btn sm ghost" onclick="moveSub(' + i + ',1)">' + icon('down') + '</button>' +
+          (u ? '' : '<button class="btn sm ghost" title="মুছুন" onclick="S.subEdit.splice(' + i + ',1);render()">' + icon('trash') + '</button>') + '</span></div>';
+      }).join('') + '</div>';
+  }).join('');
+  if (dirty) h += '<div class="btns"><button class="btn pri" onclick="$(\'subSave\').click()">সেভ</button><button class="btn" onclick="S.subEdit=null;render()">বদল বাদ দিন</button></div>';
+  return h;
+}
+function after_subjects() {
+  $('subSave').onclick = function () {
+    var L = S.subEdit.filter(function (s) { return s.subject; });
+    busy(this, callServer('apiSaveSubjects', [L])).then(function (r) {
+      S.boot.subjects = r.subjects; S.subEdit = null; render(); toast('সেভ হয়েছে');
+      if (S.boot.form.id && can('form')) confirmBox('ফর্মে পাঠাবেন?', 'গুগল ফর্মের শ্রেণি-বিষয় এখনই হালনাগাদ করবেন?', 'ফর্মে পাঠাও').then(function (ok) {
+        if (ok) busy(null, callServer('apiSyncForm')).then(function (f) { S.boot.form = f.form; toast('ফর্ম হালনাগাদ হয়েছে'); });
+      });
+    });
+  };
+}
+function addClass() {
+  confirmBox('নতুন শ্রেণি', 'শ্রেণির নাম লিখুন (যেমন: ৪র্থ বা ৬ষ্ঠ-৭ম) আর প্রথম বিষয়।', 'যোগ',
+    '<div class="fld" style="margin-top:10px"><label>শ্রেণি</label><input class="in" data-x="cls"></div><div class="fld"><label>প্রথম বিষয়</label><input class="in" data-x="sub"></div>').then(function (x) {
+    if (!x || !x.cls.trim() || !x.sub.trim()) return;
+    S.subEdit.push({ cls: x.cls.trim(), subject: x.sub.trim(), active: true, total: 100 }); render();
+  });
+}
+function addSubject(cls) {
+  var at = -1; S.subEdit.forEach(function (s, i) { if (s.cls === cls) at = i; });
+  S.subEdit.splice(at + 1, 0, { cls: cls, subject: '', active: true, total: 100 }); render();
+  var ins = document.querySelectorAll('.cls .sr input.in:not([type])'); setTimeout(function () { var e = [].filter.call(ins, function (x) { return !x.value; })[0]; if (e) e.focus(); }, 50);
+}
+function renameClass(old, v) { v = v.trim(); if (!v) return render(); S.subEdit.forEach(function (s) { if (s.cls === old) s.cls = v; }); render(); }
+function moveSub(i, d) {
+  var L = S.subEdit, j = i + d; if (j < 0 || j >= L.length || L[j].cls !== L[i].cls) return;
+  var t = L[i]; L[i] = L[j]; L[j] = t; render();
+}
+function moveClass(gi, d) {
+  var order = []; S.subEdit.forEach(function (s) { if (order.indexOf(s.cls) === -1) order.push(s.cls); });
+  var j = gi + d; if (j < 0 || j >= order.length) return;
+  var t = order[gi]; order[gi] = order[j]; order[j] = t;
+  S.subEdit.sort(function (a, b) { return order.indexOf(a.cls) - order.indexOf(b.cls); }); render();
+}
+
+/* ---------- আবেদন ফর্ম ---------- */
+function applyUrl() { return S.boot.site + '/apply/'; }
+function page_form() {
+  var f = S.boot.form, s = S.boot.settings, h = '<div class="ph"><h2>আবেদন ফর্ম</h2></div>';
+  if (!f.id) {
+    return h + '<div class="card"><h3>' + icon('form') + 'গুগল ফর্ম তৈরি</h3><p class="muted" style="line-height:1.7">এক চাপে ফর্ম তৈরি হবে: বিজ্ঞপ্তি, জরুরি কথা, শ্রেণি অনুযায়ী আলাদা বিষয়ের পাতা, ব্যক্তিগত ও শিক্ষাগত তথ্য, পড়ানোর সময় আর ঘোষণা। ' +
+      'মোবাইল নম্বর ভুল দিলে ফর্মই আটকাবে। একজন একবারই জমা দিতে পারবেন।</p><button class="btn gold" onclick="createForm(this)">' + icon('plus') + 'ফর্ম তৈরি করুন</button></div>';
+  }
+  h += '<div class="grid g2"><div class="card"><h3>' + icon('form') + 'অবস্থা<span class="sp"></span><span class="chip ' + (f.open ? 'ok' : 'bad') + '">' + (f.open ? 'আবেদন চালু' : 'আবেদন বন্ধ') + '</span></h3>' +
+    '<div class="btns" style="margin-bottom:12px"><button class="btn ' + (f.open ? 'bad' : 'ok') + '" onclick="formOpen(this,' + !f.open + ')">' + (f.open ? 'আবেদন বন্ধ করুন' : 'আবেদন চালু করুন') + '</button></div>' +
+    '<div class="tiny" style="margin-bottom:12px">শেষ তারিখ ' + ymdBn(s.deadline) + ' — সময় হলে ফর্ম নিজে বন্ধ হবে (তারিখ বদলাতে: সেটিংস)।</div>' +
+    '<div class="btns"><a class="btn" href="' + esc(f.url) + '" target="_blank">' + icon('ext') + 'প্রার্থীরা যা দেখেন</a><a class="btn" href="' + esc(f.editUrl) + '" target="_blank">' + icon('edit') + 'ফর্ম সম্পাদনা</a>' +
+    '<button class="btn" onclick="syncForm(this)">' + icon('renew') + 'ফর্ম হালনাগাদ</button></div></div>';
+  h += '<div class="card"><h3>' + icon('share') + 'ছড়ানোর লিংক ও QR</h3><div class="qrbox"><div class="qr" id="fqr"></div><div style="flex:1;min-width:200px">' +
+    '<div style="font-weight:700;word-break:break-all;margin-bottom:6px">' + esc(applyUrl()) + '</div><div class="tiny" style="margin-bottom:10px">পোস্টারে এই QR দিন। ফর্ম কখনো বদলালেও এই লিংক আর QR ঠিক থাকবে; আবেদন বন্ধ থাকলে এখানেই "বন্ধ" বার্তা দেখাবে।</div>' +
+    '<div class="btns"><button class="btn sm" onclick="copyText(applyUrl())">' + icon('copy') + 'কপি</button><button class="btn sm" onclick="dlQR()">' + icon('dl') + 'QR নামান (বড়)</button>' +
+    (navigator.share ? '<button class="btn sm" onclick="navigator.share({title:\'শিক্ষক নিয়োগ ২০২৭\',url:applyUrl()})">' + icon('share') + 'শেয়ার</button>' : '') + '</div></div></div></div></div>';
+  if (!f.photoItem) h += '<div class="card" style="border-color:var(--warn)"><h3 style="color:var(--warn)">' + icon('alert') + 'ছবির প্রশ্ন যোগ করুন (একবারই)</h3><div class="muted" style="line-height:1.8">গুগল কোড দিয়ে ছবি আপলোডের প্রশ্ন বানাতে দেয় না, তাই এটা হাতে যোগ করতে হবে:<br>' +
+    '১) ওপরের <b>"ফর্ম সম্পাদনা"</b> খুলুন → "ছবি ও ঘোষণা" অংশে যান<br>২) ডানের <b>⊕</b> → প্রশ্নের ধরন <b>File upload</b> → Continue<br>৩) প্রশ্ন: <b>পাসপোর্ট সাইজ ছবি</b> · Allow only specific file types: <b>Image</b> · Maximum number of files: <b>1</b> · Maximum file size: <b>1 MB</b> · Required চালু<br>' +
+    '৪) প্রশ্নটা টেনে "ঘোষণা"-র ওপরে রাখুন<br>৫) এখানে ফিরে <b>"ফর্ম হালনাগাদ"</b> চাপুন — তখন এই সতর্কবার্তা চলে যাবে।</div></div>';
+  h += '<div class="card"><h3>' + icon('dl') + 'কভার ছবি</h3><div class="muted" style="margin-bottom:10px">গুগল কোড দিয়ে কভার বসাতে দেয় না — একবার হাতে: ফর্ম সম্পাদনা → 🎨 (Customize theme) → Header → Upload → এই ছবি।</div>' +
+    '<img src="assets/form-cover.png" alt="" style="width:100%;border-radius:10px;border:1px solid var(--line)"><div class="btns" style="margin-top:10px"><a class="btn sm" href="assets/form-cover.png" download="form-cover.png">' + icon('dl') + 'কভার ছবি নামান</a></div></div>';
+  // লেখা
+  h += '<div class="card"><h3>' + icon('edit') + 'ফর্মের লেখা</h3>' +
+    fld('fTitle', 'ফর্মের শিরোনাম', s.formTitle) +
+    fld('fNotice', 'বিজ্ঞপ্তি (ফর্মের ওপরে)', s.noticeBody, true, '{শেষ তারিখ} {পরীক্ষার তারিখ} {সময়} {ফলের তারিখ} {প্রশিক্ষণের তারিখ} — এগুলো সেটিংসের তারিখ থেকে নিজে বসবে।') +
+    fld('fWarn', '⚠️ জরুরি কথা (বড় অক্ষরে দেখায়)', s.warning, true) +
+    fld('fConfirm', 'জমার পরের বার্তা', s.confirmMsg, true) +
+    fld('fClosed', 'আবেদন বন্ধ থাকলে বার্তা', s.closedMsg, true) +
+    '<div class="fld">' + sw('fManual', s.manualApprove, 'সব আবেদন হাতে দেখে অনুমোদন (চালু থাকলে কেউ নিজে রোল পাবেন না)') + '</div>' +
+    '<button class="btn pri" onclick="saveFormTexts(this)">সেভ (ফর্মেও যাবে)</button></div>';
+  return h;
+}
+function fld(id, label, val, long, hint) {
+  return '<div class="fld"><label for="' + id + '">' + label + '</label>' + (long ? '<textarea class="in" id="' + id + '" rows="' + Math.min(14, Math.max(3, String(val || '').split('\n').length + 1)) + '">' + esc(val) + '</textarea>' : '<input class="in" id="' + id + '" value="' + esc(val) + '">') +
+    (hint ? '<div class="hint">' + hint + '</div>' : '') + '</div>';
+}
+function after_form() {
+  if ($('fqr')) { var q = qrcode(0, 'M'); q.addData(applyUrl()); q.make(); $('fqr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); }
+}
+function dlQR() {
+  var q = qrcode(0, 'H'); q.addData(applyUrl()); q.make();
+  var n = q.getModuleCount(), cell = Math.floor(1600 / n), m = cell * 4, W = n * cell + m * 2, H = W + 170;
+  var c = document.createElement('canvas'); c.width = W; c.height = H; var x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); x.fillStyle = '#000';
+  for (var r = 0; r < n; r++) for (var k = 0; k < n; k++) if (q.isDark(r, k)) x.fillRect(m + k * cell, m + r * cell, cell, cell);
+  x.fillStyle = '#13265a'; x.textAlign = 'center'; x.font = 'bold 64px "Noto Sans Bengali", sans-serif';
+  x.fillText('আবেদন করতে স্ক্যান করুন', W / 2, W + 70);
+  x.font = '44px "Noto Sans Bengali", sans-serif'; x.fillText(applyUrl().replace('https://', ''), W / 2, W + 135);
+  var a = document.createElement('a'); a.download = 'abedon-qr.png'; a.href = c.toDataURL('image/png'); a.click();
+}
+function createForm(btn) { busy(btn, callServer('apiCreateForm')).then(function (r) { S.boot.form = r.form; S.boot.settings = r.settings; render(); toast('ফর্ম তৈরি হয়েছে — এবার ছবির প্রশ্ন যোগ করুন।', 6000); }); }
+function syncForm(btn) { busy(btn, callServer('apiSyncForm')).then(function (r) { S.boot.form = r.form; render(); toast('ফর্ম হালনাগাদ হয়েছে'); }); }
+function formOpen(btn, open) { busy(btn, callServer('apiFormOpen', [open])).then(function (r) { S.boot.form = r.form; render(); toast(open ? 'আবেদন চালু' : 'আবেদন বন্ধ'); }); }
+function saveFormTexts(btn) {
+  busy(btn, callServer('apiSaveSettings', [{ formTitle: $('fTitle').value, noticeBody: $('fNotice').value, warning: $('fWarn').value, confirmMsg: $('fConfirm').value, closedMsg: $('fClosed').value, manualApprove: $('fManual').checked }])).then(function (r) {
+    S.boot.settings = r.settings; render(); toast('সেভ হয়েছে' + (r.formNote ? ' — ' + r.formNote : ''), 4500);
+  });
+}
+
+/* ---------- সেটিংস ---------- */
+var SET_F = [
+  ['deadline', 'আবেদনের শেষ সময়', 'datetime-local'], ['examDate', 'লিখিত পরীক্ষার তারিখ', 'date'], ['examStart', 'পরীক্ষা শুরু', 'time'], ['examEnd', 'পরীক্ষা শেষ', 'time'],
+  ['resultDate', 'ফলাফলের তারিখ', 'date'], ['trainingFrom', 'প্রশিক্ষণ ও ডেমো ক্লাস — শুরু', 'date'], ['trainingTo', 'প্রশিক্ষণ ও ডেমো ক্লাস — শেষ', 'date']
+];
+function page_settings() {
+  var s = S.boot.settings, h = '<div class="ph"><h2>সেটিংস</h2><span class="sp"></span><button class="btn pri" id="setSave">সেভ</button></div>';
+  h += '<div class="card"><h3>' + icon('log') + 'তারিখ ও সময়</h3><div class="grid g2">' + SET_F.map(function (f) {
+    return '<div class="fld"><label>' + f[1] + '</label><input class="in" type="' + f[2] + '" id="s_' + f[0] + '" value="' + esc(s[f[0]]) + '"></div>';
+  }).join('') + '</div><div class="tiny">তারিখ বদলালে ফর্মের বিজ্ঞপ্তি, প্রবেশপত্র আর SMS-এ নিজে বদলে যাবে।</div></div>';
+  h += '<div class="card"><h3>' + icon('id') + 'প্রবেশপত্র</h3>' +
+    fld('s_examTitle', 'শিরোনাম', s.examTitle) + fld('s_orgNames', 'প্রতিষ্ঠানের নাম (ওপরে)', s.orgNames) + fld('s_address', 'ঠিকানা (ওপরে)', s.address) + fld('s_phones', 'ফোন (ওপরে)', s.phones) +
+    fld('s_venue', 'পরীক্ষাকেন্দ্র', s.venue, true) + fld('s_mapUrl', 'ম্যাপের লিংক (ছোট QR)', s.mapUrl, false, 'গুগল ম্যাপে অফিসের পিন → শেয়ার → লিংক কপি করে এখানে দিন — তাহলে ঠিক জায়গা দেখাবে।') +
+    fld('s_helpline', '"বিশেষ প্রয়োজনে" ফোন', s.helpline) +
+    '<div class="grid g2">' + fld('l_web', 'ওয়েবসাইট', (s.links || {}).web) + fld('l_fb', 'ফেসবুক পেজ', (s.links || {}).fb) + fld('l_yt', 'ইউটিউব', (s.links || {}).yt) + fld('l_wa', 'হোয়াটসঅ্যাপ চ্যানেল', (s.links || {}).wa) + '</div>' +
+    (S.boot.me.owner ? '<div class="grid g2">' + fld('sg_l', 'বাঁয়ের সইয়ের পদবি', (s.sigLeft || {}).title) + fld('sg_r', 'ডানের সইয়ের পদবি', (s.sigRight || {}).title) + '</div>' : '') +
+    '<div class="tiny">প্রবেশপত্রের সংস্করণ এখন: ' + N(s.admitVersion) + (s.admitUpdated ? ' (' + ymdBn(s.admitUpdated) + ')' : '') + '</div></div>';
+  h += '<div class="card"><h3>' + icon('book') + 'শর্ত ও নিয়মাবলি<span class="sp"></span><button class="btn sm" onclick="addRule()">' + icon('plus') + 'নিয়ম</button></h3><div id="rules"></div>' +
+    '<div class="tiny">কোনো শব্দ মোটা করতে দুই দিকে ** দিন — যেমন **বাধ্যতামূলক**। প্রবেশপত্র এক পাতায় রাখতে নিয়ম ছোট রাখুন।</div></div>';
+  return h;
+}
+function after_settings() {
+  S.rules = (S.boot.settings.rules || []).slice();
+  drawRules();
+  $('setSave').onclick = saveSettings;
+}
+function drawRules() {
+  $('rules').innerHTML = S.rules.map(function (r, i) {
+    return '<div class="rule-row"><span class="n">' + N(i + 1) + '.</span><textarea class="in" oninput="S.rules[' + i + ']=this.value">' + esc(r) + '</textarea>' +
+      '<span class="btns" style="flex-direction:column;gap:2px"><button class="btn sm ghost" onclick="mvRule(' + i + ',-1)">' + icon('up') + '</button><button class="btn sm ghost" onclick="mvRule(' + i + ',1)">' + icon('down') + '</button><button class="btn sm ghost" onclick="S.rules.splice(' + i + ',1);drawRules()">' + icon('trash') + '</button></span></div>';
+  }).join('');
+}
+function addRule() { S.rules.push(''); drawRules(); }
+function mvRule(i, d) { var j = i + d; if (j < 0 || j >= S.rules.length) return; var t = S.rules[i]; S.rules[i] = S.rules[j]; S.rules[j] = t; drawRules(); }
+function saveSettings() {
+  var s = S.boot.settings, p = {};
+  SET_F.forEach(function (f) { p[f[0]] = $('s_' + f[0]).value; });
+  ['examTitle', 'orgNames', 'address', 'phones', 'venue', 'mapUrl', 'helpline'].forEach(function (k) { p[k] = $('s_' + k).value.trim(); });
+  p.links = { web: $('l_web').value.trim(), fb: $('l_fb').value.trim(), yt: $('l_yt').value.trim(), wa: $('l_wa').value.trim() };
+  p.rules = S.rules.map(function (r) { return r.trim(); }).filter(Boolean);
+  if (S.boot.me.owner) { p.sigLeft = Object.assign({}, s.sigLeft, { title: $('sg_l').value.trim() }); p.sigRight = Object.assign({}, s.sigRight, { title: $('sg_r').value.trim() }); }
+  Object.keys(p).forEach(function (k) { if (JSON.stringify(p[k]) === JSON.stringify(s[k])) delete p[k]; });
+  if (!Object.keys(p).length) return toast('কিছু বদলায়নি');
+  var ADM = ['examTitle', 'examDate', 'examStart', 'examEnd', 'venue', 'mapUrl', 'orgNames', 'address', 'phones', 'helpline', 'links', 'rules', 'sigLeft', 'sigRight'];
+  var admitCh = ADM.some(function (k) { return k in p; }), appr = S.boot.counts.approved || 0, btn = $('setSave');
+  var go2 = function (notify) {
+    busy(btn, callServer('apiSaveSettings', [p, { notify: notify }])).then(function (r) {
+      S.boot.settings = r.settings; render();
+      toast('সেভ হয়েছে' + (r.admitChanged ? ' — প্রবেশপত্র সংস্করণ ' + N(r.settings.admitVersion) : '') + (r.formNote ? ' · ' + r.formNote : '') + (r.smsNote ? ' · ' + r.smsNote : ''), 6000);
+    });
+  };
+  if (admitCh && appr) confirmBox('প্রবেশপত্র বদলাচ্ছে', 'এই বদল প্রবেশপত্রে দেখাবে। লিংক একই থাকবে, খুললেই নতুন কপি। ' + N(appr) + 'জন অনুমোদিত প্রার্থীকে SMS-এ জানাবেন?', 'সেভ',
+    '<div style="margin-top:12px">' + '<label class="sw"><input type="checkbox" data-x="notify"><i></i>হ্যাঁ, SMS-এ জানাও</label></div>').then(function (x) { if (x) go2(!!x.notify); });
+  else go2(false);
+}
+
+/* ---------- SMS ---------- */
+var SMS_KIND = { approve: 'অনুমোদন (রোল + প্রবেশপত্রের লিংক)', problem: 'আবেদনে সমস্যা', update: 'প্রবেশপত্র বদল', test: 'পরীক্ষা' };
+function sampleFill(t) {
+  var s = S.boot.settings;
+  return String(t || '').replace(/\{রোল\}/g, '৭১০৪৮৩').replace(/\{নাম\}/g, 'তাসনিম জাহান').replace(/\{লিংক\}/g, S.boot.site + '/a/#Ab3dE5fG7hJ9')
+    .replace(/\{তারিখ\}/g, ymdBn(s.examDate) + 'ইং').replace(/\{সময়\}/g, 'বিকাল ৪:০০টা – ৫:০০টা').replace(/\{শ্রেণি\}/g, '৯ম-১০ম').replace(/\{বিষয়\}/g, 'গণিত');
+}
+function page_sms() {
+  var s = S.boot.settings, h = '<div class="ph"><h2>SMS</h2></div>';
+  h += '<div class="card"><h3>' + icon('sms') + 'বার্তার লেখা</h3><div class="tiny" style="margin-bottom:10px">ঘর: {রোল} {নাম} {লিংক} {তারিখ} {সময়} {শ্রেণি} {বিষয়} — বাংলা SMS-এ ৭০ অক্ষরে এক ভাগ; ভাগ যত কম, খরচ তত কম।</div>' +
+    ['approve', 'problem', 'update'].map(function (k) {
+      return '<div class="fld"><label>' + SMS_KIND[k] + (k !== 'update' ? ' &nbsp;' + sw('on_' + k, (s.smsOn || {})[k]) : '') + '</label><textarea class="in" id="tp_' + k + '" rows="3" oninput="partsOf(\'' + k + '\')">' + esc((s.smsTpl || {})[k]) + '</textarea><div class="parts" id="pp_' + k + '"></div></div>';
+    }).join('') + '<button class="btn pri" onclick="saveSmsTexts(this)">সেভ</button></div>';
+  h += '<div class="card"><h3>' + icon('key') + 'গেটওয়ে<span class="sp"></span><span class="chip ' + (S.boot.smsReady ? 'ok' : 'bad') + '">' + (S.boot.smsReady ? 'বসানো আছে' : 'বসানো নেই') + '</span></h3><div id="gw"><div class="loading"><span class="spin"></span></div></div></div>';
+  h += '<div class="card"><h3>' + icon('send') + 'পরীক্ষা SMS</h3><div class="grid g2"><div class="fld"><label>মোবাইল</label><input class="in" id="tMob" placeholder="01XXXXXXXXX"></div><div class="fld"><label>লেখা (খালি থাকলে নমুনা)</label><input class="in" id="tTxt"></div></div>' +
+    '<button class="btn" onclick="smsTest(this)">' + icon('send') + 'পাঠান</button><pre id="tOut" class="tiny" style="white-space:pre-wrap;margin:10px 0 0"></pre></div>';
+  h += '<div class="card"><h3>' + icon('log') + 'SMS-খাতা (সাম্প্রতিক)<span class="sp"></span><button class="btn sm" onclick="loadSmsLog(this)">' + icon('renew') + '</button></h3><div id="slog"><div class="loading"><span class="spin"></span></div></div></div>';
+  return h;
+}
+function partsOf(k) {
+  var t = sampleFill($('tp_' + k).value), n = smsParts(t);
+  $('pp_' + k).innerHTML = 'নমুনায় ' + N(t.length) + ' অক্ষর · <b>' + N(n) + ' ভাগ</b>';
+}
+function after_sms() {
+  ['approve', 'problem', 'update'].forEach(partsOf);
+  callServer('apiSmsConfig').then(function (c) {
+    $('gw').innerHTML = '<div class="tiny" style="margin-bottom:10px">SSC26-এর একই গেটওয়ে। ওই শিটের মেনু → ইমেইল ও SMS → "SMS Settings"-এ যা আছে, হুবহু এখানে দিন।</div>' +
+      fld('g_url', 'API URL', c.url) + '<div class="fld"><label>পদ্ধতি</label><select class="sel" id="g_m"><option' + (c.method === 'POST' ? ' selected' : '') + '>POST</option><option' + (c.method === 'GET' ? ' selected' : '') + '>GET</option></select></div>' +
+      fld('g_p', 'প্যারামিটার ({mobile} ও {message} থাকতে হবে)', c.payload, true) + fld('g_f', 'ব্যর্থতার নিয়ম (ঐচ্ছিক regex)', c.failPattern) +
+      '<button class="btn pri" onclick="saveGw(this)">সেভ</button>';
+  }, function (e) { $('gw').textContent = e.message; });
+  loadSmsLog();
+}
+function saveGw(btn) {
+  busy(btn, callServer('apiSaveSmsConfig', [{ url: $('g_url').value, method: $('g_m').value, payload: $('g_p').value, failPattern: $('g_f').value }])).then(function (c) {
+    S.boot.smsReady = c.ready; toast('গেটওয়ে সেভ হয়েছে — এবার পরীক্ষা SMS দিন'); render();
+  });
+}
+function saveSmsTexts(btn) {
+  var tpl = {}, on = {};
+  ['approve', 'problem', 'update'].forEach(function (k) { tpl[k] = $('tp_' + k).value.trim(); });
+  ['approve', 'problem'].forEach(function (k) { on[k] = $('on_' + k).checked; });
+  busy(btn, callServer('apiSaveSettings', [{ smsTpl: tpl, smsOn: on }])).then(function (r) { S.boot.settings = r.settings; toast('সেভ হয়েছে'); });
+}
+function smsTest(btn) {
+  busy(btn, callServer('apiSmsTest', [$('tMob').value, $('tTxt').value])).then(function (r) {
+    $('tOut').textContent = (r.ok ? '✅ গেছে' : '❌ যায়নি — ' + r.error) + '\nগেটওয়ের উত্তর (' + r.code + '): ' + r.reply; loadSmsLog();
+  });
+}
+function loadSmsLog(btn) {
+  var p = callServer('apiSmsLog', [150]);
+  (btn ? busy(btn, p) : p).then(function (L) {
+    $('slog').innerHTML = L.length ? '<div class="tw"><table class="t"><tr><th>সময়</th><th>রোল</th><th>মোবাইল</th><th>ধরন</th><th>ফল</th></tr>' + L.map(function (x) {
+      return '<tr title="' + esc(x.text + '\n—\n' + x.reply) + '"><td>' + dtx(x.at) + '</td><td>' + N(x.roll) + '</td><td>' + N(x.mobile) + '</td><td>' + (SMS_KIND[x.kind] || x.kind) + '</td><td><span class="chip ' + (x.ok ? 'ok' : 'bad') + '">' + (x.ok ? 'গেছে' : 'যায়নি') + '</span></td></tr>';
+    }).join('') + '</table></div>' : '<div class="empty">এখনো কোনো SMS যায়নি।</div>';
+  }, function (e) { if ($('slog')) $('slog').textContent = e.message; });
+}
+
+/* ---------- ব্যবহারকারী (মালিক) ---------- */
+function page_users() {
+  return '<div class="ph"><h2>ব্যবহারকারী</h2><span class="sp"></span><button class="btn pri" onclick="editUser()">' + icon('plus') + 'নতুন ব্যবহারকারী</button></div>' +
+    '<div class="note" style="margin-bottom:14px">যাঁকে যোগ করবেন, তিনি নিজের ইমেইলে কোড নিয়ে ঢুকবেন। কে কী পারবেন, টিক দিয়ে ঠিক করুন — সার্ভারও তা-ই মানে। সব বদল লগে থাকে।</div><div id="ulist"><div class="loading"><span class="spin"></span></div></div>';
+}
+function after_users() { callServer('apiUsers').then(function (u) { S.users = u; drawUsers(); }, function (e) { $('ulist').textContent = e.message; }); }
+function drawUsers() {
+  var u = S.users;
+  $('ulist').innerHTML = '<div class="list"><div class="row" style="cursor:default"><span class="chip ok">মালিক</span><div class="nm"><b>' + esc(u.owner) + '</b><small>' + esc(u.aliases.join(', ')) + ' · সব ক্ষমতা</small></div></div>' +
+    u.users.map(function (x, i) {
+      return '<div class="row" onclick="editUser(' + i + ')"><span class="chip ' + (x.off ? 'bad' : 'info') + '">' + esc(x.off ? 'বন্ধ' : (u.roles[x.role] || x.role)) + '</span><div class="nm"><b>' + esc(x.name) + '</b><small>' + esc(x.email) + ' · ' + (x.perms.length ? x.perms.map(function (p) { return (u.perms[p] || [p])[0]; }).join(', ') : 'কোনো ক্ষমতা নেই') + '</small></div></div>';
+    }).join('') + '</div>';
+}
+function editUser(i) {
+  var u = S.users, x = i == null ? { email: '', name: '', role: 'staff', perms: u.presets.staff, off: false } : u.users[i];
+  var h = '<div class="md" style="width:min(640px,96%)"><h3 style="margin:0 0 12px">' + (i == null ? 'নতুন ব্যবহারকারী' : 'ব্যবহারকারী বদল') + '</h3>' +
+    '<div class="grid g2"><div class="fld"><label>ইমেইল</label><input class="in" id="u_e" value="' + esc(x.email) + '"' + (i == null ? '' : ' disabled') + '></div><div class="fld"><label>নাম</label><input class="in" id="u_n" value="' + esc(x.name) + '"></div></div>' +
+    '<div class="fld"><label>ভূমিকা</label><select class="sel" id="u_r">' + Object.keys(u.presets).map(function (r) { return '<option value="' + r + '"' + (x.role === r ? ' selected' : '') + '>' + esc(u.roles[r]) + '</option>'; }).join('') + '</select><div class="hint">ভূমিকা বদলালে নিচের টিক সেই ভূমিকার মতো হয়ে যাবে — তারপর ইচ্ছেমতো বদলান।</div></div>' +
+    '<div class="perm" id="u_p">' + Object.keys(u.perms).map(function (p) { return '<label><input type="checkbox" value="' + p + '"' + (x.perms.indexOf(p) !== -1 ? ' checked' : '') + '><span>' + esc(u.perms[p][0]) + '<small>' + esc(u.perms[p][1]) + '</small></span></label>'; }).join('') + '</div>' +
+    '<div class="fld" style="margin-top:12px">' + sw('u_off', x.off, 'সাময়িক বন্ধ (ঢুকতে পারবেন না)') + '</div>' +
+    '<div class="btns" style="justify-content:flex-end">' + (i == null ? '' : '<button class="btn bad" id="u_del" style="margin-right:auto">সরান</button>') + '<button class="btn" onclick="closeLayer()">বাদ</button><button class="btn pri" id="u_save">সেভ</button></div></div>';
+  modal(h);
+  $('u_r').onchange = function () { var pre = u.presets[this.value] || []; document.querySelectorAll('#u_p input').forEach(function (c) { c.checked = pre.indexOf(c.value) !== -1; }); };
+  $('u_save').onclick = function () {
+    var perms = [].filter.call(document.querySelectorAll('#u_p input'), function (c) { return c.checked; }).map(function (c) { return c.value; });
+    busy(this, callServer('apiSaveUser', [{ email: $('u_e').value, name: $('u_n').value, role: $('u_r').value, perms: perms, off: $('u_off').checked }])).then(function (r) { S.users = r; closeLayer(); drawUsers(); toast('সেভ হয়েছে'); });
+  };
+  if ($('u_del')) $('u_del').onclick = function () {
+    var btn = this;
+    confirmBox('সরাবেন?', esc(x.email) + ' আর ঢুকতে পারবেন না, সব ডিভাইস থেকে বের হয়ে যাবেন।', 'সরান').then(function (ok) {
+      if (ok) busy(btn, callServer('apiDeleteUser', [x.email])).then(function (r) { S.users = r; drawUsers(); toast('সরানো হলো'); });
+    });
+  };
+}
+
+/* ---------- লগ ---------- */
+function page_log() { return '<div class="ph"><h2>লগ</h2><span class="sp"></span><button class="btn sm" onclick="after_log()">' + icon('renew') + '</button></div><div class="card"><div id="logl"><div class="loading"><span class="spin"></span></div></div></div>'; }
+function after_log() {
+  callServer('apiLog', [400]).then(function (L) {
+    $('logl').innerHTML = L.length ? '<div class="tw"><table class="t"><tr><th>সময়</th><th>কে</th><th>কী</th><th>বিস্তারিত</th></tr>' + L.map(function (x) {
+      return '<tr><td style="white-space:nowrap">' + dtx(x.at) + '</td><td>' + esc(x.who) + '</td><td>' + esc(x.what) + '</td><td class="tiny">' + esc(x.detail) + '</td></tr>';
+    }).join('') + '</table></div>' : '<div class="empty">লগ খালি।</div>';
+  }, function (e) { $('logl').textContent = e.message; });
+}
+
+/* ---------- নিরাপত্তা ---------- */
+function page_security() {
+  return '<div class="ph"><h2>নিরাপত্তা ও পছন্দ</h2></div><div class="card"><h3>' + icon('set') + 'থিম</h3><div class="tabs">' +
+    [['dark', 'অন্ধকার'], ['light', 'আলো'], ['auto', 'ডিভাইসের মতো']].map(function (t) { return '<button class="' + (THEME === t[0] ? 'on' : '') + '" onclick="setTheme(\'' + t[0] + '\')">' + t[1] + '</button>'; }).join('') + '</div></div>' +
+    '<div class="card"><h3>' + icon('lock') + 'লগইন করা ডিভাইস<span class="sp"></span><button class="btn sm bad" onclick="revokeOthers(this)">অন্য সব বের করুন</button></h3><div id="secl"><div class="loading"><span class="spin"></span></div></div></div>' +
+    '<div class="card"><button class="btn bad" onclick="logout(this)">' + icon('out') + 'এই ডিভাইস থেকে বের হন</button></div>';
+}
+function setTheme(t) { THEME = t; try { localStorage.setItem('rc_theme', t); } catch (e) {} applyTheme(); render(); }
+function after_security() { callServer('apiSecurity').then(drawSec, function (e) { $('secl').textContent = e.message; }); }
+function drawSec(s) {
+  $('secl').innerHTML = '<div class="list">' + s.sessions.map(function (x) {
+    return '<div class="row" style="cursor:default"><div class="nm"><b>' + esc(x.device) + (x.current ? ' <span class="chip ok">এই ডিভাইস</span>' : '') + '</b><small>' + esc(x.email) + ' · শেষ ব্যবহার ' + dtx(x.last) + '</small></div>' +
+      (x.current ? '' : '<button class="btn sm bad" onclick="revoke(this,\'' + x.id + '\')">বের করুন</button>') + '</div>';
+  }).join('') + '</div>';
+}
+function revoke(btn, id) { busy(btn, callServer('apiRevokeSession', [id])).then(drawSec); }
+function revokeOthers(btn) { busy(btn, callServer('apiRevokeOthers')).then(function (s) { drawSec(s); toast('অন্য সব ডিভাইস বের করা হলো'); }); }
+function logout(btn) { busy(btn, callServer('apiLogout')).then(function () { setAuth(''); S.boot = null; showGate(); }); }
+
+/* ---------- চালু ---------- */
+(function () {
+  var h = (location.hash || '').slice(1); if (h && PAGES.some(function (p) { return p[0] === h; })) S.page = h;
+  start();
+})();
+</script>
+</body>
+</html>

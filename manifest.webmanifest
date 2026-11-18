@@ -1,0 +1,9 @@
+{
+  "name": "শিক্ষক নিয়োগ ২০২৭",
+  "short_name": "শিক্ষক নিয়োগ",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b1226",
+  "theme_color": "#0f1a3a",
+  "icons": [{ "src": "assets/tth-logo.png", "sizes": "447x447", "type": "image/png", "purpose": "any" }]
+}

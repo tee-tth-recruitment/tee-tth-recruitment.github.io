@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭ — আবেদন</title>
+<meta property="og:title" content="শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭ — আবেদন করুন">
+<meta property="og:description" content="টেকনিক ইজি এডুকেশন ও টেকনিক টিচিং হোম — পঞ্চম থেকে দ্বাদশ শ্রেণি">
+<meta property="og:image" content="https://tee-tth-recruitment.github.io/assets/form-cover.png">
+<link rel="icon" type="image/png" href="../assets/tth-logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Baloo+Da+2:wght@800&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#0b1226;color:#e9eefb;font-family:'Noto Sans Bengali',sans-serif}
+.c{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(600px 400px at 10% 0%,rgba(91,140,255,.22),transparent 70%),radial-gradient(600px 400px at 90% 100%,rgba(230,199,125,.16),transparent 70%)}
+.b{max-width:460px;width:100%;text-align:center}
+.lg img{width:72px;height:72px;border-radius:50%;background:#fff;padding:3px;margin:0 6px;box-shadow:0 0 0 3px #e6c77d}
+h1{font-family:'Baloo Da 2',sans-serif;font-size:28px;margin:16px 0 6px;line-height:1.2}
+p{color:#aab6d6;line-height:1.7}
+.pg{height:6px;background:#1a2750;border-radius:6px;overflow:hidden;margin:18px auto;max-width:260px}
+.pg i{display:block;height:100%;width:30%;background:linear-gradient(90deg,#c39a45,#e6c77d);animation:a 1.3s ease-in-out infinite}
+@keyframes a{0%{margin-left:-30%}100%{margin-left:100%}}
+a.go{display:inline-block;margin-top:10px;background:linear-gradient(180deg,#e6c77d,#c39a45);color:#1b1404;padding:12px 22px;border-radius:12px;font-weight:700;text-decoration:none}
+.dev{font-size:12px;color:#7b88ab;margin-top:26px}
+</style>
+<script>var API_URL = 'https://script.google.com/macros/s/AKfycbyfL1EUYdUrfEqIwvBVi2Ia8J8sEqXA4Byo78EaccmH-9oIb3YAnHil0SjlUS-YdFCH/exec';</script>
+</head>
+<body>
+<div class="c"><div class="b">
+  <div class="lg"><img src="../assets/tee-logo.png" alt=""><img src="../assets/tth-logo.png" alt=""></div>
+  <h1>শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭</h1>
+  <div id="m"><p>আবেদন ফর্ম খুলছে…</p><div class="pg"><i></i></div></div>
+  <div class="dev">Developed By: Md. Ashraful Islam</div>
+</div></div>
+<script>
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: 'apiApplyInfo', args: [] }) })
+  .then(function (r) { return r.json(); })
+  .then(function (j) {
+    if (!j.ok) throw new Error(j.error);
+    var d = j.data;
+    if (d.open && d.url) { location.replace(d.url); document.getElementById('m').innerHTML = '<p>ফর্ম না খুললে নিচে চাপুন।</p><a class="go" href="' + esc(d.url) + '">আবেদন ফর্ম খুলুন</a>'; }
+    else document.getElementById('m').innerHTML = '<p>' + esc(d.closedMsg || 'এখন আবেদন বন্ধ।').replace(/\n/g, '<br>') + '</p>';
+  })
+  .catch(function () { document.getElementById('m').innerHTML = '<p>খোলা যায়নি — ইন্টারনেট দেখে পাতাটা আবার খুলুন।</p><a class="go" href="">আবার চেষ্টা</a>'; });
+</script>
+</body>
+</html>

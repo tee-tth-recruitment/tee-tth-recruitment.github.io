@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>প্রবেশপত্র — শিক্ষক নিয়োগ ২০২৭</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../assets/tth-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Noto+Serif+Bengali:wght@600;700;800&family=Mrs+Saint+Delafield&family=Baloo+Da+2:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+
+  @page { size: A4; margin: 0; }
+  :root{
+    --navy:#13265a; --navy2:#1d3a82; --navy3:#0c1a40; --red:#c8202f; --gold:#c39a45; --gold2:#e6c77d;
+    --ink:#1b2333; --muted:#55607a; --line:#d5dbe8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#e9ecf2}
+  body{font-family:'Noto Sans Bengali',sans-serif;color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{width:210mm;height:297mm;margin:0 auto;background:#fff;position:relative;overflow:hidden}
+  @media print{html,body{background:#fff}.page{margin:0}}
+
+  .frame{position:absolute;inset:6mm;border:1.6pt solid var(--navy);border-radius:3.5mm;pointer-events:none;z-index:3}
+  .frame::after{content:"";position:absolute;inset:1.3mm;border:.5pt solid var(--gold);border-radius:2.4mm}
+  .wm{position:absolute;left:50%;top:57%;width:122mm;height:122mm;transform:translate(-50%,-50%);opacity:.07;mix-blend-mode:multiply;pointer-events:none}
+  .wm img{width:100%;height:100%;object-fit:contain}
+  .inner{position:absolute;inset:7.3mm;display:flex;flex-direction:column;border-radius:2.4mm;overflow:hidden}
+
+  /* ===== শিরোনাম (সাদা, হালকা প্রিমিয়াম) ===== */
+  .head{display:grid;grid-template-columns:24mm minmax(0,1fr) 24mm;align-items:center;gap:3mm;padding:4mm 5mm 0;flex:none}
+  .head img{width:24mm;height:24mm;object-fit:contain}
+  .brand{text-align:center}
+  .brand .bn{font-family:'Baloo Da 2',sans-serif;font-weight:800;color:var(--navy);font-size:18.4pt;line-height:1.15;white-space:nowrap}
+  .brand .bn .amp{color:var(--navy);padding:0 1.6mm}
+  .brand .orn{display:flex;align-items:center;justify-content:center;gap:1.6mm;margin:1mm auto .8mm;width:70mm}
+  .brand .orn i{flex:1;height:0;border-top:.6pt solid var(--gold)}
+  .brand .orn b{width:1.5mm;height:1.5mm;background:var(--gold);transform:rotate(45deg)}
+  .brand .addr{font-size:8.2pt;color:var(--muted);line-height:1.42;margin-top:1.4mm}
+  .rule{flex:none;margin:3mm 5mm 0;border-top:1.4pt solid var(--navy);position:relative}
+  .rule::after{content:"";position:absolute;left:0;right:0;top:1.1pt;border-top:.6pt solid var(--gold)}
+
+  .body{position:relative;flex:1;display:flex;flex-direction:column;padding:0 5mm}
+
+  .title{text-align:center;margin-top:3.6mm}
+  .title .exam{font-family:'Noto Serif Bengali',serif;font-weight:800;font-size:16.5pt;color:var(--navy);letter-spacing:.2pt}
+  .title .exam span{color:inherit}
+  .title .pill{display:inline-block;margin-top:1.6mm;background:var(--navy);color:#fff;font-family:'Noto Serif Bengali',serif;font-weight:800;font-size:15pt;padding:.8mm 10mm 1.3mm;border-radius:20mm;position:relative;letter-spacing:.6pt;box-shadow:inset 0 0 0 .5mm var(--navy),inset 0 0 0 .8mm var(--gold2)}
+  .title .pill::before,.title .pill::after{content:"";position:absolute;top:50%;width:14mm;border-top:.8pt solid var(--gold)}
+  .title .pill::before{right:100%;margin-right:3mm}
+  .title .pill::after{left:100%;margin-left:3mm}
+
+  /* তথ্য */
+  .info{display:grid;grid-template-columns:1fr 38mm;gap:6mm;margin-top:3.6mm}
+  .roll{display:flex;align-items:center;gap:3mm;margin-bottom:1.2mm}
+  .roll .lb{font-size:9.5pt;color:var(--muted);font-weight:600}
+  .roll .no{font-weight:800;font-size:19pt;color:var(--navy);letter-spacing:2pt;border:1.2pt solid var(--navy);border-radius:2mm;padding:0 4mm;line-height:1.35;background:#fff}
+  table.f{width:100%;border-collapse:collapse;font-size:10.2pt}
+  table.f td{padding:1.45mm 0;border-bottom:.5pt dotted #aab3c6;vertical-align:baseline}
+  table.f td.k{width:31mm;color:var(--muted);font-weight:600;white-space:nowrap}
+  table.f td.c{width:4mm;color:var(--muted)}
+  table.f td.v{font-weight:700}
+  .loc{display:flex;align-items:center;justify-content:space-between;gap:3mm}
+  .loc>span:first-child{line-height:1.45}
+  .mq{display:flex;flex-direction:column;align-items:center;gap:.4mm;flex:none}
+  #mapqr{width:13mm;height:13mm;display:block}
+  #mapqr svg{width:100%;height:100%;display:block}
+  .mq em{font-style:normal;font-weight:600;font-size:6.4pt;color:var(--muted);white-space:nowrap}
+  table.f td.v small{font-weight:500;color:var(--muted);font-size:9pt}
+  .side{display:flex;flex-direction:column;align-items:center;gap:1.8mm}
+  /* পাসপোর্ট মাপ: ৩৫ × ৪৫ মিমি (৭:৯) */
+  .photo{width:35mm;height:45mm;position:relative;background:#fff;outline:.8pt solid var(--navy);outline-offset:.9mm}
+  .photo img,.photo .ph{width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block}
+  .photo .ph{background:linear-gradient(#e9edf5,#d5dcea);display:flex;align-items:flex-end;justify-content:center}
+  .photo .tag{position:absolute;left:0;right:0;bottom:1.2mm;text-align:center;font-size:6.6pt;color:#6b7690}
+  .qr{width:23mm;height:23mm;padding:1mm;background:#fff;border:.6pt solid var(--line);margin-top:1.6mm}
+  .qr svg{width:100%;height:100%;display:block}
+  .qrcap{font-size:7.2pt;color:var(--muted);text-align:center;line-height:1.3}
+
+  /* নিয়মাবলি */
+  .rules{margin-top:3.6mm;border:.7pt solid var(--line);border-radius:2.5mm;padding:2.4mm 4.5mm 2.6mm;background:rgba(243,246,251,.72)}
+  .rules h3{margin:0 0 1.4mm;font-family:'Noto Serif Bengali',serif;font-size:11.5pt;color:var(--navy);display:flex;align-items:center;gap:2.5mm}
+  .rules h3::after{content:"";flex:1;border-top:.6pt solid var(--line)}
+  .rules ol{margin:0;padding:0;list-style:none;counter-reset:r;font-size:8.85pt;line-height:1.47}
+  .rules li{counter-increment:r;position:relative;padding-left:6mm;margin:.2mm 0;text-align:justify}
+  .rules li::before{content:counter(r,bengali) ".";position:absolute;left:0;width:5mm;text-align:right;font-weight:700;color:var(--navy)}
+  .rules li b{color:var(--navy);font-weight:800}
+
+  /* সই */
+  .bottom{margin-top:auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:6mm;padding-bottom:3mm}
+  .sig{text-align:center;width:52mm}
+  .sig:last-child{justify-self:end}
+  .sig .im{height:13mm;display:flex;align-items:flex-end;justify-content:center}
+  .sig .im img{max-height:13mm;max-width:44mm}
+  .sig .im svg{height:14mm;width:auto}
+  .sig .ln{border-top:.7pt solid var(--ink);margin-top:.6mm}
+  .sig .ds{font-size:9.6pt;font-weight:700;margin-top:1mm}
+  .help{border:1pt solid var(--navy);border-radius:2.5mm;padding:1.4mm 5mm;text-align:center;align-self:center;background:#fff}
+  .help .t{font-size:8.2pt;color:var(--muted);font-weight:600}
+  .help .n{font-size:12.5pt;font-weight:800;color:var(--navy);letter-spacing:.8pt}
+
+  /* ===== পাদটীকা ===== */
+  .foot{position:relative;flex:none;background:linear-gradient(90deg,var(--navy3),var(--navy) 50%,var(--navy3));color:#eef2fb;border-top:1.2pt solid var(--gold);display:flex;align-items:center;justify-content:center;gap:6mm;padding:2.1mm 5mm;font-size:8.7pt}
+  .foot .it{display:inline-flex;align-items:center;gap:1.7mm;white-space:nowrap}
+  .foot .ic{width:5.2mm;height:5.2mm;border-radius:50%;border:.6pt solid var(--gold2);display:grid;place-items:center}
+  .foot .ic svg{width:2.9mm;height:2.9mm}
+  .foot .sep{width:1mm;height:1mm;background:var(--gold2);transform:rotate(45deg);opacity:.8}
+  .foot .ver{position:absolute;right:4mm;top:50%;transform:translateY(-50%);font-size:6.4pt;color:#94a3c4}
+
+/* ---------- পর্দার জন্য (ছাপায় দেখা যায় না) ---------- */
+.scr{font-family:'Noto Sans Bengali',sans-serif;color:#14203f}
+.bar{position:sticky;top:0;z-index:10;background:#13265a;color:#fff;display:flex;align-items:center;gap:10px;padding:10px 14px;flex-wrap:wrap}
+.bar b{font-family:'Baloo Da 2',sans-serif;font-size:17px;flex:1;min-width:160px}
+.bar button,.bar a{border:0;border-radius:10px;padding:10px 16px;font:600 15px 'Noto Sans Bengali',sans-serif;cursor:pointer;text-decoration:none}
+.bar .dl{background:linear-gradient(180deg,#e6c77d,#c39a45);color:#1b1404}
+.bar .pr{background:rgba(255,255,255,.14);color:#fff}
+.tip{max-width:820px;margin:12px auto 0;padding:10px 14px;background:#fff8e1;border:1px solid #f0d58a;border-radius:10px;font-size:14px;line-height:1.6}
+.wrap{padding:14px 0 30px;overflow:hidden}
+.scale{width:210mm;margin-left:50%;transform-origin:top center}
+.scale .page{margin:0}
+.box{max-width:440px;margin:40px auto;background:#fff;border:1px solid #dde3f0;border-radius:18px;padding:26px 22px;text-align:center;box-shadow:0 8px 24px rgba(20,32,63,.08)}
+.box img.lg{width:64px;height:64px;margin:0 6px}
+.box h1{font-family:'Baloo Da 2',sans-serif;font-size:24px;margin:10px 0 6px;color:#13265a}
+.box p{color:#4a5675;line-height:1.7;margin:6px 0}
+.box input{width:100%;padding:12px;border:1px solid #c9d2e6;border-radius:10px;font:16px 'Noto Sans Bengali',sans-serif;margin-top:8px}
+.box .go{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#13265a;color:#fff;font:700 16px 'Noto Sans Bengali',sans-serif;cursor:pointer}
+.box .err{color:#d33b3b;min-height:20px;margin-top:8px;font-size:14px}
+.prog{height:6px;background:#e6ebf5;border-radius:6px;overflow:hidden;margin:18px 0 6px}
+.prog i{display:block;height:100%;width:30%;background:linear-gradient(90deg,#c39a45,#e6c77d);border-radius:6px;animation:pg 1.4s ease-in-out infinite}
+@keyframes pg{0%{margin-left:-30%}100%{margin-left:100%}}
+.dev{text-align:center;font-size:12px;color:#7b86a3;margin:18px 0}
+@media print{.scr,.bar,.tip,.dev{display:none!important}.wrap{padding:0}.scale{transform:none!important;height:auto!important;margin:0!important}body{background:#fff}}
+html,body{background:#e9ecf2}
+</style>
+<script>var API_URL = 'https://script.google.com/macros/s/AKfycbyfL1EUYdUrfEqIwvBVi2Ia8J8sEqXA4Byo78EaccmH-9oIb3YAnHil0SjlUS-YdFCH/exec';</script>
+</head>
+<body>
+<div id="root">
+  <div class="box scr"><img class="lg" src="../assets/tee-logo.png" alt=""><img class="lg" src="../assets/tth-logo.png" alt="">
+    <h1>আপনার প্রবেশপত্র প্রস্তুত হচ্ছে…</h1><div class="prog"><i></i></div><p>কয়েক সেকেন্ড অপেক্ষা করুন, পাতা বন্ধ করবেন না।</p></div>
+</div>
+<div class="dev">Developed By: Md. Ashraful Islam</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function N(x) { return String(x == null ? '' : x).replace(/[0-9]/g, function (d) { return '০১২৩৪৫৬৭৮৯'[d]; }); }
+function call(fn, args) {
+  return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args || [] }) })
+    .then(function (r) { return r.json(); }, function () { throw new Error('ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।'); })
+    .then(function (j) { if (!j || !j.ok) throw new Error((j && j.error) || 'সমস্যা হয়েছে।'); return j.data; });
+}
+var root = document.getElementById('root');
+var SIG_ASHRAFUL = '<svg viewBox="0 0 860 240" aria-hidden="true"><g fill="none" stroke="#14275a" stroke-linecap="round" stroke-linejoin="round"><path d="M26 82 C28 75 34 72 44 72 C200 63 400 55 548 48 C556 48 562 46 568 42" stroke-width="4.4"/><path d="M46 186 C66 144 90 102 112 64 C120 102 130 146 140 174 C146 188 158 182 166 164" stroke-width="4.8"/><path d="M512 26 C504 84 492 140 480 178 C476 190 486 192 496 176" stroke-width="4.6"/><path d="M90 208 C300 214 600 202 800 152" stroke-width="4"/></g><ellipse cx="107" cy="136" rx="7" ry="6" fill="#14275a"/><text x="164" y="162" font-family="Mrs Saint Delafield" font-size="98" fill="#14275a">shraful</text><text x="494" y="162" font-family="Mrs Saint Delafield" font-size="98" fill="#14275a">slam</text><ellipse cx="812" cy="146" rx="6.5" ry="5.6" fill="#14275a"/></svg>';
+function sigImg(sg) {
+  var i = (sg && sg.img) || '';
+  if (i === 'site:ashraful') return SIG_ASHRAFUL;
+  if (i === 'site:sumon') return '<img src="../assets/sumon-sir-signature.png" alt="">';
+  return i ? '<img src="' + esc(i) + '" alt="">' : '';
+}
+function qrSvg(text, level) { var q = qrcode(0, level || 'M'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); }
+function rule(r) { return esc(r).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
+var IC = {
+  web: '<svg viewBox="0 0 24 24" fill="none" stroke="#e6c77d" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></svg>',
+  fb: '<svg viewBox="0 0 24 24" fill="#e6c77d"><path d="M14 8h2.5V4.5H14c-2.5 0-4 1.7-4 4V11H7.5v3.5H10V21h3.5v-6.5H16l.5-3.5h-3V8.7c0-.4.3-.7.5-.7z"/></svg>',
+  yt: '<svg viewBox="0 0 24 24" fill="#e6c77d"><path d="M21.6 7.2a2.6 2.6 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4A2.6 2.6 0 0 0 2.4 7.2 27 27 0 0 0 2 12a27 27 0 0 0 .4 4.8 2.6 2.6 0 0 0 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4a2.6 2.6 0 0 0 1.8-1.8A27 27 0 0 0 22 12a27 27 0 0 0-.4-4.8zM10 15V9l5.2 3z"/></svg>',
+  wa: '<svg viewBox="0 0 24 24" fill="#e6c77d"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.2-.8-2.7-1.1-4.4-3.9-4.5-4.1-.1-.2-1.1-1.4-1.1-2.7s.7-1.9.9-2.2c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.4z"/></svg>'
+};
+
+function admitHtml(d) {
+  var L = d.links || {}, foot = [];
+  if (L.web) foot.push('<span class="it"><span class="ic">' + IC.web + '</span>' + esc(L.web) + '</span>');
+  if (L.fb) foot.push('<span class="it"><span class="ic">' + IC.fb + '</span>' + esc(L.fb) + '</span>');
+  if (L.yt) foot.push('<span class="it"><span class="ic">' + IC.yt + '</span>' + esc(L.yt) + '</span>');
+  if (L.wa) foot.push('<span class="it"><span class="ic">' + IC.wa + '</span>' + esc(L.wa) + '</span>');
+  var ver = 'সংস্করণ ' + N(d.version || 1) + (d.updated ? ' · ' + esc(d.updated) : '');
+  return '<div class="page" id="sheet"><div class="frame"></div><div class="inner">' +
+    '<header class="head"><img src="../assets/tee-logo.png" alt=""><div class="brand"><div class="bn">' + esc(d.orgNames).replace(' ও ', '<span class="amp">ও</span>') + '</div>' +
+    '<div class="addr">' + esc(d.address) + '<br>ফোন: ' + esc(d.phones) + '</div></div><img src="../assets/tth-logo.png" alt=""></header><div class="rule"></div>' +
+    '<div class="body"><div class="wm"><img src="../assets/tth-logo.png" alt=""></div>' +
+    '<div class="title"><div class="exam">' + esc(d.examTitle) + '</div><div class="pill">প্রবেশপত্র</div></div>' +
+    '<section class="info"><div><div class="roll"><span class="lb">রোল নং</span><span class="no">' + esc(d.rollBn) + '</span></div><table class="f">' +
+    '<tr><td class="k">আবেদনকারীর নাম</td><td class="c">:</td><td class="v">' + esc(d.nameBn) + '</td></tr>' +
+    '<tr><td class="k">শ্রেণি</td><td class="c">:</td><td class="v">' + esc(d.cls) + '</td></tr>' +
+    '<tr><td class="k">বিষয়</td><td class="c">:</td><td class="v">' + esc(d.subject) + '</td></tr>' +
+    '<tr><td class="k">পরীক্ষার তারিখ</td><td class="c">:</td><td class="v">' + esc(d.examDate).replace(/\((.+)\)/, '<small>($1)</small>') + '</td></tr>' +
+    '<tr><td class="k">পরীক্ষার সময়</td><td class="c">:</td><td class="v">' + esc(d.examTime) + '</td></tr>' +
+    '<tr><td class="k">পরীক্ষাকেন্দ্র</td><td class="c">:</td><td class="v"><div class="loc"><span>' + esc(d.venue) + '</span>' +
+    (d.mapUrl ? '<span class="mq"><span id="mapqr">' + qrSvg(d.mapUrl, 'L') + '</span><em>ম্যাপে দেখুন</em></span>' : '') + '</div></td></tr></table></div>' +
+    '<div class="side"><div class="photo">' + (d.photo ? '<img src="' + d.photo + '" alt="">' : '<div class="ph"></div>') + '</div>' +
+    '<div class="qr">' + qrSvg(d.scan, 'M') + '</div><div class="qrcap">উপস্থিতির QR কোড<br>ভাঁজ বা নষ্ট করবেন না</div></div></section>' +
+    '<section class="rules"><h3>শর্ত ও নিয়মাবলি</h3><ol>' + (d.rules || []).map(function (r) { return '<li>' + rule(r) + '</li>'; }).join('') + '</ol></section>' +
+    '<section class="bottom"><div class="sig"><div class="im">' + sigImg(d.sigLeft) + '</div><div class="ln"></div><div class="ds">' + esc((d.sigLeft || {}).title) + '</div></div>' +
+    '<div class="help"><div class="t">বিশেষ প্রয়োজনে</div><div class="n">' + esc(d.helpline) + '</div></div>' +
+    '<div class="sig"><div class="im">' + sigImg(d.sigRight) + '</div><div class="ln"></div><div class="ds">' + esc((d.sigRight || {}).title) + '</div></div></section></div>' +
+    '<footer class="foot">' + foot.join('<span class="sep"></span>') + '<span class="ver">' + ver + '</span></footer></div></div>';
+}
+
+function fit() {
+  var sc = document.querySelector('.scale'); if (!sc) return;
+  var w = 793.7, avail = Math.min(window.innerWidth - 16, 900), k = Math.min(1, avail / w);
+  sc.style.transform = 'translateX(-50%) scale(' + k + ')'; sc.style.height = (1122.5 * k) + 'px';
+}
+window.addEventListener('resize', fit);
+
+function showAdmit(d) {
+  document.title = 'প্রবেশপত্র — রোল ' + N(d.roll);
+  root.innerHTML = '<div class="bar scr"><b>প্রবেশপত্র · রোল ' + esc(d.rollBn) + '</b><button class="dl" id="dl">⬇ PDF নামান (A4)</button><button class="pr" onclick="window.print()">🖨 প্রিন্ট</button></div>' +
+    '<div class="tip scr">📌 প্রবেশপত্র <b>ছাপিয়ে</b> পরীক্ষায় আনতে হবে — মোবাইলে দেখানো গ্রহণযোগ্য নয়। A4 কাগজে এক পাতায় ছাপুন, QR কোড ভাঁজ করবেন না।</div>' +
+    '<div class="wrap"><div class="scale">' + admitHtml(d) + '</div></div>';
+  fit();
+  document.getElementById('dl').onclick = function () { pdf(this, d); };
+}
+
+function pdf(btn, d) {
+  var old = btn.textContent; btn.disabled = true; btn.textContent = 'তৈরি হচ্ছে…';
+  var sc = document.querySelector('.scale'), keep = sc.style.transform;
+  sc.style.transform = 'translateX(-50%)';
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(function () {
+    return html2canvas(document.getElementById('sheet'), { scale: 2.5, useCORS: true, backgroundColor: '#ffffff' });
+  }).then(function (c) {
+    var doc = new jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    doc.addImage(c.toDataURL('image/jpeg', 0.93), 'JPEG', 0, 0, 210, 297);
+    doc.save('probeshpotro-' + d.roll + '.pdf');
+  }).catch(function () { alert('PDF তৈরি হয়নি — "প্রিন্ট" চেপে "Save as PDF" বেছে নিন।'); })
+    .then(function () { sc.style.transform = keep; btn.disabled = false; btn.textContent = old; });
+}
+
+function msgBox(title, body) {
+  root.innerHTML = '<div class="box scr"><img class="lg" src="../assets/tee-logo.png" alt=""><img class="lg" src="../assets/tth-logo.png" alt=""><h1>' + title + '</h1>' + body + '</div>';
+}
+function findForm(err) {
+  msgBox('প্রবেশপত্র খুঁজুন', '<p>SMS-এ পাওয়া রোল নম্বর আর আবেদনের মোবাইল নম্বর দিন।</p>' +
+    '<input id="fr" inputmode="numeric" placeholder="রোল নম্বর (৬ অঙ্ক)"><input id="fm" inputmode="tel" placeholder="মোবাইল নম্বর"><button class="go" id="fgo">খুঁজুন</button><div class="err" id="fe">' + esc(err || '') + '</div>');
+  document.getElementById('fgo').onclick = function () {
+    var b = this; b.disabled = true; b.textContent = 'খুঁজছি…';
+    call('apiAdmitFind', [document.getElementById('fr').value, document.getElementById('fm').value]).then(function (r) {
+      location.hash = r.token; load();
+    }, function (e) { b.disabled = false; b.textContent = 'খুঁজুন'; document.getElementById('fe').textContent = e.message; });
+  };
+}
+function load() {
+  var tok = (location.hash || '').replace(/^#/, '').trim();
+  if (!tok) return findForm();
+  root.innerHTML = '<div class="box scr"><img class="lg" src="../assets/tee-logo.png" alt=""><img class="lg" src="../assets/tth-logo.png" alt=""><h1>আপনার প্রবেশপত্র প্রস্তুত হচ্ছে…</h1><div class="prog"><i></i></div><p>কয়েক সেকেন্ড অপেক্ষা করুন, পাতা বন্ধ করবেন না।</p></div>';
+  call('apiAdmit', [tok]).then(function (d) {
+    if (d.cancelled) return msgBox('আবেদন বাতিল', '<p>রোল ' + esc(d.roll) + '-এর আবেদন বাতিল করা হয়েছে।</p>' + (d.reason ? '<p>কারণ: ' + esc(d.reason) + '</p>' : '') + '<p>প্রয়োজনে যোগাযোগ: ' + esc(d.helpline) + '</p>');
+    if (d.pending) return msgBox('যাচাই চলছে', '<p>আপনার আবেদনটি এখনো যাচাই হচ্ছে। অনুমোদন হলে SMS-এ জানানো হবে।</p><p>প্রয়োজনে যোগাযোগ: ' + esc(d.helpline) + '</p>');
+    showAdmit(d);
+  }, function (e) { findForm(e.message); });
+}
+window.addEventListener('hashchange', load);
+load();
+</script>
+</body>
+</html>
