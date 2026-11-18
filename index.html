@@ -246,6 +246,21 @@ table.t th{color:var(--tx2);font-weight:600;font-size:13px}
 .bulk{position:sticky;bottom:12px;z-index:15;margin-top:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--acc);border-radius:14px;padding:10px 14px;box-shadow:var(--sh)}
 .bulk b{color:var(--acc);margin-right:6px}
 @media (max-width:860px){.bulk{bottom:72px}}
+
+/* ফর্মের প্রশ্ন */
+.qsec{border:1px solid var(--line);border-radius:14px;margin-bottom:14px;overflow:hidden;background:var(--card)}
+.qsech{background:var(--card2);border-bottom:1px solid var(--line)}
+.qsech>.qtt{padding:12px 14px;font-weight:700}
+.qcard{border-bottom:1px solid var(--line)}
+.qcard:last-child{border-bottom:0}
+.qcard.open{background:var(--bg2)}
+.qrow{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer}
+.qrow.lk{cursor:default;opacity:.75}
+.qrow:hover:not(.lk){background:var(--card2)}
+.qtt{flex:1;min-width:0;font-weight:600}
+.qtt small{color:var(--tx3);font-weight:500}
+.qtt .nw{color:var(--acc)}
+.qform{padding:4px 14px 14px}
 </style>
 </head>
 <body>
@@ -413,6 +428,7 @@ var PAGES = [
   ['applicants', 'প্রার্থী', 'users', 'applicants'],
   ['subjects', 'শ্রেণি ও বিষয়', 'book', 'subjects'],
   ['form', 'আবেদন ফর্ম', 'form', 'form'],
+  ['qedit', 'ফর্মের প্রশ্ন', 'edit', 'form'],
   ['settings', 'সেটিংস', 'set', 'settings'],
   ['sms', 'SMS', 'sms', 'sms'],
   ['users', 'ব্যবহারকারী', 'key', 'owner'],
@@ -615,7 +631,9 @@ function drawApplicant(a) {
             ['স্নাতক শিক্ষাপ্রতিষ্ঠান', a.institution], ['বিভাগ', a.dept], ['বর্ষ', a.year], ['SSC', a.ssc], ['HSC', a.hsc], ['মাধ্যম', a.medium], ['ফ্রি সময়', a.freeTime],
             ['অভিজ্ঞতা', a.experience], ['কীভাবে জানলেন', a.source], ['জমার সময়', dtx(a.submittedAt)], ['অনুমোদন', dtx(a.approvedAt)], ['নোট', a.note],
             ['শেষ বদল', a.updatedBy ? dtx(a.updatedAt) + ' · ' + a.updatedBy : '']];
-  h += '<dl class="kv">' + kv.filter(function (x) { return x[1]; }).map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + esc(x[1]) + '</dd>'; }).join('') + '</dl>';
+  var ex = {}; try { ex = JSON.parse(a.extra || '{}') || {}; } catch (e) {}
+  Object.keys(ex).forEach(function (k) { if (ex[k]) kv.push([k, ex[k]]); });
+  h += '<dl class="kv">' + kv.filter(function (x) { return x[1]; }).map(function (x) { return '<dt>' + esc(x[0]) + '</dt><dd>' + esc(x[1]) + '</dd>'; }).join('') + '</dl>';
   $('dr').innerHTML = h; S.cur = a;
 }
 function applyRow(a) {
@@ -1051,6 +1069,89 @@ function logout(btn) { busy(btn, callServer('apiLogout')).then(function () { set
   var h = (location.hash || '').slice(1); if (h && PAGES.some(function (p) { return p[0] === h; })) S.page = h;
   start();
 })();
+
+/* ═════════════ ফর্মের প্রশ্ন — অ্যাপ থেকে গুগল ফর্মের প্রশ্ন বদলানো ═════════════ */
+var QE = { items: null, open: '', types: {} };
+var QE_CHOICE = { MULTIPLE_CHOICE: 1, CHECKBOX: 1, LIST: 1 };
+var QE_REQ = { TEXT: 1, PARAGRAPH_TEXT: 1, MULTIPLE_CHOICE: 1, CHECKBOX: 1, LIST: 1, DATE: 1 };
+
+function page_qedit() {
+  return '<div class="ph"><h2>ফর্মের প্রশ্ন</h2><span class="sp"></span><button class="btn sm" onclick="qeLoad(this)">' + icon('renew') + 'ফর্ম থেকে আবার পড়ো</button></div>' +
+    '<div class="note" style="margin-bottom:14px">এখানে বদলালে সঙ্গে সঙ্গে গুগল ফর্মে বসে। 🔒 চিহ্নের অংশ অন্য পাতা থেকে বদলায় (শ্রেণি-বিষয় → "শ্রেণি ও বিষয়", বিজ্ঞপ্তি ও জরুরি কথা → "আবেদন ফর্ম")। নাম, মোবাইল, ছবি আর ঘোষণা মোছা যায় না। নতুন যোগ করা প্রশ্নের উত্তর প্রার্থীর পাতায় "অতিরিক্ত" অংশে দেখাবে।</div>' +
+    '<div id="qeList"><div class="loading"><span class="spin"></span> ফর্ম পড়ছি…</div></div>';
+}
+function after_qedit() { if (QE.items) qeDraw(); else qeLoad(); }
+function qeLoad(btn) {
+  var p = callServer('apiFormItems');
+  (btn ? busy(btn, p) : p).then(function (r) { QE.items = r.items; QE.types = r.types; qeDraw(); },
+    function (e) { authFail(e); if ($('qeList')) $('qeList').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+}
+function qeDraw() {
+  var L = QE.items || [], h = '', inSec = false;
+  L.forEach(function (it, i) {
+    if (it.type === 'PAGE_BREAK') {
+      if (inSec) h += '</div>';
+      h += '<div class="qsec"><div class="qsech">' + qeCard(it, i, true) + '</div>';
+      inSec = true;
+    } else {
+      if (!inSec) { h += '<div class="qsec"><div class="qsech"><div class="qtt">প্রথম অংশ (বিজ্ঞপ্তি ও শ্রেণি)</div></div>'; inSec = true; }
+      h += qeCard(it, i, false);
+    }
+  });
+  if (inSec) h += '</div>';
+  $('qeList').innerHTML = h || '<div class="empty">ফর্মে কোনো প্রশ্ন নেই।</div>';
+}
+function qeCard(it, i, isSec) {
+  var lock = it.locked === 'all', open = QE.open === it.id;
+  var head = '<div class="qrow' + (lock ? ' lk' : '') + '"' + (lock ? '' : ' onclick="QE.open=QE.open===\'' + it.id + '\'?\'\':\'' + it.id + '\';qeDraw()"') + '>' +
+    (isSec ? '' : '<span class="chip">' + esc(QE.types[it.type] || it.type) + '</span>') +
+    '<div class="qtt">' + (isSec ? 'অংশ: ' : '') + esc(it.title || '(নাম নেই)') + (it.required ? ' <b style="color:var(--bad)">*</b>' : '') +
+    (it.name && it.key !== 'custom' && !isSec ? ' <small>· ' + esc(it.name) + '</small>' : '') + (it.key === 'custom' ? ' <small class="nw">নতুন</small>' : '') + '</div>' +
+    (lock ? '<span class="tiny">🔒 ' + esc(it.why) + '</span>' : '<span class="tiny">' + (open ? '▲' : 'বদলাতে চাপুন ▼') + '</span>') + '</div>';
+  if (!open || lock) return isSec ? head : '<div class="qcard">' + head + '</div>';
+  var f = '<div class="qform">';
+  f += '<div class="fld"><label>' + (isSec ? 'অংশের নাম' : 'প্রশ্ন') + '</label><input class="in" id="qe_t"' + (it.locked === 'title' ? ' disabled' : '') + ' value="' + esc(it.title) + '">' + (it.locked === 'title' ? '<div class="hint">🔒 ' + esc(it.why) + '</div>' : '') + '</div>';
+  f += '<div class="fld"><label>নিচের ব্যাখ্যা (ঐচ্ছিক)</label><textarea class="in" id="qe_h" rows="2">' + esc(it.help) + '</textarea></div>';
+  if (QE_CHOICE[it.type]) {
+    f += '<div class="fld"><label>বিকল্প (প্রতি লাইনে একটা)</label><textarea class="in" id="qe_c" rows="' + Math.min(10, (it.choices || []).length + 1) + '"' + (it.locked === 'choices' ? ' disabled' : '') + '>' + esc((it.choices || []).join('\n')) + '</textarea>' +
+      (it.locked === 'choices' ? '<div class="hint">🔒 ' + esc(it.why) + '</div>' : '') + '</div>';
+    if (it.type !== 'LIST' && it.locked !== 'choices') f += '<div class="fld">' + sw('qe_o', it.other, '"অন্যান্য" ঘর (নিজে লিখতে পারবেন)') + '</div>';
+  }
+  if (QE_REQ[it.type]) f += '<div class="fld">' + sw('qe_r', it.required, 'আবশ্যক (না দিলে জমা হবে না)') + '</div>';
+  f += '<div class="btns"><button class="btn pri" onclick="qeSave(this,\'' + it.id + '\')">সেভ</button>' +
+    '<button class="btn sm ghost" title="ওপরে" onclick="qeMove(this,\'' + it.id + '\',-1)">' + icon('up') + '</button><button class="btn sm ghost" title="নিচে" onclick="qeMove(this,\'' + it.id + '\',1)">' + icon('down') + '</button>' +
+    '<button class="btn sm" onclick="qeAdd(\'' + it.id + '\')">' + icon('plus') + 'এর পরে নতুন প্রশ্ন</button>' +
+    (it.canDelete ? '<button class="btn sm bad" onclick="qeDel(this,\'' + it.id + '\')">' + icon('trash') + 'মুছুন</button>' : '') + '</div></div>';
+  return (isSec ? head + f : '<div class="qcard open">' + head + f + '</div>');
+}
+function qeItem(id) { return (QE.items || []).filter(function (x) { return x.id === id; })[0] || {}; }
+function qeSave(btn, id) {
+  var it = qeItem(id), o = { id: id, title: $('qe_t').value, help: $('qe_h').value };
+  if ($('qe_r')) o.required = $('qe_r').checked;
+  if ($('qe_c') && !$('qe_c').disabled) o.choices = $('qe_c').value.split('\n');
+  if ($('qe_o')) o.other = $('qe_o').checked;
+  busy(btn, callServer('apiFormItemSave', [o])).then(function (r) { QE.items = r.items; QE.open = ''; qeDraw(); toast('ফর্মে বসেছে'); });
+}
+function qeMove(btn, id, d) { busy(btn, callServer('apiFormItemMove', [id, d])).then(function (r) { QE.items = r.items; qeDraw(); }); }
+function qeDel(btn, id) {
+  var it = qeItem(id);
+  confirmBox('প্রশ্ন মুছবেন?', '"' + esc(it.title) + '" — ফর্ম থেকে মুছে যাবে। এর আগের উত্তরগুলো প্রার্থীর তালিকায় থেকে যাবে।', 'মুছুন').then(function (ok) {
+    if (ok) busy(btn, callServer('apiFormItemDelete', [id])).then(function (r) { QE.items = r.items; QE.open = ''; qeDraw(); toast('মুছে গেছে'); });
+  });
+}
+function qeAdd(afterId) {
+  var opts = Object.keys(QE.types).filter(function (k) { return k !== 'FILE_UPLOAD'; }).map(function (k) { return '<option value="' + k + '">' + esc(QE.types[k]) + '</option>'; }).join('');
+  confirmBox('নতুন প্রশ্ন', 'এই প্রশ্নের ঠিক পরে বসবে। পরে নাম, বিকল্প, আবশ্যক সব বদলাতে পারবেন।', 'যোগ করুন',
+    '<div class="fld" style="margin-top:10px"><label>ধরন</label><select class="sel" data-x="type">' + opts + '</select></div>' +
+    '<div class="fld"><label>প্রশ্ন</label><input class="in" data-x="title"></div>' +
+    '<div class="fld"><label>বিকল্প (বাছাইয়ের প্রশ্ন হলে, প্রতি লাইনে একটা)</label><textarea class="in" data-x="choices" rows="3"></textarea></div>' +
+    '<label class="sw"><input type="checkbox" data-x="required"><i></i>আবশ্যক</label>').then(function (x) {
+    if (!x) return;
+    callServer('apiFormItemAdd', [{ afterId: afterId, type: x.type, title: x.title, required: !!x.required, choices: String(x.choices || '').split('\n') }]).then(function (r) {
+      QE.items = r.items; QE.open = ''; qeDraw(); toast('প্রশ্ন যোগ হয়েছে');
+    }, function (e) { toast(e.message, 5000); });
+  });
+}
 </script>
 </body>
 </html>
