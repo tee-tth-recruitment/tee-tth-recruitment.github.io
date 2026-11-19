@@ -301,6 +301,13 @@ table.rm td{vertical-align:middle}
 .rpbars em{font-style:normal;font-size:11.5px;color:var(--tx2);margin-bottom:3px}.rpbars small{font-size:11px;color:var(--tx3);margin-top:4px}
 .rpt td{white-space:nowrap}.rpt th{white-space:normal;min-width:64px;vertical-align:bottom;line-height:1.35}.rpt th:first-child{min-width:150px}.rpt tr.tot td{border-top:2px solid var(--line2)}
 @media (max-width:640px){.rpf{grid-template-columns:120px 1fr 44px 36px;gap:6px}.rpf span{font-size:12.5px}}
+
+.lkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(460px,1fr));gap:14px;align-items:start}
+.lkc{margin:0}.lkhd{display:flex;gap:14px;align-items:flex-start}
+.lkqr{width:118px!important;height:118px!important;flex:none;padding:6px!important}
+.lku{margin:8px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;word-break:break-all}.lku a{font-weight:700;color:var(--acc)}
+.lkdl{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+@media (max-width:640px){.lkgrid{grid-template-columns:1fr}.lkqr{width:92px!important;height:92px!important}}
 </style>
 </head>
 <body>
@@ -468,6 +475,7 @@ function reload() {
 var PAGES = [
   ['home', 'হোম', 'home', null],
   ['report', 'প্রতিবেদন', 'chart', 'reports'],
+  ['links', 'লিংক ও QR', 'share', null],
   ['applicants', 'প্রার্থী', 'users', 'applicants'],
   ['subjects', 'শ্রেণি ও বিষয়', 'book', 'subjects'],
   ['form', 'আবেদন ফর্ম', 'form', 'form'],
@@ -2357,6 +2365,154 @@ function rpCsv() {
   var csv = rows.map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
   var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); a.download = 'protibedon.csv'; a.click();
 }
+
+/* ═════════════ লিংক ও QR — সব শেয়ারের লিংক এক জায়গায়: ছোট লিংক, শেয়ারের লেখা, QR ছবি/পোস্টার PDF ═════════════ */
+var LK = { busy: false };
+
+function lkFull(u) { u = String(u || '').trim(); return u ? (/^https?:\/\//.test(u) ? u : 'https://' + u) : ''; }
+function lkDate(ymd) { if (!ymd) return ''; var d = String(ymd).slice(0, 10), w = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'][new Date(d + 'T00:00:00').getDay()]; return ymdBn(d) + ' (' + w + ')'; }
+function lkTime(hm) { if (!hm) return ''; var h = +hm.split(':')[0], part = h < 12 ? 'সকাল' : h < 15 ? 'দুপুর' : h < 18 ? 'বিকাল' : h < 20 ? 'সন্ধ্যা' : 'রাত'; return part + ' ' + N((h % 12 || 12) + ':' + hm.split(':')[1]) + 'টা'; }
+
+// প্রতিটা শেয়ারের লিংক: কার জন্য, কোন ছোট-লিংকের ঘর, শেয়ারের লেখা, পোস্টারের লেখা
+function lkList() {
+  var s = S.boot.settings, site = S.boot.site, org = s.orgNames || '', help = s.helpline || '';
+  var exam = lkDate(s.examDate) + (s.examStart ? ', ' + lkTime(s.examStart) : '');
+  var L = [
+    { key: 'apply', title: 'আবেদন ফর্ম', who: 'প্রার্থীদের জন্য — ফেসবুক, পোস্টার, হোয়াটসঅ্যাপে দিন', perm: 'form', long: site + '/apply/', short: 'shareUrl',
+      poster: 'শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭', posterSub: 'আবেদন করতে QR স্ক্যান করুন', posterNote: 'আবেদনের শেষ তারিখ: ' + lkDate(s.deadline),
+      text: function (u) { return '📢 শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭ — ' + org + '\n\nপঞ্চম থেকে দ্বাদশ শ্রেণির বিভিন্ন বিষয়ে পার্টটাইম শিক্ষক-শিক্ষিকা নিয়োগ দেওয়া হবে। শিক্ষাগত যোগ্যতা: ন্যূনতম স্নাতক অধ্যয়নরত।\n\n📅 আবেদনের শেষ তারিখ: ' + lkDate(s.deadline) + '\n📅 লিখিত পরীক্ষা: ' + exam + '\n\n✍️ আবেদন করুন: ' + u + '\n\n☎ ' + help; },
+      extra: S.boot.form && S.boot.form.url ? { label: 'সরাসরি গুগল ফর্ম', url: S.boot.form.url } : null },
+    { key: 'admit', title: 'প্রবেশপত্র খোঁজা', who: 'প্রার্থীদের জন্য — রোল ও মোবাইল দিয়ে প্রবেশপত্র নামানো', perm: 'form', long: site + '/a/', short: 'admitShort',
+      poster: 'প্রবেশপত্র নামান', posterSub: 'রোল ও আবেদনের মোবাইল নম্বর দিয়ে', posterNote: 'লিখিত পরীক্ষা: ' + exam,
+      text: function (u) { return '🎫 শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭ — প্রবেশপত্র\n\nরোল ও আবেদনে দেওয়া মোবাইল নম্বর দিয়ে প্রবেশপত্র নামান: ' + u + '\n\n📅 লিখিত পরীক্ষা: ' + exam + '\nপ্রবেশপত্র A4 কাগজে ছাপিয়ে আনতে হবে — মোবাইলে দেখানো গ্রহণযোগ্য নয়।\n\n☎ ' + help; } },
+    { key: 'result', title: 'ফলাফল', who: 'প্রার্থীদের জন্য — নিজের ফল, প্রশিক্ষণ ও ডেমো ক্লাসের দিন', perm: 'result', long: site + '/r/', short: 'resultShort',
+      poster: 'লিখিত পরীক্ষার ফলাফল', posterSub: 'রোল ও আবেদনের মোবাইল নম্বর দিয়ে দেখুন', posterNote: 'ফল প্রকাশ: ' + lkDate(s.resultPub && s.resultPub.on && s.resultPub.at ? s.resultPub.at : s.resultDate),
+      text: function (u) { return '📢 শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭ — লিখিত পরীক্ষার ফল\n\nরোল ও আবেদনে দেওয়া মোবাইল নম্বর দিয়ে নিজের ফল দেখুন: ' + u + '\n\nউত্তীর্ণরা একই পাতায় নিজের প্রশিক্ষণ ও ডেমো ক্লাসের দিন দেখতে পাবেন।\n\n☎ ' + help; } },
+    { key: 'duty', title: 'ডিউটি-পাতা (উপস্থিতি স্ক্যান)', who: 'ডিউটির শিক্ষকদের জন্য — শুধু তাঁদের দিন, প্রার্থীদের নয়', perm: 'attend', long: site + '/scan/', short: 'dutyShort',
+      poster: 'ডিউটি — উপস্থিতি স্ক্যান', posterSub: 'শুধু দায়িত্বপ্রাপ্ত শিক্ষকের জন্য', posterNote: 'ডিউটি-কোড নিয়ন্ত্রণ কক্ষ থেকে নিন',
+      text: function (u) { return 'শিক্ষক নিয়োগ পরীক্ষা — উপস্থিতি স্ক্যান\n' + u + '\nডিউটি-কোড: ' + (s.dutyCode ? N(s.dutyCode) : '(উপস্থিতি পাতা থেকে)') + '\n\nলিংক খুলে কোড ও আপনার নাম দিন → আপনার কক্ষ বাছুন → প্রার্থীর প্রবেশপত্রের QR (ছবির নিচের বড়টা) ক্যামেরার সামনে ধরুন। সবুজ ✔ = উপস্থিত। QR নষ্ট হলে রোল লিখে "উপস্থিত"।'; } },
+    { key: 'panel', title: 'প্যানেলের পাতা', who: 'প্যানেল সদস্যদের জন্য — প্রশিক্ষণ ও ডেমো ক্লাসের নম্বর', perm: 'panel', long: site + '/panel/', short: 'panelShort',
+      poster: 'প্যানেল — প্রশিক্ষণ ও ডেমো ক্লাস', posterSub: 'শুধু প্যানেলের সদস্যদের জন্য', posterNote: 'প্যানেল-কোড অফিস থেকে নিন',
+      text: function (u) { return 'প্রশিক্ষণ ও ডেমো ক্লাস — প্যানেলের নম্বর\n' + u + '\nপ্যানেল-কোড: ' + (s.panelCode ? N(s.panelCode) : '(প্যানেলের নম্বর পাতা থেকে)') + '\n\nলিংক খুলে কোড দিন → আপনার প্যানেল ও নাম বাছুন → প্রার্থীর প্রবেশপত্রের QR স্ক্যান করুন বা রোল লিখুন → প্রতিটা মানদণ্ডে নম্বর দিয়ে সেভ।'; } },
+    { key: 'app', title: 'অফিসের অ্যাপ', who: 'অফিসের কর্মীদের জন্য — নিজের ইমেইলে লগইন', perm: null, long: site + '/', short: 'appShort', owner: true,
+      poster: 'শিক্ষক নিয়োগ ২০২৭ — অফিসের অ্যাপ', posterSub: 'শুধু অফিসের কর্মীদের জন্য', posterNote: 'নিজের ইমেইল দিয়ে লগইন করুন',
+      text: function (u) { return 'শিক্ষক নিয়োগ ২০২৭ — অফিসের অ্যাপ\n' + u + '\n\nনিজের ইমেইল দিয়ে লগইন করুন — ইমেইলে কোড যাবে। ফোনে "Add to Home screen" করে রাখতে পারেন।'; } }
+  ];
+  return L.filter(function (x) { return !x.perm || can(x.perm); });
+}
+function lkUrl(x) { return lkFull(S.boot.settings[x.short]) || x.long; }
+
+function page_links() {
+  var L = lkList(), h = '<div class="ph"><h2>লিংক ও QR</h2><span class="sp"></span><button class="btn sm" onclick="lkAllPdf(this)">' + icon('dl') + 'সব QR পোস্টার (PDF)</button><button class="btn sm" onclick="busy(this,reload())">' + icon('renew') + 'হালনাগাদ</button></div>';
+  h += '<div class="lkgrid">' + L.map(function (x) {
+    var u = lkUrl(x), sh = S.boot.settings[x.short] || '', canEdit = x.owner ? S.boot.me.owner : true;
+    return '<div class="card lkc" id="lk_' + x.key + '"><div class="lkhd"><div class="qr lkqr" id="lq_' + x.key + '"></div><div style="flex:1;min-width:0"><h3 style="margin:0 0 2px">' + esc(x.title) + '</h3><div class="tiny">' + esc(x.who) + '</div>' +
+      '<div class="lku"><a href="' + esc(u) + '" target="_blank">' + esc(u.replace(/^https?:\/\//, '')) + '</a>' + (sh ? '<span class="chip ok">ছোট লিংক</span>' : '') + '</div>' +
+      '<div class="btns"><button class="btn sm" onclick="copyText(\'' + esc(u) + '\')">' + icon('copy') + 'লিংক কপি</button><a class="btn sm" href="' + esc(u) + '" target="_blank">' + icon('ext') + 'খুলুন</a></div></div></div>' +
+      (x.extra ? '<div class="tiny" style="margin:8px 0 0">' + esc(x.extra.label) + ': <a href="' + esc(x.extra.url) + '" target="_blank">খুলুন</a> · <a href="#" onclick="copyText(\'' + esc(x.extra.url) + '\');return false">কপি</a> (সাধারণত ওপরের লিংকটাই দিন)</div>' : '') +
+      '<div class="fld" style="margin:12px 0 8px"><label>নিজের ছোট লিংক (ঐচ্ছিক)</label><div class="btns" style="flex-wrap:nowrap"><input class="in" id="ls_' + x.key + '" placeholder="যেমন https://tee.com.bd/' + x.key + '" value="' + esc(sh) + '"' + (canEdit ? '' : ' disabled') + '>' +
+      (canEdit ? '<button class="btn sm" onclick="lkSaveShort(this,\'' + x.key + '\')">সেভ</button>' : '') + '</div><div class="hint">শর্টনারে নাম দিন / ছাড়া, লক্ষ্য ' + esc(x.long) + (canEdit ? '' : ' — শুধু মালিক বদলাতে পারেন') + '</div></div>' +
+      '<div class="fld"><label>শেয়ারের লেখা (দরকারমতো বদলে নিন)</label><textarea class="in" id="lt_' + x.key + '" rows="5">' + esc(x.text(u)) + '</textarea></div>' +
+      '<div class="btns"><button class="btn sm pri" onclick="lkCopyText(\'' + x.key + '\')">' + icon('copy') + 'লেখা কপি</button>' +
+      (navigator.share ? '<button class="btn sm" onclick="lkShare(\'' + x.key + '\')">' + icon('share') + 'শেয়ার</button>' : '') +
+      '<button class="btn sm" onclick="lkWa(\'' + x.key + '\')">WhatsApp</button><button class="btn sm" onclick="lkFb(\'' + x.key + '\')">Facebook</button></div>' +
+      '<div class="lkdl"><span class="tiny">QR নামান:</span><button class="btn sm" onclick="lkQrPng(this,\'' + x.key + '\')">' + icon('dl') + 'QR ছবি</button><button class="btn sm" onclick="lkPosterPng(this,\'' + x.key + '\')">' + icon('dl') + 'পোস্টার ছবি</button><button class="btn sm" onclick="lkPosterPdf(this,\'' + x.key + '\')">' + icon('dl') + 'পোস্টার PDF</button></div></div>';
+  }).join('') + '</div>';
+  return h;
+}
+function after_links() {
+  lkList().forEach(function (x) { var q = qrcode(0, 'M'); q.addData(lkUrl(x)); q.make(); $('lq_' + x.key).innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); });
+}
+function lkGet(key) { return lkList().filter(function (x) { return x.key === key; })[0]; }
+function lkSaveShort(btn, key) {
+  var x = lkGet(key), p = {}; p[x.short] = $('ls_' + key).value.trim();
+  busy(btn, callServer('apiSaveSettings', [p])).then(function (r) { S.boot.settings = r.settings; render(); toast('সেভ হয়েছে — QR ও লেখা এখন এই লিংকের'); });
+}
+function lkCopyText(key) { copyText($('lt_' + key).value); }
+function lkShare(key) { var x = lkGet(key); navigator.share({ title: x.title, text: $('lt_' + key).value }).catch(function () {}); }
+function lkWa(key) { window.open('https://wa.me/?text=' + encodeURIComponent($('lt_' + key).value), '_blank'); }
+function lkFb(key) { var x = lkGet(key); copyText($('lt_' + key).value); window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(lkUrl(x)), '_blank'); toast('লেখা কপি হয়েছে — ফেসবুকে পোস্টের ঘরে পেস্ট করুন', 5000); }
+
+/* ---------- ছবি ও PDF (ক্যানভাসে আঁকা — নেট ছাড়াও চলে) ---------- */
+function lkFonts() {
+  if (!document.fonts) return Promise.resolve();
+  return Promise.all(['800 60px "Baloo Da 2"', '700 40px "Noto Sans Bengali"', '400 30px "Noto Sans Bengali"'].map(function (f) { return document.fonts.load(f, 'অআ'); })).catch(function () {});
+}
+function lkImg(src) { return new Promise(function (ok) { var i = new Image(); i.onload = function () { ok(i); }; i.onerror = function () { ok(null); }; i.src = src; }); }
+function lkDrawQr(ctx, url, x, y, size) {
+  var q = qrcode(0, 'M'); q.addData(url); q.make();
+  var n = q.getModuleCount(), c = size / n;
+  ctx.fillStyle = '#0f1a3a';
+  for (var r = 0; r < n; r++) for (var k = 0; k < n; k++) if (q.isDark(r, k)) ctx.fillRect(Math.floor(x + k * c), Math.floor(y + r * c), Math.ceil(c), Math.ceil(c));
+}
+function lkWrap(ctx, text, x, y, maxW, lh) {
+  var words = String(text).split(' '), line = '', lines = [];
+  words.forEach(function (w) { var t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; });
+  if (line) lines.push(line);
+  lines.forEach(function (l, i) { ctx.fillText(l, x, y + i * lh); });
+  return lines.length * lh;
+}
+function lkRound(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+// শুধু QR (নিচে লিংক) — ১০০০ × ১১২০
+function lkQrCanvas(x) {
+  return lkFonts().then(function () {
+    var u = lkUrl(x), cv = document.createElement('canvas'); cv.width = 1000; cv.height = 1130;
+    var ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 1000, 1130);
+    lkDrawQr(ctx, u, 60, 60, 880);
+    ctx.fillStyle = '#0f1a3a'; ctx.textAlign = 'center'; ctx.font = '700 40px "Noto Sans Bengali", sans-serif';
+    ctx.fillText(u.replace(/^https?:\/\//, ''), 500, 1000);
+    ctx.font = '400 30px "Noto Sans Bengali", sans-serif'; ctx.fillStyle = '#55607a'; ctx.fillText(x.title, 500, 1060);
+    return cv;
+  });
+}
+// A4 পোস্টার — ১২৪০ × ১৭৫৪ (১৫০ dpi)
+function lkPosterCanvas(x) {
+  return Promise.all([lkFonts(), lkImg('assets/tee-logo.png'), lkImg('assets/tth-logo.png')]).then(function (r) {
+    var s = S.boot.settings, u = lkUrl(x), W = 1240, H = 1754, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    var ctx = cv.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+    // মাথা
+    var g = ctx.createLinearGradient(0, 0, 0, 430); g.addColorStop(0, '#13265a'); g.addColorStop(1, '#0f1a3a');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, 430);
+    ctx.fillStyle = '#e6c77d'; ctx.fillRect(0, 430, W, 10);
+    [r[1], r[2]].forEach(function (im, i) {
+      if (!im) return; var cx = W / 2 + (i ? 85 : -85), cy = 110;
+      ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, 70, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill(); ctx.clip(); ctx.drawImage(im, cx - 62, cy - 62, 124, 124); ctx.restore();
+    });
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#e6c77d'; ctx.font = '700 34px "Noto Sans Bengali", sans-serif'; ctx.fillText(s.orgNames || '', W / 2, 232);
+    ctx.fillStyle = '#fff'; ctx.font = '800 70px "Baloo Da 2", "Noto Sans Bengali", sans-serif'; lkWrap(ctx, x.poster, W / 2, 318, W - 120, 78);
+    // QR
+    lkRound(ctx, 190, 500, 860, 860, 36); ctx.fillStyle = '#f4f6fb'; ctx.fill(); ctx.strokeStyle = '#dde3f0'; ctx.lineWidth = 3; ctx.stroke();
+    lkDrawQr(ctx, u, 230, 540, 780);
+    // নিচের লেখা
+    ctx.fillStyle = '#13265a'; ctx.font = '700 44px "Noto Sans Bengali", sans-serif'; ctx.fillText(x.posterSub, W / 2, 1440);
+    ctx.fillStyle = '#b07d1f'; ctx.font = '700 40px "Noto Sans Bengali", sans-serif'; ctx.fillText(u.replace(/^https?:\/\//, ''), W / 2, 1505);
+    ctx.fillStyle = '#3d4866'; ctx.font = '400 34px "Noto Sans Bengali", sans-serif'; lkWrap(ctx, x.posterNote || '', W / 2, 1565, W - 160, 44);
+    ctx.fillStyle = '#0f1a3a'; ctx.fillRect(0, H - 90, W, 90);
+    ctx.fillStyle = '#e6c77d'; ctx.font = '400 26px "Noto Sans Bengali", sans-serif';
+    ctx.fillText((s.address || '') + (s.helpline ? '  ·  ☎ ' + s.helpline : ''), W / 2, H - 36);
+    return cv;
+  });
+}
+function lkName(x, kind) { return 'qr-' + x.key + (kind ? '-' + kind : ''); }
+function lkSave(cv, name) { var a = document.createElement('a'); a.href = cv.toDataURL('image/png'); a.download = name + '.png'; a.click(); }
+function lkJsPdf() {
+  if (window.jspdf) return Promise.resolve(window.jspdf);
+  return new Promise(function (ok, no) { var sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; sc.onload = function () { ok(window.jspdf); }; sc.onerror = function () { no(new Error('PDF বানানোর ফাইল আনা যায়নি — নেট দেখে আবার চেষ্টা করুন।')); }; document.head.appendChild(sc); });
+}
+function lkQrPng(btn, key) { var x = lkGet(key); busy(btn, lkQrCanvas(x)).then(function (cv) { lkSave(cv, lkName(x)); }); }
+function lkPosterPng(btn, key) { var x = lkGet(key); busy(btn, lkPosterCanvas(x)).then(function (cv) { lkSave(cv, lkName(x, 'poster')); }); }
+function lkPdfOf(list) {
+  return lkJsPdf().then(function (J) {
+    var doc = new J.jsPDF({ unit: 'mm', format: 'a4' });
+    return list.reduce(function (p, x, i) {
+      return p.then(function () { return lkPosterCanvas(x); }).then(function (cv) { if (i) doc.addPage(); doc.addImage(cv.toDataURL('image/jpeg', 0.93), 'JPEG', 0, 0, 210, 297); });
+    }, Promise.resolve()).then(function () { return doc; });
+  });
+}
+function lkPosterPdf(btn, key) { var x = lkGet(key); busy(btn, lkPdfOf([x])).then(function (doc) { doc.save(lkName(x, 'poster') + '.pdf'); }); }
+function lkAllPdf(btn) { busy(btn, lkPdfOf(lkList())).then(function (doc) { doc.save('shob-qr-poster.pdf'); toast('সব পোস্টার এক PDF-এ নামানো হলো'); }); }
 </script>
 </body>
 </html>
