@@ -796,14 +796,14 @@ function page_home() {
 /* ---------- প্রার্থী ---------- */
 function page_applicants() {
   var A = S.boot.applicants || [], af = S.af;
-  var cnt = { all: 0, approved: 0, problem: 0, pending: 0, cancelled: 0 };
-  A.forEach(function (a) { cnt.all++; cnt[a.status] = (cnt[a.status] || 0) + 1; });
+  var cnt = { all: 0, approved: 0, problem: 0, pending: 0, cancelled: 0, test: 0 };
+  A.forEach(function (a) { if (a.test) { cnt.test++; return; } cnt.all++; cnt[a.status] = (cnt[a.status] || 0) + 1; });
   var classes = []; S.boot.subjects.forEach(function (s) { if (classes.indexOf(s.cls) === -1) classes.push(s.cls); });
   var subs = S.boot.subjects.filter(function (s) { return !af.cls || s.cls === af.cls; });
   var h = '<div class="ph"><h2>প্রার্থী</h2><span class="sp"></span>' +
     (can('applicants_edit') ? '<button class="btn sm" onclick="findMissing(this)" title="ফর্মে জমা হয়েছে কিন্তু তালিকায় আসেনি — এমন আবেদন খোঁজে">' + icon('renew') + 'বাদ পড়া আবেদন খুঁজুন</button>' : '') +
     '<button class="btn sm" onclick="busy(this,reload())">' + icon('renew') + 'হালনাগাদ</button></div>';
-  h += '<div class="tabs">' + [['all', 'সব'], ['approved', 'অনুমোদিত'], ['problem', 'সমস্যা'], ['pending', 'অপেক্ষায়'], ['cancelled', 'বাতিল']].map(function (t) {
+  h += '<div class="tabs">' + [['all', 'সব'], ['approved', 'অনুমোদিত'], ['problem', 'সমস্যা'], ['pending', 'অপেক্ষায়'], ['cancelled', 'বাতিল']].concat(S.boot.me.owner && cnt.test ? [['test', '🧪 টেস্ট']] : []).map(function (t) {
     return '<button class="' + (af.tab === t[0] ? 'on' : '') + '" onclick="S.af.tab=\'' + t[0] + '\';render()">' + t[1] + '<span>' + N(cnt[t[0]] || 0) + '</span></button>';
   }).join('') + '</div>';
   h += '<div class="bar"><input class="in" id="aq" placeholder="রোল, নাম বা মোবাইল দিয়ে খুঁজুন…" value="' + esc(af.q) + '">' +
@@ -818,7 +818,7 @@ function rowKey(a) { return String(a.roll || a.rid); }
 function visibleList() {
   var af = S.af, q = af.q.trim().toLowerCase().replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); });
   return (S.boot.applicants || []).filter(function (a) {
-    if (af.tab !== 'all' && a.status !== af.tab) return false;
+    if (af.tab === 'test') { if (!a.test) return false; } else if (a.test || (af.tab !== 'all' && a.status !== af.tab)) return false;
     if (af.cls && a.cls !== af.cls) return false;
     if (af.subj && a.subject !== af.subj) return false;
     if (q && (String(a.roll) + ' ' + a.nameBn + ' ' + a.nameEn + ' ' + a.mobile).toLowerCase().indexOf(q) === -1) return false;
@@ -841,7 +841,14 @@ function drawBulk() {
       '<button class="btn sm" onclick="bulkDo(this,\'sms\')">' + icon('sms') + 'SMS পাঠাও</button>' : '') +
     '<button class="btn sm" onclick="bulkCsv()">' + icon('dl') + 'এক্সেলে নামাও</button>' +
     (ed ? '<button class="btn sm bad" onclick="bulkDo(this,\'cancel\')">' + icon('x') + 'বাতিল</button>' : '') +
+    (S.boot.me.owner ? '<button class="btn sm" onclick="bulkTest(this,' + (S.af.tab !== 'test') + ')">🧪 ' + (S.af.tab === 'test' ? 'টেস্ট চিহ্ন তুলুন' : 'টেস্ট হিসেবে চিহ্নিত') + '</button>' : '') +
     '<button class="btn sm ghost" onclick="S.sel={};drawList()">বাছাই মুছুন</button>';
+}
+function bulkTest(btn, on) {
+  var keys = selKeys(); if (!keys.length) return;
+  confirmBox(on ? 'টেস্ট আবেদন হিসেবে চিহ্নিত করবেন?' : 'টেস্ট চিহ্ন তুলবেন?', on ? N(keys.length) + 'টি আবেদন কোনো সংখ্যা, তালিকা, প্রতিবেদন, আসন বা ইমেইল-SMS-এ আর আসবে না — শুধু আপনি "🧪 টেস্ট" ট্যাবে দেখবেন।' : N(keys.length) + 'টি আবেদন আবার সাধারণ হিসাবে ফিরবে।', on ? 'হ্যাঁ, টেস্ট' : 'হ্যাঁ, তুলুন').then(function (ok) {
+    if (ok) busy(btn, callServer('apiSetTest', [keys, on])).then(function (r) { S.boot.applicants = r.applicants; S.sel = {}; render(); toast(N(r.changed) + 'টি আবেদন ' + (on ? 'টেস্ট হিসেবে চিহ্নিত' : 'আবার সাধারণ')); reload(); });
+  });
 }
 var BULK_NAME = { approve: 'অনুমোদন', email: 'ইমেইল আবার পাঠানো', sms: 'SMS পাঠানো', cancel: 'বাতিল' };
 function bulkDo(btn, action) {
@@ -893,7 +900,7 @@ function drawList() {
       '<div class="nm"><b>' + esc(a.nameBn || a.nameEn || '(নাম নেই)') + '</b><small>' + esc(a.cls) + ' · ' + esc(a.subject) + ' · ' + N(a.mobile) + (a.problems ? ' · ⚠ ' + esc(a.problems) : '') + '</small></div>' +
       (a.status === 'approved' ? (a.mail === 1 ? '<span class="chip ok" title="রোল ও প্রবেশপত্রের ইমেইল গেছে">ইমেইল গেছে</span>' : a.mail === 0 ? '<span class="chip warn" title="ইমেইল এখনো যায়নি — দৈনিক সীমা শেষ হলে পরদিন নিজে যাবে">ইমেইল বাকি</span>' : '<span class="chip">ইমেইল নেই</span>') +
         (a.smsApprove ? ' <span class="chip ok">SMS গেছে</span>' : ' <span class="chip" title="SMS জমা আছে — SMS পাতা থেকে পাঠানো যাবে">SMS বাকি</span>') : '') +
-      '<span class="chip ' + st[1] + '">' + st[0] + '</span></div>';
+      (a.test ? '<span class="chip info">🧪 টেস্ট</span> ' : '') + '<span class="chip ' + st[1] + '">' + st[0] + '</span></div>';
   }).join('') + (more ? '<div class="tiny" style="text-align:center">প্রথম ৩০০ জন দেখানো হলো — খুঁজে বা ছেঁকে নির্দিষ্ট করুন।</div>' : '') : '<div class="empty">' + icon('users') + 'কোনো প্রার্থী নেই।</div>';
   drawBulk();
 }
@@ -916,6 +923,7 @@ function drawApplicant(a) {
     '<div><div style="font-size:24px;font-weight:800;color:var(--acc)">' + (a.roll ? N(a.roll) : 'রোল নেই') + '</div>' +
     '<div style="margin:6px 0"><span class="chip ' + st[1] + '">' + st[0] + '</span> ' + (a.status === 'approved' ? (a.smsApprove ? '<span class="chip ok">SMS গেছে</span>' : '<span class="chip">SMS বাকি</span>') + ' ' + (a.emailApprove ? '<span class="chip ok">ইমেইল গেছে</span>' : (a.email ? '<span class="chip warn">ইমেইল বাকি</span>' : '<span class="chip">ইমেইল নেই</span>')) : '') + '</div>' +
     '<div class="muted">' + esc(a.cls) + ' শ্রেণি · ' + esc(a.subject) + '</div></div></div>';
+  if (a.isTest) h += '<div class="note" style="margin-bottom:10px">🧪 টেস্ট আবেদন — কোনো সংখ্যা, প্রতিবেদন, আসন বা ইমেইল-SMS-এ আসে না। শুধু আপনি দেখছেন।</div>';
   if (a.problems) h += '<div class="note bad" style="margin-bottom:10px">⚠️ ' + esc(a.problems) + '</div>';
   if (a.status === 'cancelled') h += '<div class="note" style="margin-bottom:10px">বাতিলের কারণ: ' + esc(a.cancelReason) + '</div>';
   var acts = [];
@@ -925,6 +933,7 @@ function drawApplicant(a) {
   if (ed && a.status === 'approved' && a.email) acts.push('<button class="btn" onclick="doResendMail(this,\'' + esc(a.roll) + '\')">' + icon('send') + 'ইমেইল আবার</button>');
   if (ed) acts.push('<button class="btn" onclick="editApplicant()">' + icon('edit') + 'সংশোধন</button>');
   if (ed && a.status !== 'cancelled') acts.push('<button class="btn bad" onclick="doCancel(\'' + esc(a.roll || a.responseId) + '\')">' + icon('x') + 'বাতিল</button>');
+  if (S.boot.me.owner) acts.push('<button class="btn" onclick="doTest(this,\'' + esc(a.roll || a.responseId) + '\',' + !a.isTest + ')">🧪 ' + (a.isTest ? 'টেস্ট চিহ্ন তুলুন' : 'টেস্ট আবেদন হিসেবে চিহ্নিত করুন') + '</button>');
   if (ed && a.status === 'cancelled') acts.push('<button class="btn" onclick="doRestore(this,\'' + esc(a.roll || a.responseId) + '\')">' + icon('renew') + 'ফেরাও</button>');
   if (acts.length) h += '<div class="btns" style="margin-bottom:14px">' + acts.join('') + '</div>';
   var kv = [['নাম (ইংরেজি)', a.nameEn], ['মোবাইল', N(a.mobile)], ['বিকল্প মোবাইল', N(a.mobile2)], ['ইমেইল', a.email], ['ঠিকানা', a.address],
@@ -947,6 +956,9 @@ function after(a) { drawApplicant(a); applyRow(a); if (S.page === 'applicants') 
 function doApprove(btn, k) { busy(btn, callServer('apiApprove', [k])).then(function (a) { toast('অনুমোদিত — রোল ' + N(a.roll) + (a._sms ? ', SMS গেছে' : ', SMS যায়নি')); after(a); }); }
 function doResend(btn, k) { busy(btn, callServer('apiResendSms', [k])).then(function () { toast('SMS গেছে'); callServer('apiApplicant', [k]).then(after); }); }
 function doResendMail(btn, k) { busy(btn, callServer('apiResendEmail', [k])).then(function () { toast('ইমেইল গেছে'); callServer('apiApplicant', [k]).then(after); }); }
+function doTest(btn, k, on) {
+  busy(btn, callServer('apiSetTest', [[k], on])).then(function (r) { S.boot.applicants = r.applicants; toast(on ? 'টেস্ট আবেদন হিসেবে চিহ্নিত — আর কোনো হিসাবে আসবে না' : 'টেস্ট চিহ্ন তোলা হলো'); closeLayer(); if (S.page === 'applicants') render(); reload(); });
+}
 function doRestore(btn, k) { busy(btn, callServer('apiRestore', [k])).then(function (a) { toast('ফেরানো হলো'); after(a); }); }
 function doCancel(k) {
   var a = S.cur;
