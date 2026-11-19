@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>প্যানেল — প্রশিক্ষণ ও ডেমো ক্লাসের নম্বর</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b1226">
+<link rel="icon" type="image/png" href="../assets/tth-logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&family=Baloo+Da+2:wght@800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<style>
+*{box-sizing:border-box}html,body{margin:0;background:#0b1226;color:#e9eefb;font-family:'Noto Sans Bengali',sans-serif;-webkit-tap-highlight-color:transparent}
+.hide{display:none!important}
+.wrap{max-width:520px;margin:0 auto;padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
+h1{font-family:'Baloo Da 2',sans-serif;font-size:24px;margin:6px 0 2px;line-height:1.35}
+.sub{color:#aab6d6;font-size:14px;margin-bottom:16px}
+label{display:block;font-size:13px;color:#aab6d6;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:13px;border-radius:12px;border:1px solid #33447a;background:#101a36;color:#e9eefb;font:16px 'Noto Sans Bengali',sans-serif}
+.btn{display:block;width:100%;margin-top:14px;padding:14px;border:0;border-radius:12px;background:linear-gradient(180deg,#e6c77d,#c39a45);color:#1b1404;font:700 17px 'Noto Sans Bengali',sans-serif;cursor:pointer}
+.btn:disabled{opacity:.6}
+.btn.ghost{background:#1a2750;color:#e9eefb;border:1px solid #33447a;font-weight:600;font-size:15px}
+.err{color:#fca5a5;min-height:20px;margin-top:10px;font-size:14px}
+.top{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px;color:#aab6d6}.top b{color:#e6c77d}.top .sp{flex:1}
+.top button{background:none;border:1px solid #33447a;color:#aab6d6;border-radius:8px;padding:4px 10px;font:13px 'Noto Sans Bengali',sans-serif}
+.row2{display:flex;gap:8px}.row2 input{flex:1}.row2 .btn{width:auto;margin:0;padding:0 18px}
+.tabs{display:flex;gap:6px;margin:14px 0 10px}.tabs button{flex:1;border:1px solid #33447a;background:#101a36;color:#aab6d6;border-radius:999px;padding:8px;font:600 14px 'Noto Sans Bengali',sans-serif}
+.tabs button.on{background:#e6c77d;color:#1b1404;border-color:#e6c77d}
+.item{display:flex;align-items:center;gap:10px;background:#141f3f;border:1px solid #26355f;border-radius:12px;padding:11px 12px;margin-bottom:8px;cursor:pointer}
+.item .rl{font-weight:800;color:#e6c77d;min-width:62px}.item .nm{flex:1;min-width:0}.item .nm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.item .nm small{color:#aab6d6;font-size:12.5px}
+.tot{font-weight:800;color:#34d399;white-space:nowrap}.tot.no{color:#7b88ab;font-weight:600;font-size:13px}
+.cam{position:relative;width:100%;aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:#000;border:2px solid #33447a;margin-top:10px}
+.cam video{width:100%;height:100%;object-fit:cover}.cam .frame{position:absolute;inset:16%;border:3px solid rgba(230,199,125,.9);border-radius:16px}
+.who{display:flex;gap:12px;align-items:center;background:#141f3f;border:1px solid #26355f;border-radius:14px;padding:12px}
+.who img{width:76px;height:92px;object-fit:cover;border-radius:10px;background:#26355f}.who b{display:block;font-size:18px}.who small{color:#aab6d6}
+.crit{display:flex;align-items:center;gap:10px;background:#141f3f;border:1px solid #26355f;border-radius:12px;padding:10px 12px;margin-top:8px}
+.crit span{flex:1;font-weight:600}.crit span small{display:block;color:#aab6d6;font-weight:400;font-size:12.5px}
+.crit input{width:86px;text-align:center;font-size:20px;font-weight:800;padding:10px}
+.crit input.bad{border-color:#fca5a5}
+.sum{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:18px}.sum b{font-size:28px;color:#e6c77d}
+.off{background:#4a3410;border:1px solid #fbbf24;border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:10px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f3d2e;border:1px solid #34d399;color:#e9eefb;padding:12px 18px;border-radius:12px;font-size:15px;z-index:30}
+.dev{text-align:center;font-size:12px;color:#7b88ab;margin-top:18px}
+</style>
+<script>var API_URL = 'https://script.google.com/macros/s/AKfycbyfL1EUYdUrfEqIwvBVi2Ia8J8sEqXA4Byo78EaccmH-9oIb3YAnHil0SjlUS-YdFCH/exec';</script>
+</head>
+<body>
+<div class="wrap">
+  <div id="vLogin">
+    <h1>প্যানেল — প্রশিক্ষণ ও ডেমো ক্লাস</h1>
+    <div class="sub">শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭ · শুধু প্যানেলের সদস্যদের জন্য</div>
+    <div id="lStep1"><label>প্যানেল-কোড (অফিস থেকে)</label><input id="lCode" inputmode="numeric" maxlength="6" placeholder="৬ অঙ্ক"><button class="btn" id="lNext">এগিয়ে যান</button></div>
+    <div id="lStep2" class="hide"><label>আপনার প্যানেল</label><select id="lPanel"></select><label>আপনার নাম</label><select id="lMember"></select><button class="btn" id="lGo">ঢুকুন</button></div>
+    <div class="err" id="lErr"></div>
+  </div>
+  <div id="vList" class="hide">
+    <div class="top"><span id="who"></span><span class="sp"></span><button id="out">বের হোন</button></div>
+    <div id="offNote" class="off hide">⏸ নম্বর দেওয়া এখন বন্ধ — অফিস চালু করলে সেভ হবে।</div>
+    <div class="row2"><input id="qRoll" inputmode="numeric" maxlength="6" placeholder="রোল লিখুন"><button class="btn ghost" id="qGo">খুলুন</button></div>
+    <button class="btn" id="camBtn">📷 প্রবেশপত্রের QR স্ক্যান</button>
+    <div id="camBox" class="hide"><div class="cam"><video id="vid" playsinline muted></video><div class="frame"></div></div><button class="btn ghost" id="camStop">ক্যামেরা বন্ধ</button></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="list"></div>
+  </div>
+  <div id="vScore" class="hide">
+    <div class="top"><button id="back">← তালিকা</button><span class="sp"></span><span id="who2"></span></div>
+    <div class="who"><img id="pPhoto" alt=""><div><b id="pName"></b><small id="pInfo"></small></div></div>
+    <div id="crits"></div>
+    <div class="sum"><span>মোট</span><b id="pTot">০</b></div>
+    <label>মন্তব্য (ঐচ্ছিক)</label><textarea id="pNote" rows="2"></textarea>
+    <button class="btn" id="pSave">সেভ</button>
+    <div class="err" id="pErr"></div>
+  </div>
+  <div class="dev">Developed By: Md. Ashraful Islam</div>
+</div>
+<script>
+var $ = function (id) { return document.getElementById(id); };
+function N(x) { return String(x == null ? '' : x).replace(/[0-9]/g, function (d) { return '০১২৩৪৫৬৭৮৯'[d]; }); }
+function en(x) { return String(x == null ? '' : x).replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); }).trim(); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+var K = 'rc_panel_';
+function ls(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(K + k) || 'null'); localStorage.setItem(K + k, JSON.stringify(v)); } catch (e) { return null; } }
+function call(fn, args) {
+  return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args || [] }) })
+    .then(function (r) { return r.json(); }, function () { throw new Error('ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।'); })
+    .then(function (j) { if (!j || !j.ok) { var m = (j && j.error) || 'সমস্যা হয়েছে।'; if (/PANEL_EXPIRED/.test(m)) { expired(); throw new Error('আবার ঢুকুন।'); } throw new Error(m); } return j.data; });
+}
+function toast(t) { var e = document.createElement('div'); e.className = 'toast'; e.textContent = t; document.body.appendChild(e); setTimeout(function () { e.remove(); }, 2200); }
+function show(v) { ['vLogin', 'vList', 'vScore'].forEach(function (k) { $(k).classList.toggle('hide', k !== v); }); window.scrollTo(0, 0); }
+function sha16(s) { return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function (b) { return Array.from(new Uint8Array(b)).map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join('').slice(0, 16); }); }
+
+var D = ls('data'), TAB = 'today', CHOOSE = null, CUR = null;
+function expired() { ls('data', null); D = null; stopCam(); $('lStep1').classList.remove('hide'); $('lStep2').classList.add('hide'); show('vLogin'); $('lErr').textContent = 'কোড বদলেছে বা মেয়াদ শেষ — আবার ঢুকুন।'; }
+
+/* ---------- ঢোকা ---------- */
+$('lNext').onclick = function () {
+  var b = this; b.disabled = true; $('lErr').textContent = '';
+  call('apiPanelStart', [en($('lCode').value)]).then(function (r) {
+    CHOOSE = r.choose;
+    if (!CHOOSE.length) throw new Error('অফিস এখনো কোনো প্যানেল বানায়নি।');
+    $('lPanel').innerHTML = CHOOSE.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('');
+    $('lPanel').onchange = members; members();
+    $('lStep1').classList.add('hide'); $('lStep2').classList.remove('hide');
+  }).catch(function (e) { $('lErr').textContent = e.message; }).then(function () { b.disabled = false; });
+};
+function members() {
+  var p = CHOOSE.filter(function (x) { return x.id === $('lPanel').value; })[0] || { members: [] };
+  $('lMember').innerHTML = p.members.length ? p.members.map(function (m) { return '<option>' + esc(m) + '</option>'; }).join('') : '<option value="">এই প্যানেলে সদস্যের নাম দেওয়া হয়নি</option>';
+}
+$('lGo').onclick = function () {
+  var b = this; b.disabled = true; $('lErr').textContent = '';
+  call('apiPanelStart', [en($('lCode').value), $('lPanel').value, $('lMember').value]).then(function (d) { D = d; ls('data', d); openList(); })
+    .catch(function (e) { $('lErr').textContent = e.message; }).then(function () { b.disabled = false; });
+};
+$('out').onclick = function () { if (confirm('বের হবেন?')) { ls('data', null); D = null; stopCam(); $('lStep1').classList.remove('hide'); $('lStep2').classList.add('hide'); show('vLogin'); } };
+
+/* ---------- তালিকা ---------- */
+function openList() {
+  show('vList');
+  $('who').innerHTML = '<b>' + esc(D.member) + '</b> · ' + esc(D.panel);
+  $('offNote').classList.toggle('hide', !!D.on);
+  var hasToday = D.list.some(function (x) { return x[4] === D.today; });
+  if (TAB === 'today' && !hasToday) TAB = 'all';
+  $('tabs').innerHTML = [['today', 'আজ'], ['todo', 'বাকি'], ['all', 'সব']].map(function (t) { return '<button class="' + (TAB === t[0] ? 'on' : '') + '" data-t="' + t[0] + '">' + t[1] + '</button>'; }).join('');
+  $('tabs').querySelectorAll('button').forEach(function (b) { b.onclick = function () { TAB = b.getAttribute('data-t'); openList(); }; });
+  var L = D.list.filter(function (x) { return TAB === 'all' || (TAB === 'today' ? x[4] === D.today : x[5] == null); });
+  var dayName = {}; (D.days || []).forEach(function (d) { dayName[d.date] = d.text; });
+  $('list').innerHTML = L.length ? L.map(function (x) {
+    return '<div class="item" data-r="' + x[1] + '"><span class="rl">' + N(x[1]) + '</span><div class="nm"><b>' + esc(x[2]) + '</b><small>' + esc(x[3]) + (x[4] && TAB !== 'today' ? ' · ' + esc(N(dayName[x[4]] || x[4])) : '') + '</small></div>' +
+      (x[5] == null ? '<span class="tot no">বাকি</span>' : '<span class="tot">✓ ' + N(x[5]) + '</span>') + '</div>';
+  }).join('') : '<div class="sub" style="text-align:center;margin-top:20px">কেউ নেই।</div>';
+  $('list').querySelectorAll('.item').forEach(function (el) { el.onclick = function () { openPerson(el.getAttribute('data-r')); }; });
+}
+$('qGo').onclick = function () { var r = en($('qRoll').value).replace(/\D/g, ''); if (r) { $('qRoll').value = ''; openPerson(r); } };
+$('qRoll').onkeydown = function (e) { if (e.key === 'Enter') $('qGo').click(); };
+
+/* ---------- নম্বর দেওয়া ---------- */
+function openPerson(roll) {
+  stopCam();
+  if (!D.list.some(function (x) { return x[1] === roll; })) return toast('রোল ' + N(roll) + ' এই প্যানেলের তালিকায় নেই');
+  CUR = null; show('vScore');
+  $('who2').textContent = D.member; $('pName').textContent = '…'; $('pInfo').textContent = ''; $('pPhoto').removeAttribute('src'); $('crits').innerHTML = ''; $('pErr').textContent = '';
+  call('apiPanelPerson', [D.token, roll]).then(function (p) {
+    CUR = p;
+    $('pName').textContent = p.name; $('pInfo').textContent = 'রোল ' + N(p.roll) + ' · ' + p.cs;
+    if (p.photo) $('pPhoto').src = p.photo;
+    $('crits').innerHTML = D.crit.map(function (c) {
+      return '<div class="crit"><span>' + esc(c.name) + '<small>সর্বোচ্চ ' + N(c.max) + '</small></span><input inputmode="decimal" data-c="' + c.id + '" data-max="' + c.max + '" value="' + (p.scores[c.id] == null ? '' : p.scores[c.id]) + '"></div>';
+    }).join('');
+    $('pNote').value = p.note || '';
+    $('crits').querySelectorAll('input').forEach(function (i) { i.oninput = sum; i.onkeydown = function (e) { if (e.key === 'Enter') { var n = i.parentNode.nextSibling; if (n) n.querySelector('input').focus(); else $('pSave').focus(); } }; });
+    sum();
+  }, function (e) { $('pErr').textContent = e.message; });
+}
+function sum() {
+  var t = 0, ok = true;
+  $('crits').querySelectorAll('input').forEach(function (i) { var v = en(i.value), n = Number(v), bad = v !== '' && (!isFinite(n) || n < 0 || n > +i.getAttribute('data-max')); i.classList.toggle('bad', bad); if (bad) ok = false; else if (v !== '') t += n; });
+  $('pTot').textContent = N(Math.round(t * 100) / 100); return ok;
+}
+$('pSave').onclick = function () {
+  if (!CUR) return;
+  if (!sum()) { $('pErr').textContent = 'লাল ঘরে সর্বোচ্চের মধ্যে নম্বর দিন।'; return; }
+  var sc = {}, empty = 0;
+  $('crits').querySelectorAll('input').forEach(function (i) { var v = en(i.value); if (v === '') empty++; sc[i.getAttribute('data-c')] = v; });
+  if (empty) { $('pErr').textContent = 'সব মানদণ্ডে নম্বর দিন।'; return; }
+  var b = this; b.disabled = true; $('pErr').textContent = '';
+  call('apiPanelScore', [D.token, CUR.roll, sc, $('pNote').value]).then(function (r) {
+    D.list.forEach(function (x) { if (x[1] === r.roll) x[5] = r.total; }); ls('data', D);
+    toast('সেভ হয়েছে · মোট ' + N(r.total)); openList();
+  }, function (e) { $('pErr').textContent = e.message; }).then(function () { b.disabled = false; });
+};
+$('back').onclick = openList;
+
+/* ---------- ক্যামেরা ---------- */
+var stream = null, det = null, busyScan = false, canvas = document.createElement('canvas'), ctx = canvas.getContext('2d', { willReadFrequently: true });
+$('camBtn').onclick = function () {
+  if ('BarcodeDetector' in window) { try { det = new BarcodeDetector({ formats: ['qr_code'] }); } catch (e) { det = null; } }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }).then(function (s) {
+    stream = s; $('vid').srcObject = s; $('vid').play(); $('camBox').classList.remove('hide'); $('camBtn').classList.add('hide'); requestAnimationFrame(tick);
+  }, function () { toast('ক্যামেরা খোলা যায়নি — রোল লিখে খুলুন'); });
+};
+$('camStop').onclick = stopCam;
+function stopCam() { if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; $('camBox').classList.add('hide'); $('camBtn').classList.remove('hide'); }
+function tick() {
+  if (!stream) return;
+  var v = $('vid');
+  if (v.readyState >= 2 && !busyScan) {
+    busyScan = true;
+    var done = function (txt) { busyScan = false; if (txt) onText(txt); };
+    if (det) det.detect(v).then(function (c) { done(c && c[0] && c[0].rawValue); }, function () { done(''); });
+    else { var w = 480, h = Math.round(v.videoHeight / v.videoWidth * w) || 480; canvas.width = w; canvas.height = h; ctx.drawImage(v, 0, 0, w, h); var q = window.jsQR ? jsQR(ctx.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: 'dontInvert' }) : null; done(q && q.data); }
+  }
+  setTimeout(function () { requestAnimationFrame(tick); }, 140);
+}
+function onText(txt) {
+  var m = /\/q\/#([A-Za-z0-9]{6,})/.exec(txt);
+  if (!m) return toast(/maps/i.test(txt) ? 'এটা ম্যাপের QR — ছবির নিচের QR ধরুন' : 'এটা প্রবেশপত্রের QR নয়');
+  sha16(m[1]).then(function (h) { var x = D.list.filter(function (y) { return y[0] === h; })[0]; if (!x) return toast('এই প্রার্থী এই প্যানেলের তালিকায় নেই'); if (navigator.vibrate) navigator.vibrate(60); openPerson(x[1]); });
+}
+
+// খোলার সময়: আগে ঢোকা থাকলে তালিকা নতুন করে আনা
+if (D && D.token) { openList(); call('apiPanelList', [D.token]).then(function (d) { D = d; ls('data', d); if (!$('vList').classList.contains('hide')) openList(); }, function () {}); }
+else show('vLogin');
+setInterval(function () { if (D && D.token && !$('vList').classList.contains('hide')) call('apiPanelPing', [D.token]).then(function (r) { D.on = r.on; $('offNote').classList.toggle('hide', !!r.on); }, function () {}); }, 30000);
+</script>
+</body>
+</html>

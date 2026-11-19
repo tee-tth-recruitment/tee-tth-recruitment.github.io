@@ -53,8 +53,8 @@ input,select{width:100%;padding:13px;border-radius:12px;border:1px solid #33447a
   </div>
   <!-- কক্ষ বাছাই -->
   <div id="vRoom" class="hide">
-    <h1>কোন কক্ষে আছেন?</h1>
-    <div class="sub">ভুল কক্ষের প্রার্থী স্ক্যান হলে সতর্ক করা হবে।</div>
+    <h1 id="rTitle">কোন কক্ষে আছেন?</h1>
+    <div class="sub" id="rSub">ভুল কক্ষের প্রার্থী স্ক্যান হলে সতর্ক করা হবে।</div>
     <select id="rSel"></select>
     <button class="btn" id="rGo">স্ক্যান শুরু</button>
   </div>
@@ -98,7 +98,10 @@ $('lGo').onclick = function () {
   }, function (e) { $('lErr').textContent = e.message; }).then(function () { b.disabled = false; });
 };
 function pickRoom() {
-  $('rSel').innerHTML = (D.rooms || []).map(function (r) { return '<option value="' + r.id + '"' + (r.id === ROOM ? ' selected' : '') + '>' + esc(N(r.name)) + '</option>'; }).join('') + '<option value="">যেকোনো কক্ষ (ঘুরে ঘুরে)</option>';
+  var tr = D.mode === 'train';
+  $('rTitle').textContent = tr ? 'আজ কোন দিনের প্রশিক্ষণ?' : 'কোন কক্ষে আছেন?';
+  $('rSub').textContent = tr ? 'অন্য দিনের প্রার্থী স্ক্যান হলে সতর্ক করা হবে।' : 'ভুল কক্ষের প্রার্থী স্ক্যান হলে সতর্ক করা হবে।';
+  $('rSel').innerHTML = (D.rooms || []).map(function (r) { return '<option value="' + r.id + '"' + (r.id === ROOM ? ' selected' : '') + '>' + esc(N(r.name)) + '</option>'; }).join('') + '<option value="">' + (tr ? 'দিন না মিলিয়ে (সতর্কতা ছাড়া)' : 'যেকোনো কক্ষ (ঘুরে ঘুরে)') + '</option>';
   show('vRoom');
 }
 $('rGo').onclick = function () { ROOM = $('rSel').value; ls('room', ROOM); startScan(); };
@@ -158,7 +161,8 @@ function mark(o, item) {
   var wrong = ROOM && o.rm && o.rm !== ROOM;
   beep(!wrong);
   var rn = (D.rooms || []).filter(function (r) { return r.id === o.rm; })[0];
-  result(wrong ? 'warn' : 'ok', wrong ? '⚠️' : '✔', o.r, o.n, wrong ? 'উপস্থিত — কিন্তু এর আসন ' + (rn ? N(rn.name) : 'অন্য কক্ষে') + '!' : 'উপস্থিত · ' + o.cs);
+  var tr = D.mode === 'train';
+  result(wrong ? 'warn' : 'ok', wrong ? '⚠️' : '✔', o.r, o.n, wrong ? (tr ? 'উপস্থিত — কিন্তু এর ডাক ' + (rn ? N(rn.name.replace('প্রশিক্ষণ: ', '')) + '-এ' : 'অন্য দিনে') + '!' : 'উপস্থিত — কিন্তু এর আসন ' + (rn ? N(rn.name) : 'অন্য কক্ষে') + '!') : 'উপস্থিত · ' + o.cs);
   stats(); flush();
 }
 function stats() { $('sCount').textContent = N(Object.keys(DONE).length); $('sQueue').textContent = N(QUEUE.length); }
@@ -180,7 +184,11 @@ function flush() {
 function offCheck(sc) {
   $('offBox').classList.toggle('hide', !!(sc && sc.on));
   // কাজ বদলালে (মহড়া → লিখিত পরীক্ষা) "আগেই উপস্থিত"-এর হিসাব নতুন করে
-  if (sc && sc.on && sc.event !== ls('ev')) { DONE = {}; ls('done', DONE); ls('ev', sc.event); if ($('sCount')) stats(); }
+  if (sc && sc.on && sc.event !== ls('ev')) {
+    DONE = {}; ls('done', DONE); ls('ev', sc.event); if ($('sCount')) stats();
+    // নতুন কাজের তালিকা (যেমন লিখিত পরীক্ষা → প্রশিক্ষণের দিন)
+    if (D && D.token) call('apiDutyData', [D.token]).then(function (d) { var keep = D.token; D = d; D.token = keep; ls('data', D); index(); if (!(D.rooms || []).some(function (r) { return r.id === ROOM; }) && ROOM) { stopCam(); pickRoom(); } }, function () {});
+  }
 }
 setInterval(flush, 6000);
 setInterval(function () { if (D && $('vScan').offsetParent !== null) call('apiDutyPing', [D.token]).then(function (r) { offCheck(r.scan); $('net').className = 'dot'; flush(); }, function () { $('net').className = 'dot off'; }); }, 25000);

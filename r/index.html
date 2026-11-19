@@ -42,6 +42,9 @@ html,body{margin:0;background:#e9ecf2;font-family:'Noto Sans Bengali',sans-serif
 .prog i{display:block;height:100%;width:30%;background:linear-gradient(90deg,#c39a45,#e6c77d);border-radius:6px;animation:pg 1.4s ease-in-out infinite}
 @keyframes pg{0%{margin-left:-30%}100%{margin-left:100%}}
 .dev{text-align:center;font-size:12px;color:#7b86a3;margin:22px 0}
+.train{margin-top:14px;border-radius:14px;padding:14px 16px;background:#fff8e1;border:1px solid #f0d58a}
+.train small{display:block;font-size:13px;font-weight:700;color:#7a5a12;margin-bottom:6px}
+.train dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:15px}.train dt{color:#7a5a12}.train dd{margin:0;font-weight:700;color:#14203f}
 </style>
 <script>var API_URL = 'https://script.google.com/macros/s/AKfycbyfL1EUYdUrfEqIwvBVi2Ia8J8sEqXA4Byo78EaccmH-9oIb3YAnHil0SjlUS-YdFCH/exec';</script>
 </head>
@@ -104,7 +107,8 @@ function show(d) {
   var lab = d.state === 'pass' ? '🎉 উত্তীর্ণ' : d.state === 'cancelled' ? 'আবেদন বাতিল' : d.state === 'notyet' ? 'এখনো প্রকাশ হয়নি' : d.label;
   root.innerHTML = '<div class="badge b-' + esc(d.state) + '"><small>আপনার ফল</small><b>' + esc(lab) + '</b></div>' +
     '<dl class="who"><dt>নাম</dt><dd>' + esc(d.name) + '</dd><dt>রোল</dt><dd>' + esc(d.roll) + '</dd><dt>শ্রেণি-বিষয়</dt><dd>' + esc(d.cs) + '</dd></dl>' +
-    '<div class="msg">' + esc(d.msg).replace(/\n/g, '<br>') + '</div>' + linksHtml(d) +
+    '<div class="msg">' + esc(d.msg).replace(/\n/g, '<br>') + '</div>' +
+    (d.train ? '<div class="train"><small>📅 প্রশিক্ষণ ও ডেমো ক্লাস</small><dl><dt>দিন</dt><dd>' + esc(d.train.date) + '</dd><dt>সময়</dt><dd>' + esc(d.train.time) + '</dd><dt>স্থান</dt><dd>' + esc(d.train.venue) + '</dd></dl></div>' : '') + linksHtml(d) +
     '<button class="go ghost" onclick="location.hash=\'\';form()">অন্য রোল দেখুন</button>';
 }
 function load() {
