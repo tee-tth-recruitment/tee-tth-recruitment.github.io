@@ -1315,7 +1315,9 @@ function atLoad(btn, quiet) {
   (btn ? busy(btn, p) : p).then(function (r) { AT.adm = r[0]; AT.data = r[1]; atDraw(); }, function (e) { authFail(e); if (!quiet && $('atBox')) $('atBox').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
 }
 function hm(iso) { if (!iso) return ''; var d = new Date(iso), h = d.getHours(); return N((h % 12 || 12) + ':' + ('0' + d.getMinutes()).slice(-2)) + (h < 12 ? ' AM' : ' PM'); }
-function dutyUrl() { return (AT.adm && AT.adm.site || S.boot.site) + '/scan/'; }
+function dutyLong() { return (AT.adm && AT.adm.site || S.boot.site) + '/scan/'; }
+function dutyUrl() { var u = String((AT.adm && AT.adm.dutyShort) || '').trim(); return u ? (/^https?:\/\//.test(u) ? u : 'https://' + u) : dutyLong(); }
+function atSaveShort(btn) { busy(btn, callServer('apiSaveSettings', [{ dutyShort: $('atShort').value.trim() }])).then(function (r) { AT.adm.dutyShort = r.settings.dutyShort; S.boot.settings = r.settings; atDraw(); toast('সেভ হয়েছে — QR ও বার্তা এখন এই লিংকের'); }); }
 function atDraw() {
   var a = AT.adm, d = AT.data, sc = a.scan, h = '';
   // ১) স্ক্যানের চাবি
@@ -1329,6 +1331,7 @@ function atDraw() {
   h += '<div class="card"><h3>' + icon('key') + 'ডিউটির শিক্ষকদের জন্য</h3><div class="qrbox"><div class="qr" id="atQr"></div><div style="flex:1;min-width:220px">' +
     '<div class="tiny">আজকের ডিউটি-কোড</div><div style="font-size:34px;font-weight:800;letter-spacing:6px;color:var(--acc)">' + (a.dutyCode ? N(a.dutyCode) : '—') + '</div>' +
     '<div style="margin:6px 0 10px;word-break:break-all"><b>' + esc(dutyUrl()) + '</b></div>' +
+    '<div class="fld" style="margin-bottom:10px"><label>নিজের ছোট লিংক (ঐচ্ছিক)</label><div class="btns" style="flex-wrap:nowrap"><input class="in" id="atShort" placeholder="যেমন https://tee.com.bd/duty" value="' + esc(a.dutyShort || '') + '"><button class="btn sm" onclick="atSaveShort(this)">সেভ</button></div><div class="hint">শর্টনারে নাম দিন / ছাড়া (যেমন duty), লক্ষ্য ' + esc(dutyLong()) + ' — QR, বার্তা ও ডিউটির তালিকা এটাই দেখাবে।</div></div>' +
     '<div class="btns"><button class="btn sm" onclick="copyText(dutyMsg())">' + icon('copy') + 'শিক্ষকদের বার্তা কপি</button><button class="btn sm" onclick="atNewCode(this)">' + icon('renew') + 'নতুন কোড</button></div>' +
     '<div class="tiny" style="margin-top:8px">শিক্ষকরা ফোনে এই লিংক বা QR খুলে কোড ও নিজের নাম দিয়ে ঢুকবেন, কক্ষ বাছবেন। নতুন কোড দিলে পুরনো কোডে ঢোকা সবাই বের হয়ে যাবেন।</div></div></div></div>';
   // ৩) সরাসরি গণনা
