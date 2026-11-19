@@ -176,6 +176,7 @@
 .ppush.on{border-style:solid;border-color:#cfe9dc;background:#f2fbf6;color:#1f6b46}.ppush a{color:#6b7591;margin-left:6px;font-size:13px}
 .ppush .go{margin-top:10px}.perr{color:#b4532a;font-size:13px;margin-top:6px}
 .pnote{margin-top:8px;padding-top:8px;border-top:1px dashed #f0d58a;font-size:12.5px;line-height:1.6;color:#7a5a12}
+.plost{text-align:center;margin-top:16px;font-size:13px;color:#6b7591;line-height:1.6}.plost a{color:#13265a;font-weight:600}
 .pout{text-align:center;margin-top:16px}.pout a{color:#6b7591;font-size:14px;font-weight:600;text-decoration:none;border-bottom:1px dashed #b9c1d6}
 .hide{display:none!important}
 .box .pinst{margin-top:12px}
@@ -400,12 +401,13 @@ function showPortal(d) {
     return '<div class="' + cls + '"><i>' + (cls === 'done' ? '✓' : cls === 'stop' ? '✕' : N(i + 1)) + '</i><span>' + esc(t) + '</span></div>';
   }).join('') + '</div>';
   var box = d.box ? '<div class="pbox"><small>' + esc(d.box.icon + ' ' + d.box.title) + '</small><dl>' + d.box.rows.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + (r[2] ? ' <span class="pchg">পরিবর্তিত</span>' : '') + '</dd>'; }).join('') + '</dl>' + (d.box.note ? '<div class="pnote">ⓘ ' + esc(d.box.note) + '</div>' : '') + '</div>' : '';
-  var adm = d.admit ? '<button class="go' + (d.admitMain ? '' : ' alt') + '" onclick="location.hash=TOK+\'/admit\'">🎫 প্রবেশপত্র ডাউনলোড করুন</button>' +
-    (d.admitMain ? '' : '<div class="phint">প্রশিক্ষণ ও ডেমো ক্লাসেও প্রবেশপত্রের QR দিয়ে উপস্থিতি নেওয়া হয় — প্রিন্ট কপি সঙ্গে রাখুন।</div>') : '';
+  // বড় বোতাম শুধু লিখিত পরীক্ষার আগে; পরে শুধু নিচে ছোট লিংক (হারালে/নষ্ট হলে আবার নেওয়ার জন্য) — প্রবেশপত্র একটাই
+  var adm = d.admit && d.admitMain ? '<button class="go" onclick="location.hash=TOK+\'/admit\'">🎫 প্রবেশপত্র ডাউনলোড করুন</button>' : '';
+  var admLost = d.admit && !d.admitMain ? '<div class="plost">প্রবেশপত্র হারিয়ে বা নষ্ট হয়ে গেলে: <a href="#" onclick="location.hash=TOK+\'/admit\';return false">একই প্রবেশপত্র আবার ডাউনলোড করুন</a></div>' : '';
   root.innerHTML = hero('আমার আবেদন') + '<div class="box card2 scr">' +
     '<div class="pwho"><b>' + esc(d.name) + '</b><span>' + (d.roll ? 'রোল ' + esc(d.roll) + ' · ' : '') + esc(d.cs) + '</span></div>' + noticesHtml(d.notices || []) + tl +
     '<div class="pnews t-' + esc(d.tone) + '"><small>বর্তমান অবস্থা</small><b>' + esc(d.title) + '</b><p>' + esc(d.msg).replace(/\n/g, '<br>') + '</p></div>' + box + adm + linksRow(d) +
-    pushCard(d) + installBtn() + '<div class="pout"><a href="#" onclick="logout();return false">লগআউট</a></div></div>';
+    pushCard(d) + installBtn() + admLost + '<div class="pout"><a href="#" onclick="logout();return false">লগআউট</a></div></div>';
 }
 function load() {
   var h = (location.hash || '').replace(/^#/, '').trim(), parts = h.split('/');
