@@ -287,6 +287,20 @@ table.rm td{vertical-align:middle}
 .dmsubs b{display:block}.dmsubs small{color:var(--tx3);font-size:12.5px}
 .dmnext{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
 .dmnext>div{flex:1;min-width:200px}.dmnext small{display:block;color:var(--tx3)}.dmnext b{display:block;font-size:20px}.dmnext span{color:var(--tx2);font-size:13.5px}
+
+.rpnext{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:15px}.rpnext b{color:var(--acc)}
+.rptl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.rptl div{position:relative;border-left:3px solid var(--acc);padding:4px 10px}.rptl div.past{border-color:var(--line2);opacity:.6}
+.rptl b{display:block;font-size:13.5px}.rptl small{color:var(--tx3)}
+.rpfun{display:flex;flex-direction:column;gap:8px}
+.rpf{display:grid;grid-template-columns:190px 1fr 56px 44px;gap:10px;align-items:center}.rpf span{font-size:14px}.rpf b{text-align:right;font-size:17px}.rpf small{color:var(--tx3);font-size:12px}
+.rpf .pbar{height:12px}
+.rpbars{display:flex;align-items:flex-end;gap:6px;height:150px;padding-top:18px}
+.rpbars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
+.rpbars i{display:block;width:100%;max-width:34px;background:linear-gradient(180deg,var(--acc),var(--pri));border-radius:6px 6px 2px 2px;min-height:2px}
+.rpbars em{font-style:normal;font-size:11.5px;color:var(--tx2);margin-bottom:3px}.rpbars small{font-size:11px;color:var(--tx3);margin-top:4px}
+.rpt td{white-space:nowrap}.rpt th{white-space:normal;min-width:64px;vertical-align:bottom;line-height:1.35}.rpt th:first-child{min-width:150px}.rpt tr.tot td{border-top:2px solid var(--line2)}
+@media (max-width:640px){.rpf{grid-template-columns:120px 1fr 44px 36px;gap:6px}.rpf span{font-size:12.5px}}
 </style>
 </head>
 <body>
@@ -361,7 +375,7 @@ var ICONS = {
   alert: 'M12 9v4|M12 17h.01|M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
   edit: 'M4 20h4L19 9l-4-4L4 16z|m13.5 6.5 4 4', send: 'M22 2 11 13|M22 2 15 22l-4-9-9-4z', out: 'M15 4h4v16h-4|M10 8l-4 4 4 4|M6 12h10',
   menu: 'M4 6h16|M4 12h16|M4 18h16', grid: 'M4 4h7v7H4z|M13 4h7v7h-7z|M4 13h7v7H4z|M13 13h7v7h-7z', share: 'M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|m8.6 13.5 6.8 4|m15.4 6.5-6.8 4',
-  cal: 'M4 6h16v14H4z|M4 10h16|M8 3v4|M16 3v4', clip: 'M9 4h6v3H9z|M7 5H5v16h14V5h-2|M9 12h6|M9 16h4',
+  chart: 'M4 20V11|M10 20V5|M16 20v-7|M21 20H3', cal: 'M4 6h16v14H4z|M4 10h16|M8 3v4|M16 3v4', clip: 'M9 4h6v3H9z|M7 5H5v16h14V5h-2|M9 12h6|M9 16h4',
   num: 'M4 9h16|M4 15h16|M10 3 8 21|M16 3l-2 18', award: 'M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12z|M8.2 13.9 7 22l5-3 5 3-1.2-8.1',
   id: 'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z|M9 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z|M6 16c.5-1.5 1.7-2 3-2s2.5.5 3 2|M14 10h4|M14 14h4'
 };
@@ -453,6 +467,7 @@ function reload() {
 
 var PAGES = [
   ['home', 'হোম', 'home', null],
+  ['report', 'প্রতিবেদন', 'chart', 'reports'],
   ['applicants', 'প্রার্থী', 'users', 'applicants'],
   ['subjects', 'শ্রেণি ও বিষয়', 'book', 'subjects'],
   ['form', 'আবেদন ফর্ম', 'form', 'form'],
@@ -2286,6 +2301,61 @@ function dmSaveBr(btn) {
 function dmSaveMail(btn) {
   var m = { on: $('dsOn').checked, subject: $('dsS').value, body: $('dsB').value, hireOn: $('dsHOn').checked, hireSubject: $('dsHS').value, hire: $('dsH').value };
   busy(btn, callServer('apiSaveSettings', [{ demoMail: m }])).then(function (r) { S.boot.settings = r.settings; DM.st.mail = m; toast('সেভ হয়েছে'); });
+}
+
+/* ═════════════ প্রতিবেদন — প্রতিটা ধাপে কতজন, শ্রেণি-বিষয় ধরে (শুধু দেখা) ═════════════ */
+var RP = { d: null };
+
+function page_report() {
+  return '<div class="ph"><h2>প্রতিবেদন</h2><span class="sp"></span><button class="btn sm" onclick="rpLoad(this)">' + icon('renew') + 'হালনাগাদ</button></div><div id="rpBox"><div class="loading"><span class="spin"></span></div></div>';
+}
+function after_report() { if (RP.d) rpDraw(); rpLoad(); }
+function rpLoad(btn) {
+  var p = callServer('apiReport');
+  (btn ? busy(btn, p) : p).then(function (d) { RP.d = d; rpDraw(); }, function (e) { authFail(e); if (!btn && $('rpBox')) $('rpBox').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+}
+function rpDraw() {
+  var d = RP.d, T = d.total, st = d.stage, h = '';
+  // ১) এখন কোথায়
+  h += '<div class="card"><h3>' + icon('cal') + 'এখন যেখানে<span class="sp"></span><span class="chip ok">' + esc(st.now) + '</span></h3>' +
+    (st.next ? '<div class="rpnext">সামনে: <b>' + esc(st.next.t) + '</b> — ' + N(ymdBn(st.next.d)) + (st.next.days === 0 ? ' (আজ)' : st.next.days === 1 ? ' (কাল)' : ' (' + N(st.next.days) + ' দিন পর)') + '</div>' : '') +
+    '<div class="rptl">' + st.events.map(function (e) { return '<div class="' + (e.past ? 'past' : '') + '"><i></i><b>' + esc(e.t) + '</b><small>' + N(ymdBn(e.d)) + '</small></div>'; }).join('') + '</div></div>';
+  // ২) ধাপে ধাপে (মোট)
+  var max = Math.max(1, T.applied);
+  h += '<div class="card"><h3>' + icon('grid') + 'ধাপে ধাপে কতজন (মোট)</h3><div class="rpfun">' + d.steps.map(function (k, i) {
+    var v = T[k[0]] || 0, prev = i ? (T[d.steps[k[0] === 'called' ? 3 : i - 1][0]] || 0) : 0;
+    var hint = k[0] === 'wait' ? '' : (i && prev ? Math.round(v / prev * 100) + '%' : '');
+    return '<div class="rpf"><span>' + esc(k[1]) + '</span><div class="pbar"><i style="width:' + Math.max(v ? 2 : 0, Math.round(v / max * 100)) + '%"></i></div><b>' + N(v) + '</b><small>' + (hint ? N(hint) : '') + '</small></div>';
+  }).join('') + '</div><div class="tiny" style="margin-top:6px">ডানের শতাংশ = আগের ধাপের কত ভাগ পরের ধাপে গেছেন।</div></div>';
+  // ৩) শেষ ১৪ দিনের আবেদন
+  var rmax = Math.max(1, Math.max.apply(null, d.recent.map(function (x) { return x.n; })));
+  h += '<div class="card"><h3>' + icon('log') + 'শেষ ১৪ দিনে আবেদন<span class="sp"></span><span class="chip">' + N(d.recent.reduce(function (a, x) { return a + x.n; }, 0)) + ' জন</span></h3><div class="rpbars">' +
+    d.recent.map(function (x) { return '<div title="' + esc(ymdBn(x.d)) + '"><em>' + (x.n ? N(x.n) : '') + '</em><i style="height:' + Math.round(x.n / rmax * 100) + '%"></i><small>' + N(x.d.slice(8)) + '</small></div>'; }).join('') + '</div></div>';
+  // ৪) শ্রেণি-বিষয় ধরে
+  h += '<div class="card"><h3>' + icon('book') + 'শ্রেণি-বিষয় ধরে<span class="sp"></span><button class="btn sm" onclick="rpPrint()">' + icon('dl') + 'ছাপা</button><button class="btn sm" onclick="rpCsv()">' + icon('dl') + 'এক্সেল</button></h3>' +
+    '<div class="tw"><table class="t rpt"><tr><th>শ্রেণি-বিষয়</th>' + d.steps.map(function (k) { return '<th class="r">' + esc(k[1]) + '</th>'; }).join('') + '</tr>' +
+    d.rows.map(function (r) { return '<tr><td><b>' + esc(r.cls) + '</b> — ' + esc(r.subject) + '</td>' + d.steps.map(function (k) { return '<td class="r">' + (r[k[0]] ? N(r[k[0]]) : '<span class="tiny">০</span>') + '</td>'; }).join('') + '</tr>'; }).join('') +
+    '<tr class="tot"><td><b>মোট</b></td>' + d.steps.map(function (k) { return '<td class="r"><b>' + N(T[k[0]] || 0) + '</b></td>'; }).join('') + '</tr></table></div></div>';
+  $('rpBox').innerHTML = h;
+}
+function rpPrint() {
+  var d = RP.d, w = window.open('', '_blank'); if (!w) return toast('পপ-আপ চালু করুন');
+  var css = SE_CSS + '@page{size:A4 landscape;margin:10mm}th,td{font-size:9.5pt;padding:1.4mm 1.6mm}.r{text-align:right}';
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>প্রতিবেদন</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;800&display=swap" rel="stylesheet"><style>' + css + '</style></head><body><div class="pg">' +
+    '<div class="hd"><div><h1>' + esc(d.title) + ' — প্রতিবেদন</h1><h2>' + esc(d.orgNames) + ' · এখন: ' + esc(d.stage.now) + '</h2></div><div style="font-size:10pt">' + dtx(Date.now()) + '</div></div>' +
+    '<table><tr><th>শ্রেণি-বিষয়</th>' + d.steps.map(function (k) { return '<th class="r">' + esc(k[1]) + '</th>'; }).join('') + '</tr>' +
+    d.rows.map(function (r) { return '<tr><td>' + esc(r.cls + ' — ' + r.subject) + '</td>' + d.steps.map(function (k) { return '<td class="r">' + N(r[k[0]] || 0) + '</td>'; }).join('') + '</tr>'; }).join('') +
+    '<tr class="tot"><td>মোট</td>' + d.steps.map(function (k) { return '<td class="r">' + N(d.total[k[0]] || 0) + '</td>'; }).join('') + '</tr></table>' +
+    '<div class="ft"><span>Developed By: Md. Ashraful Islam</span><span>' + esc(d.orgNames) + '</span></div></div>' +
+    '<script>(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.print()},300)})<\/script></body></html>');
+  w.document.close();
+}
+function rpCsv() {
+  var d = RP.d, rows = [['শ্রেণি', 'বিষয়'].concat(d.steps.map(function (k) { return k[1]; }))];
+  d.rows.forEach(function (r) { rows.push([r.cls, r.subject].concat(d.steps.map(function (k) { return r[k[0]] || 0; }))); });
+  rows.push(['মোট', ''].concat(d.steps.map(function (k) { return d.total[k[0]] || 0; })));
+  var csv = rows.map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
+  var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); a.download = 'protibedon.csv'; a.click();
 }
 </script>
 </body>
