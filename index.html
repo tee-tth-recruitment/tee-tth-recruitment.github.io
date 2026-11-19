@@ -261,6 +261,10 @@ table.t th{color:var(--tx2);font-weight:600;font-size:13px}
 .qtt small{color:var(--tx3);font-weight:500}
 .qtt .nw{color:var(--acc)}
 .qform{padding:4px 14px 14px}
+
+/* আসন বিন্যাস */
+table.rm .in{padding:7px 9px;min-width:70px}
+table.rm td{vertical-align:middle}
 </style>
 </head>
 <body>
@@ -334,7 +338,7 @@ var ICONS = {
   dl: 'M12 4v12|m6 10 6 6 6-6|M4 20h16', renew: 'M3 12a9 9 0 0 1 15.5-6.2L21 8|M21 3v5h-5|M21 12a9 9 0 0 1-15.5 6.2L3 16|M3 21v-5h5',
   alert: 'M12 9v4|M12 17h.01|M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
   edit: 'M4 20h4L19 9l-4-4L4 16z|m13.5 6.5 4 4', send: 'M22 2 11 13|M22 2 15 22l-4-9-9-4z', out: 'M15 4h4v16h-4|M10 8l-4 4 4 4|M6 12h10',
-  menu: 'M4 6h16|M4 12h16|M4 18h16', share: 'M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|m8.6 13.5 6.8 4|m15.4 6.5-6.8 4',
+  menu: 'M4 6h16|M4 12h16|M4 18h16', grid: 'M4 4h7v7H4z|M13 4h7v7h-7z|M4 13h7v7H4z|M13 13h7v7h-7z', share: 'M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|m8.6 13.5 6.8 4|m15.4 6.5-6.8 4',
   id: 'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z|M9 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z|M6 16c.5-1.5 1.7-2 3-2s2.5.5 3 2|M14 10h4|M14 14h4'
 };
 function icon(n) { return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || '').split('|').map(function (d) { return '<path d="' + d + '"/>'; }).join('') + '</svg>'; }
@@ -429,6 +433,7 @@ var PAGES = [
   ['subjects', 'শ্রেণি ও বিষয়', 'book', 'subjects'],
   ['form', 'আবেদন ফর্ম', 'form', 'form'],
   ['qedit', 'ফর্মের প্রশ্ন', 'edit', 'form'],
+  ['seat', 'আসন বিন্যাস', 'grid', 'seat'],
   ['settings', 'সেটিংস', 'set', 'settings'],
   ['sms', 'SMS', 'sms', 'sms'],
   ['users', 'ব্যবহারকারী', 'key', 'owner'],
@@ -631,6 +636,7 @@ function drawApplicant(a) {
             ['স্নাতক শিক্ষাপ্রতিষ্ঠান', a.institution], ['বিভাগ', a.dept], ['বর্ষ', a.year], ['SSC', a.ssc], ['HSC', a.hsc], ['মাধ্যম', a.medium], ['ফ্রি সময়', a.freeTime],
             ['অভিজ্ঞতা', a.experience], ['কীভাবে জানলেন', a.source], ['জমার সময়', dtx(a.submittedAt)], ['অনুমোদন', dtx(a.approvedAt)], ['নোট', a.note],
             ['শেষ বদল', a.updatedBy ? dtx(a.updatedAt) + ' · ' + a.updatedBy : '']];
+  if (a.seatText) kv.splice(0, 0, ['আসন', a.seatText]);
   var ex = {}; try { ex = JSON.parse(a.extra || '{}') || {}; } catch (e) {}
   Object.keys(ex).forEach(function (k) { if (ex[k]) kv.push([k, ex[k]]); });
   h += '<dl class="kv">' + kv.filter(function (x) { return x[1]; }).map(function (x) { return '<dt>' + esc(x[0]) + '</dt><dd>' + esc(x[1]) + '</dd>'; }).join('') + '</dl>';
@@ -1151,6 +1157,140 @@ function qeAdd(afterId) {
       QE.items = r.items; QE.open = ''; qeDraw(); toast('প্রশ্ন যোগ হয়েছে');
     }, function (e) { toast(e.message, 5000); });
   });
+}
+
+/* ═════════════ আসন বিন্যাস — কক্ষ, বসানো, চূড়ান্ত, ছাপা ═════════════ */
+var SE = { st: null, edit: null };
+
+function page_seat() {
+  return '<div class="ph"><h2>আসন বিন্যাস</h2><span class="sp"></span><button class="btn sm" onclick="seLoad(this)">' + icon('renew') + 'হালনাগাদ</button></div><div id="seBox"><div class="loading"><span class="spin"></span></div></div>';
+}
+function after_seat() { if (SE.st) seDraw(); seLoad(); }
+function seLoad(btn) {
+  var p = callServer('apiSeatState');
+  (btn ? busy(btn, p) : p).then(function (st) { SE.st = st; SE.edit = null; seDraw(); }, function (e) { authFail(e); if ($('seBox')) $('seBox').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+}
+function seRooms() { if (!SE.edit) SE.edit = JSON.parse(JSON.stringify(SE.st.rooms)); return SE.edit; }
+function seDraw() {
+  var st = SE.st, R = seRooms(), h = '';
+  var cap = R.reduce(function (t, r) { return t + (r.rows || 0) * (r.benches || 0) * (r.perBench || 0); }, 0);
+  var dirty = JSON.stringify(R.map(seClean)) !== JSON.stringify(st.rooms.map(seClean));
+  // সারাংশ
+  h += '<div class="stats">' +
+    '<div class="stat acc"><small>অনুমোদিত প্রার্থী</small><b>' + N(st.approved) + '</b></div>' +
+    '<div class="stat"><small>মোট আসন</small><b>' + N(cap) + '</b></div>' +
+    '<div class="stat ok"><small>বসানো হয়েছে</small><b>' + N(st.seated) + '</b></div>' +
+    '<div class="stat ' + (st.unseated ? 'warn' : '') + '"><small>আসন বাকি</small><b>' + N(st.unseated) + '</b></div></div>';
+  if (cap < st.approved) h += '<div class="note bad" style="margin-bottom:12px">⚠️ আসন ' + N(st.approved - cap) + 'টি কম — কক্ষ যোগ করুন বা বেঞ্চ বাড়ান।</div>';
+  // কক্ষের তালিকা
+  h += '<div class="card"><h3>' + icon('home') + 'কক্ষ<span class="sp"></span><button class="btn sm" onclick="seAdd()">' + icon('plus') + 'কক্ষ যোগ</button></h3>';
+  if (!R.length) h += '<div class="empty">' + icon('home') + 'এখনো কোনো কক্ষ নেই — "কক্ষ যোগ" চাপুন।</div>';
+  else h += '<div class="tw"><table class="t rm"><tr><th>তলা</th><th>কক্ষ</th><th>সারি</th><th>সারিতে বেঞ্চ</th><th>বেঞ্চে কয়জন</th><th style="text-align:right">আসন</th><th style="text-align:right">বসানো</th><th></th></tr>' +
+    R.map(function (r, i) {
+      var c = (r.rows || 0) * (r.benches || 0) * (r.perBench || 0);
+      return '<tr><td><input class="in" value="' + esc(r.floor) + '" placeholder="যেমন ৩য়" oninput="SE.edit[' + i + '].floor=this.value" onchange="seDraw()"></td>' +
+        '<td><input class="in" value="' + esc(r.name) + '" placeholder="যেমন ৩০২" oninput="SE.edit[' + i + '].name=this.value" onchange="seDraw()"></td>' +
+        ['rows', 'benches', 'perBench'].map(function (k) { return '<td><input class="in" type="number" min="1" value="' + esc(r[k]) + '" onchange="SE.edit[' + i + '].' + k + '=+this.value;seDraw()"></td>'; }).join('') +
+        '<td style="text-align:right;font-weight:700">' + N(c) + '</td><td style="text-align:right">' + N(r.used || 0) + '</td>' +
+        '<td style="white-space:nowrap"><button class="btn sm ghost" onclick="seMv(' + i + ',-1)">' + icon('up') + '</button><button class="btn sm ghost" onclick="seMv(' + i + ',1)">' + icon('down') + '</button>' +
+        (r.used ? '' : '<button class="btn sm ghost" onclick="SE.edit.splice(' + i + ',1);seDraw()">' + icon('trash') + '</button>') + '</td></tr>';
+    }).join('') + '</table></div>';
+  if (dirty) h += '<div class="btns" style="margin-top:10px"><button class="btn pri" onclick="seSaveRooms(this)">কক্ষের তালিকা সেভ</button><button class="btn" onclick="SE.edit=null;seDraw()">বদল বাদ দিন</button></div>';
+  h += '<div class="tiny" style="margin-top:8px">ক্রম = প্রার্থী বসানোর ক্রম (ওপরের কক্ষ আগে ভরে)। আসন নম্বর সারি ধরে: ১ম সারির ১ম বেঞ্চ থেকে।</div></div>';
+  // বসানো ও চূড়ান্ত
+  h += '<div class="card"><h3>' + icon('users') + 'প্রার্থী বসানো<span class="sp"></span>' + (st.locked ? '<span class="chip ok">🔒 চূড়ান্ত</span>' : '<span class="chip warn">খসড়া</span>') + '</h3>';
+  h += '<div class="muted" style="margin-bottom:12px;line-height:1.7">"সাজাও" চাপলে সব অনুমোদিত প্রার্থী কক্ষে বসবেন — পাশাপাশি দুজন যতটা সম্ভব আলাদা শ্রেণি-বিষয়ের। ' +
+    'চূড়ান্ত করলে প্রার্থীরা প্রবেশপত্রের পাতায় নিজের <b>তলা ও কক্ষ</b> দেখবেন (বেঞ্চ নয়)। চূড়ান্তের পরে নতুন অনুমোদিতদের "বাকিদের বসাও" দিয়ে খালি আসনে বসান।</div><div class="btns">';
+  if (!st.locked) h += '<button class="btn gold" onclick="seGen(this)"' + (dirty ? ' disabled title="আগে কক্ষের তালিকা সেভ করুন"' : '') + '>' + icon('renew') + (st.seated ? 'আবার সাজাও' : 'সাজাও') + '</button>' +
+    '<button class="btn ok" onclick="seLock(this,true)"' + (st.seated ? '' : ' disabled') + '>' + icon('lock') + 'চূড়ান্ত করো</button>';
+  else h += '<button class="btn" onclick="seFill(this)"' + (st.unseated ? '' : ' disabled') + '>' + icon('plus') + 'বাকিদের বসাও' + (st.unseated ? ' (' + N(st.unseated) + ')' : '') + '</button>' +
+    '<button class="btn bad" onclick="seLock(this,false)">তালা খুলুন</button>';
+  h += '</div></div>';
+  // ছাপা
+  h += '<div class="card"><h3>' + icon('dl') + 'ছাপার কাগজ (A4)</h3><div class="btns">' +
+    '<button class="btn" onclick="sePrint(this,\'door\')">দরজার তালিকা</button>' +
+    '<button class="btn" onclick="sePrint(this,\'sticker\')">বেঞ্চের স্টিকার (পাতায় ২৪টা)</button>' +
+    '<button class="btn" onclick="sePrint(this,\'attend\')">হাজিরা-সইয়ের খাতা</button>' +
+    '<button class="btn" onclick="sePrint(this,\'qcount\')">প্রশ্নের হিসাব</button></div>' +
+    '<div class="tiny" style="margin-top:8px">নতুন জানালায় খুলবে — সেখান থেকে প্রিন্ট বা "Save as PDF"।' + (st.locked ? '' : ' ⚠️ আসন এখনো চূড়ান্ত নয় — ছাপার আগে চূড়ান্ত করে নিন।') + '</div></div>';
+  // কক্ষভিত্তিক বিষয়
+  if (st.seated) h += '<div class="card"><h3>' + icon('book') + 'কোন কক্ষে কোন বিষয়</h3><div class="tw"><table class="t"><tr><th>কক্ষ</th><th>প্রার্থী</th><th>শ্রেণি-বিষয়</th></tr>' +
+    st.rooms.filter(function (r) { return r.used; }).map(function (r) {
+      return '<tr><td style="white-space:nowrap"><b>' + esc((r.floor ? r.floor + ' তলা, ' : '') + r.name) + '</b></td><td>' + N(r.used) + '</td><td class="tiny">' +
+        Object.keys(r.subj).sort().map(function (k) { return esc(k) + ' (' + N(r.subj[k]) + ')'; }).join(' · ') + '</td></tr>';
+    }).join('') + '</table></div></div>';
+  $('seBox').innerHTML = h;
+}
+function seClean(r) { return [r.id || '', String(r.floor || ''), String(r.name || ''), +r.rows || 0, +r.benches || 0, +r.perBench || 0]; }
+function seAdd() { seRooms().push({ floor: '', name: '', rows: 5, benches: 4, perBench: 2 }); seDraw(); }
+function seMv(i, d) { var R = seRooms(), j = i + d; if (j < 0 || j >= R.length) return; var t = R[i]; R[i] = R[j]; R[j] = t; seDraw(); }
+function seSaveRooms(btn) {
+  busy(btn, callServer('apiSaveRooms', [seRooms().map(function (r) { return { id: r.id, floor: r.floor, name: r.name, rows: r.rows, benches: r.benches, perBench: r.perBench }; })])).then(function (st) { SE.st = st; SE.edit = null; seDraw(); toast('সেভ হয়েছে'); });
+}
+function seGen(btn) {
+  var go = function () { busy(btn, callServer('apiSeatGenerate')).then(function (st) { SE.st = st; SE.edit = null; seDraw(); toast(N(st.seated) + ' জন বসানো হয়েছে' + (st.unseated ? ' · ' + N(st.unseated) + ' জনের আসন হয়নি' : '')); }); };
+  if (SE.st.seated) confirmBox('আবার সাজাবেন?', 'আগের বসানো মুছে সবাই নতুন করে বসবেন।', 'হ্যাঁ, সাজাও').then(function (ok) { if (ok) go(); }); else go();
+}
+function seFill(btn) { busy(btn, callServer('apiSeatFill')).then(function (st) { SE.st = st; SE.edit = null; seDraw(); toast(N(st.placed) + ' জন বসানো হয়েছে' + (st.left ? ' · ' + N(st.left) + ' জনের আসন হয়নি (আসন কম)' : '')); }); }
+function seLock(btn, on) {
+  var go = function () { busy(btn, callServer('apiSeatLock', [on])).then(function (st) { SE.st = st; seDraw(); toast(on ? 'চূড়ান্ত — প্রার্থীরা এখন প্রবেশপত্রের পাতায় তলা ও কক্ষ দেখবেন' : 'তালা খোলা হয়েছে'); }); };
+  if (on) confirmBox('আসন চূড়ান্ত করবেন?', 'প্রার্থীরা প্রবেশপত্রের লিংক খুললে নিজের তলা ও কক্ষ দেখবেন। পরে বদলাতে হলে তালা খুলে আবার সাজাতে হবে।', 'চূড়ান্ত করো').then(function (ok) { if (ok) go(); });
+  else confirmBox('তালা খুলবেন?', 'প্রার্থীদের পাতায় কক্ষ দেখানো বন্ধ হবে, যতক্ষণ না আবার চূড়ান্ত করেন।', 'খুলুন').then(function (ok) { if (ok) go(); });
+}
+
+/* ---------- ছাপা ---------- */
+var SE_CSS = '@page{size:A4;margin:12mm}*{box-sizing:border-box}body{margin:0;font-family:"Noto Sans Bengali",sans-serif;color:#1b2333;font-size:11pt}' +
+  '.pg{page-break-after:always}.pg:last-child{page-break-after:auto}h1{font-size:15pt;margin:0;color:#13265a}h2{font-size:12pt;margin:2mm 0 0;font-weight:600;color:#55607a}' +
+  '.hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1.2pt solid #13265a;padding-bottom:2mm;margin-bottom:3mm}.big{font-size:22pt;font-weight:800;color:#13265a}' +
+  'table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #9aa4bb;padding:1.6mm 2mm;text-align:left;vertical-align:middle}th{background:#eef2f9;font-size:10pt}' +
+  '.st{display:grid;grid-template-columns:repeat(3,1fr);gap:0}.sk{border:.6pt dashed #9aa4bb;height:34.5mm;padding:3mm 4mm;display:flex;flex-direction:column;justify-content:center;text-align:center}' +
+  '.sk .r{font-size:24pt;font-weight:800;color:#13265a;letter-spacing:1pt;line-height:1.1}.sk .n{font-weight:700;font-size:11pt;margin-top:1mm}.sk .s{font-size:9pt;color:#55607a}' +
+  '.tot td{font-weight:800}.ft{margin-top:4mm;font-size:9pt;color:#55607a;display:flex;justify-content:space-between}';
+function seBn(n) { return N(n); }
+function seRoomName(r) { return (r.floor ? r.floor + ' তলা · ' : '') + 'কক্ষ ' + r.name; }
+function sePrint(btn, kind) {
+  var w = window.open('', '_blank');
+  if (!w) return toast('নতুন জানালা খোলা যায়নি — ব্রাউজারে পপ-আপ চালু করুন।');
+  w.document.write('<p style="font-family:sans-serif;padding:20px">তৈরি হচ্ছে…</p>');
+  busy(btn, callServer('apiSeatPlan')).then(function (p) {
+    var rooms = p.rooms.filter(function (r) { return r.list.length; }), body = '';
+    var head = function (r, t) { return '<div class="hd"><div><h1>' + esc(p.exam.title) + '</h1><h2>' + esc(t) + ' · ' + esc(p.exam.date) + ' · ' + esc(p.exam.time) + '</h2></div><div class="big">' + esc(seRoomName(r)) + '</div></div>'; };
+    if (kind === 'door') body = rooms.map(function (r) {
+      return '<div class="pg">' + head(r, 'দরজার তালিকা') + '<table><tr><th style="width:12mm">ক্রম</th><th style="width:26mm">রোল</th><th>নাম</th><th>শ্রেণি — বিষয়</th><th style="width:30mm">সারি · বেঞ্চ</th></tr>' +
+        r.list.map(function (a, i) { return '<tr><td>' + seBn(i + 1) + '</td><td><b>' + seBn(a.roll) + '</b></td><td>' + esc(a.name) + '</td><td>' + esc(a.cls + ' — ' + a.subject) + '</td><td>' + seBn(a.row) + ' · ' + seBn(a.bench) + (r.perBench > 1 ? ' (' + seBn(a.pos) + ')' : '') + '</td></tr>'; }).join('') +
+        '</table><div class="ft"><span>মোট ' + seBn(r.list.length) + ' জন</span><span>' + esc(p.exam.org) + '</span></div></div>';
+    }).join('');
+    if (kind === 'attend') body = rooms.map(function (r) {
+      return '<div class="pg">' + head(r, 'হাজিরা-সইয়ের খাতা') + '<table><tr><th style="width:12mm">ক্রম</th><th style="width:24mm">রোল</th><th>নাম</th><th style="width:44mm">শ্রেণি — বিষয়</th><th style="width:40mm">পরীক্ষার্থীর সই</th></tr>' +
+        r.list.map(function (a, i) { return '<tr style="height:9mm"><td>' + seBn(i + 1) + '</td><td><b>' + seBn(a.roll) + '</b></td><td>' + esc(a.name) + '</td><td style="font-size:9.5pt">' + esc(a.cls + ' — ' + a.subject) + '</td><td></td></tr>'; }).join('') +
+        '</table><div class="ft"><span>উপস্থিত: ______ · অনুপস্থিত: ______</span><span>কক্ষ পরিদর্শকের সই: ____________________</span></div></div>';
+    }).join('');
+    if (kind === 'sticker') {
+      var all = []; rooms.forEach(function (r) { r.list.forEach(function (a) { all.push({ a: a, r: r }); }); });
+      for (var i = 0; i < all.length; i += 24) {
+        body += '<div class="pg"><div class="st">' + all.slice(i, i + 24).map(function (x) {
+          return '<div class="sk"><div class="r">' + seBn(x.a.roll) + '</div><div class="n">' + esc(x.a.name) + '</div><div class="s">' + esc(x.a.cls + ' — ' + x.a.subject) + '</div><div class="s">' + esc(seRoomName(x.r)) + ' · সারি ' + seBn(x.a.row) + ', বেঞ্চ ' + seBn(x.a.bench) + '</div></div>';
+        }).join('') + '</div></div>';
+      }
+    }
+    if (kind === 'qcount') {
+      var subs = {}; rooms.forEach(function (r) { r.list.forEach(function (a) { subs[a.cls + ' — ' + a.subject] = 1; }); });
+      var keys = Object.keys(subs).sort(), tot = {};
+      body = '<div class="pg"><div class="hd"><div><h1>' + esc(p.exam.title) + '</h1><h2>প্রশ্নপত্রের হিসাব · ' + esc(p.exam.date) + '</h2></div></div><table><tr><th>শ্রেণি — বিষয়</th>' +
+        rooms.map(function (r) { return '<th style="text-align:center">' + esc(r.name) + '</th>'; }).join('') + '<th style="text-align:center">মোট</th></tr>' +
+        keys.map(function (k) {
+          var sum = 0;
+          return '<tr><td>' + esc(k) + '</td>' + rooms.map(function (r) { var n = r.list.filter(function (a) { return a.cls + ' — ' + a.subject === k; }).length; sum += n; tot[r.id] = (tot[r.id] || 0) + n; return '<td style="text-align:center">' + (n ? seBn(n) : '–') + '</td>'; }).join('') + '<td style="text-align:center"><b>' + seBn(sum) + '</b></td></tr>';
+        }).join('') + '<tr class="tot"><td>মোট</td>' + rooms.map(function (r) { return '<td style="text-align:center">' + seBn(tot[r.id] || 0) + '</td>'; }).join('') +
+        '<td style="text-align:center">' + seBn(rooms.reduce(function (t, r) { return t + r.list.length; }, 0)) + '</td></tr></table><div class="ft"><span>প্রতিটা কক্ষে প্রশ্নপত্র এই সংখ্যায় পাঠান (দু-একটা বাড়তি রাখুন)</span><span>' + esc(p.exam.org) + '</span></div></div>';
+    }
+    if (!body) body = '<p>কোনো প্রার্থী বসানো নেই — আগে "সাজাও" দিন।</p>';
+    w.document.open();
+    w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>আসন — ' + ({ door: 'দরজার তালিকা', sticker: 'স্টিকার', attend: 'হাজিরা খাতা', qcount: 'প্রশ্নের হিসাব' }[kind]) + '</title>' +
+      '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet"><style>' + SE_CSS + '</style></head><body>' + body +
+      '<script>(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.print()},300)})<\/script></body></html>');
+    w.document.close();
+  }, function () { try { w.close(); } catch (e) {} });
 }
 </script>
 </body>
