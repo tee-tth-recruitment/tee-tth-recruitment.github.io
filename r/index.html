@@ -85,7 +85,7 @@ function linksHtml(d) {
 function form(err, roll) {
   var saved = ''; try { saved = roll || localStorage.getItem('rc_res_roll') || ''; } catch (e) {}
   root.innerHTML = '<label for="fr">রোল নম্বর</label><input id="fr" inputmode="numeric" maxlength="6" placeholder="প্রবেশপত্রে লেখা ৬ অঙ্কের রোল" value="' + esc(saved) + '">' +
-    '<label for="fm">মোবাইল নম্বর</label><input id="fm" inputmode="tel" placeholder="আবেদনে দেওয়া মোবাইল নম্বর">' +
+    '<label for="fm">মোবাইল নম্বর</label><input id="fm" inputmode="tel" placeholder="আবেদনের সময় ব্যবহার করা মোবাইল নম্বর দিন">' +
     '<button class="go" id="fgo">ফল দেখুন</button><div class="err" id="fe">' + esc(err || '') + '</div>';
   var go = document.getElementById('fgo');
   go.onclick = function () {

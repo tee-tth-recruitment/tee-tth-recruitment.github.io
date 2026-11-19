@@ -122,12 +122,20 @@
 .wrap{padding:14px 0 30px;overflow:hidden}
 .scale{width:210mm;margin-left:50%;transform-origin:top center}
 .scale .page{margin:0}
+.hero{background:linear-gradient(160deg,#13265a 0%,#0f1a3a 70%);color:#fff;text-align:center;padding:26px 16px 58px;position:relative;overflow:hidden}
+.hero:after{content:'';position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,transparent,#e6c77d,transparent)}
+.hero img{width:60px;height:60px;margin:0 5px;background:#fff;border-radius:50%;padding:4px;box-shadow:0 0 0 3px rgba(230,199,125,.35)}
+.hero .eb{display:table;margin:12px auto 0;padding:3px 14px;border:1px solid rgba(230,199,125,.5);border-radius:999px;color:#e6c77d;font:600 13px 'Noto Sans Bengali',sans-serif;letter-spacing:.3px}
+.hero h1{font-family:'Baloo Da 2',sans-serif;font-size:30px;line-height:1.35;margin:8px 0 2px;padding-top:2px}
+.hero p{margin:0;color:#c9d3ee;font-size:14px}
+.box.card2{margin:-36px auto 0;width:calc(100% - 28px);position:relative;text-align:left;padding:24px 20px}
+.box label{display:block;font-size:14px;font-weight:600;color:#4a5675;margin:12px 0 4px}
 .box{max-width:440px;margin:40px auto;background:#fff;border:1px solid #dde3f0;border-radius:18px;padding:26px 22px;text-align:center;box-shadow:0 8px 24px rgba(20,32,63,.08)}
 .box img.lg{width:64px;height:64px;margin:0 6px}
 .box h1{font-family:'Baloo Da 2',sans-serif;font-size:24px;margin:10px 0 6px;color:#13265a}
 .box p{color:#4a5675;line-height:1.7;margin:6px 0}
 .box input{width:100%;padding:12px;border:1px solid #c9d2e6;border-radius:10px;font:16px 'Noto Sans Bengali',sans-serif;margin-top:8px}
-.box .go{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#13265a;color:#fff;font:700 16px 'Noto Sans Bengali',sans-serif;cursor:pointer}
+.box .go{width:100%;margin-top:16px;padding:13px;border:0;border-radius:10px;background:linear-gradient(180deg,#e6c77d,#c39a45);color:#1b1404;font:700 16px 'Noto Sans Bengali',sans-serif;cursor:pointer}
 .box .err{color:#d33b3b;min-height:20px;margin-top:8px;font-size:14px}
 .prog{height:6px;background:#e6ebf5;border-radius:6px;overflow:hidden;margin:18px 0 6px}
 .prog i{display:block;height:100%;width:30%;background:linear-gradient(90deg,#c39a45,#e6c77d);border-radius:6px;animation:pg 1.4s ease-in-out infinite}
@@ -140,8 +148,8 @@ html,body{background:#e9ecf2}
 </head>
 <body>
 <div id="root">
-  <div class="box scr"><img class="lg" src="../assets/tee-logo.png" alt=""><img class="lg" src="../assets/tth-logo.png" alt="">
-    <h1>আপনার প্রবেশপত্র প্রস্তুত হচ্ছে…</h1><div class="prog"><i></i></div><p>কয়েক সেকেন্ড অপেক্ষা করুন, পাতা বন্ধ করবেন না।</p></div>
+  <div class="hero scr"><img src="../assets/tee-logo.png" alt=""><img src="../assets/tth-logo.png" alt=""><div class="eb">শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭</div><h1>প্রবেশপত্র</h1><p>টেকনিক ইজি এডুকেশন ও টেকনিক টিচিং হোম</p></div>
+  <div class="box card2 scr" style="text-align:center"><div class="prog"><i></i></div></div>
 </div>
 <div class="dev">Developed By: Md. Ashraful Islam</div>
 
@@ -232,26 +240,31 @@ function pdf(btn, d) {
     .then(function () { sc.style.transform = keep; btn.disabled = false; btn.textContent = old; });
 }
 
+function hero(title) {
+  return '<div class="hero scr"><img src="../assets/tee-logo.png" alt=""><img src="../assets/tth-logo.png" alt=""><div class="eb">শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭</div><h1>' + title + '</h1><p>টেকনিক ইজি এডুকেশন ও টেকনিক টিচিং হোম</p></div>';
+}
 function msgBox(title, body) {
-  root.innerHTML = '<div class="box scr"><img class="lg" src="../assets/tee-logo.png" alt=""><img class="lg" src="../assets/tth-logo.png" alt=""><h1>' + title + '</h1>' + body + '</div>';
+  root.innerHTML = hero(title) + '<div class="box card2 scr" style="text-align:center">' + body + '</div>';
 }
 function findForm(err) {
-  msgBox('প্রবেশপত্র খুঁজুন', '<p>ইমেইল বা SMS-এ পাওয়া রোল নম্বর আর আবেদনের মোবাইল নম্বর দিন।</p>' +
-    '<input id="fr" inputmode="numeric" placeholder="রোল নম্বর (৬ অঙ্ক)"><input id="fm" inputmode="tel" placeholder="মোবাইল নম্বর"><button class="go" id="fgo">খুঁজুন</button><div class="err" id="fe">' + esc(err || '') + '</div>');
+  root.innerHTML = hero('প্রবেশপত্র') + '<div class="box card2 scr"><p style="margin:0 0 6px;text-align:center">ইমেইলে পাওয়া রোল নম্বর আর আবেদনের সময় ব্যবহার করা মোবাইল নম্বর দিন।</p>' +
+    '<label for="fr">রোল নম্বর</label><input id="fr" inputmode="numeric" maxlength="6" placeholder="প্রবেশপত্রের ৬ অঙ্কের রোল নম্বর">' +
+    '<label for="fm">মোবাইল নম্বর</label><input id="fm" inputmode="tel" placeholder="আবেদনের সময় ব্যবহার করা মোবাইল নম্বর দিন">' +
+    '<button class="go" id="fgo">প্রবেশপত্র খুঁজুন</button><div class="err" id="fe" style="text-align:center">' + esc(err || '') + '</div></div>';
   document.getElementById('fgo').onclick = function () {
     var b = this; b.disabled = true; b.textContent = 'খুঁজছি…';
     call('apiAdmitFind', [document.getElementById('fr').value, document.getElementById('fm').value]).then(function (r) {
       location.hash = r.token; load();
-    }, function (e) { b.disabled = false; b.textContent = 'খুঁজুন'; document.getElementById('fe').textContent = e.message; });
+    }, function (e) { b.disabled = false; b.textContent = 'প্রবেশপত্র খুঁজুন'; document.getElementById('fe').textContent = e.message; });
   };
 }
 function load() {
   var tok = (location.hash || '').replace(/^#/, '').trim();
   if (!tok) return findForm();
-  root.innerHTML = '<div class="box scr"><img class="lg" src="../assets/tee-logo.png" alt=""><img class="lg" src="../assets/tth-logo.png" alt=""><h1>আপনার প্রবেশপত্র প্রস্তুত হচ্ছে…</h1><div class="prog"><i></i></div><p>কয়েক সেকেন্ড অপেক্ষা করুন, পাতা বন্ধ করবেন না।</p></div>';
+  root.innerHTML = hero('প্রবেশপত্র') + '<div class="box card2 scr" style="text-align:center"><b style="font-size:17px;color:#13265a">আপনার প্রবেশপত্র প্রস্তুত হচ্ছে…</b><div class="prog"><i></i></div><p>কয়েক সেকেন্ড অপেক্ষা করুন, পাতা বন্ধ করবেন না।</p></div>';
   call('apiAdmit', [tok]).then(function (d) {
     if (d.cancelled) return msgBox('আবেদন বাতিল', '<p>রোল ' + esc(d.roll) + '-এর আবেদন বাতিল করা হয়েছে।</p>' + (d.reason ? '<p>কারণ: ' + esc(d.reason) + '</p>' : '') + '<p>প্রয়োজনে যোগাযোগ: ' + esc(d.helpline) + '</p>');
-    if (d.pending) return msgBox('যাচাই চলছে', '<p>আপনার আবেদনটি এখনো যাচাই হচ্ছে। অনুমোদন হলে SMS-এ জানানো হবে।</p><p>প্রয়োজনে যোগাযোগ: ' + esc(d.helpline) + '</p>');
+    if (d.pending) return msgBox('যাচাই চলছে', '<p>আপনার আবেদনটি এখনো যাচাই হচ্ছে। অনুমোদন হলে ইমেইলে জানানো হবে।</p><p>প্রয়োজনে যোগাযোগ: ' + esc(d.helpline) + '</p>');
     showAdmit(d);
   }, function (e) { findForm(e.message); });
 }

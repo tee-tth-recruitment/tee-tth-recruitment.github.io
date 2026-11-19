@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>প্যানেল — প্রশিক্ষণ ও ডেমো ক্লাসের নম্বর</title>
+<title>প্রশিক্ষণ ও ডেমো ক্লাস নিরীক্ষণ প্যানেল</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0b1226">
 <link rel="icon" type="image/png" href="../assets/tth-logo.png">
@@ -41,17 +41,35 @@ input,select,textarea{width:100%;padding:13px;border-radius:12px;border:1px soli
 .off{background:#4a3410;border:1px solid #fbbf24;border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:10px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f3d2e;border:1px solid #34d399;color:#e9eefb;padding:12px 18px;border-radius:12px;font-size:15px;z-index:30}
 .dev{text-align:center;font-size:12px;color:#7b88ab;margin-top:18px}
+/* প্রবেশের পাতা — লোগো, শিরোনাম, কার্ড */
+html,body{min-height:100%}
+body{background:radial-gradient(900px 420px at 50% -8%,#1f3478 0%,rgba(11,18,38,0) 70%),#0b1226}
+.brand{text-align:center;padding:14px 0 4px}
+.brand .lgs{display:flex;justify-content:center;gap:12px}
+.brand .lgs img{width:62px;height:62px;border-radius:50%;background:#fff;padding:4px;box-shadow:0 0 0 3px rgba(230,199,125,.35),0 10px 26px rgba(0,0,0,.4)}
+.brand .eb{display:inline-block;margin-top:14px;padding:3px 14px;border:1px solid rgba(230,199,125,.45);border-radius:999px;color:#e6c77d;font-size:13px;font-weight:600}
+.brand h1{font-family:'Baloo Da 2',sans-serif;font-size:27px;line-height:1.45;margin:8px 0 2px;padding-top:6px;background:linear-gradient(180deg,#ffffff 30%,#e6c77d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand p{color:#aab6d6;font-size:13.5px;margin:0;line-height:1.6}
+.lcard{margin-top:18px;background:linear-gradient(180deg,#14214a,#0f1936);border:1px solid #2a3a6b;border-radius:20px;padding:20px 18px 18px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.lcard h2{font-size:18.5px;line-height:1.5;margin:0 0 4px;display:flex;gap:10px;align-items:flex-start;color:#fff}
+.lcard h2:before{content:'';flex:none;width:4px;height:24px;margin-top:3px;border-radius:4px;background:linear-gradient(180deg,#e6c77d,#c39a45)}
+.lcard label{color:#c9d3ee;font-weight:600}
+.lcard input,.lcard select{background:#0b1430;border-color:#2f4280}
+.lcard input:focus,.lcard select:focus{outline:2px solid #c39a45;border-color:#c39a45}
+.fhint{font-size:12.5px;color:#8f9cc4;margin-top:6px}
+
 </style>
 <script>var API_URL = 'https://script.google.com/macros/s/AKfycbyfL1EUYdUrfEqIwvBVi2Ia8J8sEqXA4Byo78EaccmH-9oIb3YAnHil0SjlUS-YdFCH/exec';</script>
 </head>
 <body>
 <div class="wrap">
   <div id="vLogin">
-    <h1>প্যানেল — প্রশিক্ষণ ও ডেমো ক্লাস</h1>
-    <div class="sub">শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭ · শুধু প্যানেলের সদস্যদের জন্য</div>
-    <div id="lStep1"><label>প্যানেল-কোড (অফিস থেকে)</label><input id="lCode" inputmode="numeric" maxlength="6" placeholder="৬ অঙ্ক"><button class="btn" id="lNext">এগিয়ে যান</button></div>
-    <div id="lStep2" class="hide"><label>আপনার প্যানেল</label><select id="lPanel"></select><label>আপনার নাম</label><select id="lMember"></select><button class="btn" id="lGo">ঢুকুন</button></div>
-    <div class="err" id="lErr"></div>
+    <div class="brand"><div class="lgs"><img src="../assets/tee-logo.png" alt=""><img src="../assets/tth-logo.png" alt=""></div><div class="eb">শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭</div><h1>প্রশিক্ষণ ও ডেমো ক্লাস নিরীক্ষণ প্যানেল</h1><p>টেকনিক ইজি এডুকেশন ও টেকনিক টিচিং হোম · শুধু প্যানেলের সদস্যদের জন্য</p></div>
+    <div class="lcard">
+      <div id="lStep1"><h2>প্যানেল-কোড দিয়ে প্রবেশ করুন</h2><input id="lCode" inputmode="numeric" maxlength="6" placeholder="৬ অঙ্কের প্যানেল-কোডটি লিখুন" style="margin-top:10px"><div class="fhint">না জানলে কর্তৃপক্ষকে অবহিত করুন।</div><button class="btn" id="lNext">এগিয়ে যান</button></div>
+      <div id="lStep2" class="hide"><h2>আপনার প্যানেল ও নাম বাছুন</h2><label>আপনার প্যানেল</label><select id="lPanel"></select><label>আপনার নাম</label><select id="lMember"></select><button class="btn" id="lGo">প্রবেশ করুন</button></div>
+      <div class="err" id="lErr"></div>
+    </div>
   </div>
   <div id="vList" class="hide">
     <div class="top"><span id="who"></span><span class="sp"></span><button id="out">বের হোন</button></div>
