@@ -1017,12 +1017,30 @@ function page_settings() {
     '<div class="tiny">প্রবেশপত্রের সংস্করণ এখন: ' + N(s.admitVersion) + (s.admitUpdated ? ' (' + ymdBn(s.admitUpdated) + ')' : '') + '</div></div>';
   h += '<div class="card"><h3>' + icon('book') + 'শর্ত ও নিয়মাবলি<span class="sp"></span><button class="btn sm" onclick="addRule()">' + icon('plus') + 'নিয়ম</button></h3><div id="rules"></div>' +
     '<div class="tiny">কোনো শব্দ মোটা করতে দুই দিকে ** দিন — যেমন **বাধ্যতামূলক**। প্রবেশপত্র এক পাতায় রাখতে নিয়ম ছোট রাখুন।</div></div>';
+  if (!S.boot.me.scope) h += driveCard();   // পুরো প্রতিষ্ঠানের কাজ — বিভাগীয় প্রধান নয়
   return h;
 }
 function after_settings() {
   S.rules = (S.boot.settings.rules || []).slice();
   drawRules();
+  if ($('drv')) callServer('apiDriveState').then(drawDrive, function (e) { authFail(e); $('drv').textContent = e.message; });
   $('setSave').onclick = saveSettings;
+}
+/* ---------- গুগল ড্রাইভ ফোল্ডার (ছবি গোছানো) ---------- */
+function driveCard() {
+  return '<div class="card"><h3>' + icon('form') + 'গুগল ড্রাইভ ফোল্ডার</h3><div id="drv"><div class="loading"><span class="spin"></span></div></div></div>';
+}
+function drawDrive(d) {
+  var h = '<div class="tiny" style="line-height:1.7;margin-bottom:10px">সব ফাইল থাকে tploffice02-এর ড্রাইভে <b>"' + esc(d.name) + '"</b> ফোল্ডারে: <b>প্রার্থীর ছবি</b> (শ্রেণি → বিষয়, নাম "রোল - নাম"; রোল পাওয়ার আগে "যাচাইয়ের অপেক্ষায়", বাতিল হলে "বাতিল"), <b>ফলাফল</b> (PDF) আর <b>ডেটা ও ফর্ম</b>। নতুন ছবি ১০ মিনিটের মধ্যে নিজে গোছায়; শ্রেণি-বিষয় বা অবস্থা বদলালেও নিজে সরে।' +
+    (d.shared.length ? ' সম্পাদক হিসেবে শেয়ার: ' + esc(d.shared.join(', ')) + ' (জায়গা খরচ tploffice02-এর)।' : '') + '</div>';
+  h += '<div class="stats" style="margin-bottom:10px">' + [['ছবি মোট', d.total, 'acc'], ['গোছানো', d.done, 'ok'], ['বাকি', d.left, d.left ? 'warn' : 'ok']].map(function (x) {
+    return '<div class="stat ' + x[2] + '" style="cursor:default"><small>' + x[0] + '</small><b>' + N(x[1]) + '</b></div>'; }).join('') + '</div>';
+  if (d.errors.length) h += '<div class="note bad" style="margin-bottom:10px">যে ছবি সরানো যায়নি:<br>' + d.errors.map(function (x) { return esc((x.roll ? N(x.roll) + ' · ' : '') + x.name + ' — ' + x.msg); }).join('<br>') + '</div>';
+  h += '<div class="btns"><a class="btn pri" href="' + esc(d.url) + '" target="_blank">' + icon('ext') + 'ড্রাইভে খুলুন</a><button class="btn" onclick="driveSort(this)">' + icon('renew') + 'এখনই গোছাও</button></div>';
+  $('drv').innerHTML = h;
+}
+function driveSort(btn) {
+  busy(btn, callServer('apiDriveSort')).then(function (d) { drawDrive(d); toast(N(d.ran.done) + 'টি ছবি গোছানো হলো' + (d.ran.errors ? ' · ' + N(d.ran.errors) + 'টিতে ভুল' : '') + (d.left ? ' · বাকি ' + N(d.left) + 'টি — আবার চাপুন' : '')); });
 }
 function drawRules() {
   $('rules').innerHTML = S.rules.map(function (r, i) {
