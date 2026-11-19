@@ -596,8 +596,8 @@ function render() {
   var me = S.boot.me, pages = PAGES.filter(allowed);
   if (!pages.some(function (p) { return p[0] === S.page; })) S.page = 'home';
   var initial = String(me.name || me.email || '?').trim().charAt(0);
-  var role = me.owner ? (me.email || 'সব ক্ষমতা') : (S.boot.roleNames[me.role] || '') + (me.scope && me.secNames && me.secNames.length ? ' · ' + me.secNames.join(', ') : '');
-  $('meBox').innerHTML = '<span class="av">' + (me.owner ? '👑' : esc(initial)) + '</span><span class="mi"><b>' + esc(me.name) + '</b><small>' + esc(role) + '</small></span>';
+  var role = me.owner ? (S.boot.roleNames.owner || '') : (S.boot.roleNames[me.role] || '') + (me.scope && me.secNames && me.secNames.length ? ' · ' + me.secNames.join(', ') : '');
+  $('meBox').innerHTML = '<span class="av">' + esc(initial) + '</span><span class="mi"><b>' + esc(me.name) + '</b><small>' + esc(role) + '</small></span>';
   drawNav();
   $('devSide').innerHTML = markSvg() + '<span>Developed By: <a class="devlink" href="https://m-ashraful.github.io/" target="_blank" rel="noopener">Md. Ashraful Islam</a></span>';
   var main = BNAV_PREF.map(pageOf).filter(function (p) { return p && allowed(p); }).slice(0, 4);
@@ -1187,7 +1187,7 @@ function appLink() { var u = String(S.boot.settings.appShort || '').trim(); retu
 function staffMsg() { return 'শিক্ষক নিয়োগ ২০২৭ — অফিসের অ্যাপ\n' + appLink() + '\n\nআপনার যে ইমেইল যোগ করা হয়েছে, সেটা দিয়ে "লগইন কোড পাঠান" চাপুন — ইমেইলে আসা ৬ অঙ্কের কোড দিয়ে ঢুকবেন। ফোনে খুলে "Add to Home screen" দিলে অ্যাপের মতো থাকবে।'; }
 function saveAppShort(btn) { busy(btn, callServer('apiSaveSettings', [{ appShort: $('appShort').value.trim() }])).then(function (r) { S.boot.settings = r.settings; toast('সেভ হয়েছে'); }); }
 function after_users() { callServer('apiUsers').then(function (u) { S.users = u; drawUsers(); }, function (e) { $('ulist').textContent = e.message; }); }
-// বিভাগ: নাম + কোন শ্রেণি (মালিক বদলান)
+// বিভাগ: নাম + কোন শ্রেণি (প্রধান বদলান)
 var SECS = null;
 function drawSecs() {
   var u = S.users;
@@ -1207,9 +1207,20 @@ function drawSecs() {
 function secCls(i, c, on) { var L = SECS[i].classes = (SECS[i].classes || []).filter(function (x) { return x !== c; }); if (on) L.push(c); drawUsers(); }
 function saveSecs(btn) { busy(btn, callServer('apiSaveSections', [SECS])).then(function (r) { S.users = r; SECS = null; drawUsers(); toast('বিভাগ সেভ হয়েছে'); }); }
 function secNamesOf(ids) { return (S.users.sections || []).filter(function (s) { return (ids || []).indexOf(s.id) !== -1; }).map(function (s) { return s.name; }); }
+function drawRoles() {
+  var u = S.users;
+  return '<div class="card" style="margin-bottom:14px"><h3>' + icon('id') + 'পদবির নাম</h3><div class="tiny" style="margin-bottom:10px">শুধু দেখানো নাম — ক্ষমতা বদলায় না। খালি রাখলে শুরুর নাম থাকবে।</div>' +
+    '<div class="grid g2">' + fld('rn_me', 'আপনার নাম (সবার ওপরের কার্ডে দেখায়)', u.ownerName) + Object.keys(u.roleDefaults).map(function (k) {
+      return fld('rn_' + k, (k === 'owner' ? 'আপনার পদবি' : 'পদবি: ' + esc(u.roleDefaults[k])), u.roles[k] === u.roleDefaults[k] ? '' : u.roles[k]).replace('<input class="in"', '<input class="in" placeholder="' + esc(u.roleDefaults[k]) + '"');
+    }).join('') + '</div><button class="btn pri" onclick="saveRoles(this)">সেভ</button></div>';
+}
+function saveRoles(btn) {
+  var m = {}; Object.keys(S.users.roleDefaults).forEach(function (k) { m[k] = $('rn_' + k).value.trim(); });
+  busy(btn, callServer('apiSaveRoleNames', [m, $('rn_me').value.trim()])).then(function (r) { S.users = r; drawUsers(); toast('সেভ হয়েছে'); reload(); });
+}
 function drawUsers() {
   var u = S.users;
-  $('ulist').innerHTML = drawSecs() + '<div class="list"><div class="row" style="cursor:default"><span class="chip ok">মালিক</span><div class="nm"><b>' + esc(u.owner) + '</b><small>' + esc(u.aliases.join(', ')) + ' · সব ক্ষমতা</small></div></div>' +
+  $('ulist').innerHTML = drawRoles() + drawSecs() + '<div class="list"><div class="row" style="cursor:default"><span class="chip ok">' + esc(u.roles.owner) + '</span><div class="nm"><b>' + esc(u.ownerName) + '</b><small>' + esc([u.owner].concat(u.aliases).join(', ')) + ' · সব ক্ষমতা</small></div></div>' +
     u.users.map(function (x, i) {
       return '<div class="row" onclick="editUser(' + i + ')"><span class="chip ' + (x.off ? 'bad' : 'info') + '">' + esc(x.off ? 'বন্ধ' : (u.roles[x.role] || x.role)) + '</span><div class="nm"><b>' + esc(x.name) + '</b><small>' + esc(x.email) + ' · ' + ((x.secs || []).length ? '<b>বিভাগ: ' + esc(secNamesOf(x.secs).join(', ')) + '</b> · ' : '') + (x.perms.length ? x.perms.map(function (p) { return (u.perms[p] || [p])[0]; }).join(', ') : 'কোনো ক্ষমতা নেই') + '</small></div></div>';
     }).join('') + '</div>';
@@ -1784,8 +1795,8 @@ function rsDraw() {
     h += '<div class="grid g3" style="align-items:end"><div class="fld"><label>প্রকাশের দিন ও সময়</label><input class="in" type="datetime-local" id="rsAt" value="' + esc(dtLocal(d.pub.at) || (d.resultDate ? d.resultDate + 'T15:00' : '')) + '"></div>' +
       '<div class="fld"><button class="btn pri" style="width:100%" onclick="rsPub(this,\'at\')">এই সময়ে প্রকাশ</button></div>' +
       '<div class="fld">' + (d.pub.on ? '<button class="btn" style="width:100%" onclick="rsPub(this,\'off\')">প্রকাশ বন্ধ / বাতিল</button>' : '<button class="btn ok" style="width:100%" onclick="rsPub(this,\'now\')">এখনই প্রকাশ</button>') + '</div></div>' +
-      '<div class="tiny">ঠিক করা সময়ের আগে ফলাফলের পাতা শুধু "ফল প্রকাশ হবে …" দেখায়। প্রকাশের চাবি শুধু মালিকের হাতে।</div>';
-  } else h += '<div class="tiny">প্রকাশের দিন-সময় ঠিক করা ও প্রকাশ শুধু মালিক পারেন।</div>';
+      '<div class="tiny">ঠিক করা সময়ের আগে ফলাফলের পাতা শুধু "ফল প্রকাশ হবে …" দেখায়। প্রকাশের চাবি শুধু ' + esc(S.boot.roleNames.owner) + '-এর হাতে।</div>';
+  } else h += '<div class="tiny">প্রকাশের দিন-সময় ঠিক করা ও প্রকাশ শুধু ' + esc(S.boot.roleNames.owner) + ' পারেন।</div>';
   h += '</div>';
   // ২) প্রার্থীর ফলাফলের পাতা
   h += '<div class="card"><h3>' + icon('share') + 'প্রার্থীর পাতা — আমার আবেদন</h3><div class="qrbox"><div class="qr" id="rsQr"></div><div style="flex:1;min-width:220px">' +
@@ -2574,7 +2585,7 @@ function page_links() {
       '<div class="btns"><button class="btn sm" onclick="copyText(\'' + esc(u) + '\')">' + icon('copy') + 'লিংক কপি</button><a class="btn sm" href="' + esc(u) + '" target="_blank">' + icon('ext') + 'খুলুন</a></div></div></div>' +
       (x.extra ? '<div class="tiny" style="margin:8px 0 0">' + esc(x.extra.label) + ': <a href="' + esc(x.extra.url) + '" target="_blank">খুলুন</a> · <a href="#" onclick="copyText(\'' + esc(x.extra.url) + '\');return false">কপি</a> (সাধারণত ওপরের লিংকটাই দিন)</div>' : '') +
       '<div class="fld" style="margin:12px 0 8px"><label>নিজের ছোট লিংক (ঐচ্ছিক)</label><div class="btns" style="flex-wrap:nowrap"><input class="in" id="ls_' + x.key + '" placeholder="যেমন https://tee.com.bd/' + x.key + '" value="' + esc(sh) + '"' + (canEdit ? '' : ' disabled') + '>' +
-      (canEdit ? '<button class="btn sm" onclick="lkSaveShort(this,\'' + x.key + '\')">সেভ</button>' : '') + '</div><div class="hint">শর্টনারে নাম দিন / ছাড়া, লক্ষ্য ' + esc(x.long) + (canEdit ? '' : S.boot.me.scope ? ' — ছোট লিংক বসান সব বিভাগের ব্যবহারকারীরা' : ' — শুধু মালিক বদলাতে পারেন') + '</div></div>' +
+      (canEdit ? '<button class="btn sm" onclick="lkSaveShort(this,\'' + x.key + '\')">সেভ</button>' : '') + '</div><div class="hint">শর্টনারে নাম দিন / ছাড়া, লক্ষ্য ' + esc(x.long) + (canEdit ? '' : S.boot.me.scope ? ' — ছোট লিংক বসান সব বিভাগের ব্যবহারকারীরা' : ' — শুধু ' + esc(S.boot.roleNames.owner) + ' বদলাতে পারেন') + '</div></div>' +
       '<div class="fld"><label>শেয়ারের লেখা (দরকারমতো বদলে নিন)</label><textarea class="in" id="lt_' + x.key + '" rows="5">' + esc(x.text(u)) + '</textarea></div>' +
       '<div class="btns"><button class="btn sm pri" onclick="lkCopyText(\'' + x.key + '\')">' + icon('copy') + 'লেখা কপি</button>' +
       (navigator.share ? '<button class="btn sm" onclick="lkShare(\'' + x.key + '\')">' + icon('share') + 'শেয়ার</button>' : '') +
