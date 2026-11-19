@@ -3,9 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>প্রবেশপত্র — শিক্ষক নিয়োগ ২০২৭</title>
+<title>আমার আবেদন — শিক্ষক নিয়োগ ২০২৭</title>
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="../assets/tth-logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="../assets/tth-logo.png">
+<meta name="theme-color" content="#13265a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Noto+Serif+Bengali:wght@600;700;800&family=Mrs+Saint+Delafield&family=Baloo+Da+2:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -141,6 +144,34 @@
 .prog i{display:block;height:100%;width:30%;background:linear-gradient(90deg,#c39a45,#e6c77d);border-radius:6px;animation:pg 1.4s ease-in-out infinite}
 @keyframes pg{0%{margin-left:-30%}100%{margin-left:100%}}
 .dev{text-align:center;font-size:12px;color:#7b86a3;margin:18px 0}
+.pwho{text-align:center;margin-bottom:14px}.pwho b{display:block;font-size:20px;color:#13265a}.pwho span{color:#4a5675;font-size:14px}
+.ptl{display:flex;justify-content:space-between;position:relative;margin:4px 0 16px}
+.ptl:before{content:'';position:absolute;left:8%;right:8%;top:15px;height:3px;background:#e1e6f2;z-index:0}
+.ptl div{position:relative;z-index:1;flex:1;text-align:center;min-width:0}
+.ptl i{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 auto;border-radius:50%;font-style:normal;font-weight:800;font-size:13px;background:#eef1f8;color:#8a94ad;border:2px solid #e1e6f2}
+.ptl span{display:block;max-width:70px;margin:5px auto 0;padding:0 2px;font-size:11.5px;line-height:1.3;color:#8a94ad;font-weight:600}
+.ptl .done i{background:linear-gradient(180deg,#e6c77d,#c39a45);color:#1b1404;border-color:#c39a45}.ptl .done span{color:#13265a}
+.ptl .now i{background:#13265a;color:#e6c77d;border-color:#e6c77d;box-shadow:0 0 0 5px rgba(230,199,125,.3)}.ptl .now span{color:#13265a;font-weight:800}
+.ptl .stop i{background:#f1f4fa;color:#6b7591;border-color:#b9c1d6}.ptl .off{opacity:.45}
+.pnews{border-radius:14px;padding:14px 16px;margin-bottom:12px;background:#f8f9fc;border:1px solid #e1e6f2}
+.pnews small{display:block;font-size:12px;font-weight:700;letter-spacing:.3px;color:#8a94ad}
+.pnews b{display:block;font-family:'Baloo Da 2',sans-serif;font-size:23px;line-height:1.4;color:#13265a;padding-top:2px}
+.pnews p{margin:4px 0 0;font-size:15px;line-height:1.75;color:#3d4866}
+.pnews.t-now{background:linear-gradient(135deg,#13265a,#24408f);border:0;box-shadow:0 0 0 3px #e6c77d inset}.pnews.t-now small{color:#e6c77d}.pnews.t-now b{color:#fff}.pnews.t-now p{color:#dbe2f5}
+.pnews.t-win{background:linear-gradient(135deg,#0f3d2e,#13265a);border:0;box-shadow:0 0 0 3px #e6c77d inset}.pnews.t-win small{color:#e6c77d}.pnews.t-win b{color:#e6c77d}.pnews.t-win p{color:#dbe2f5}
+.pnews.t-wait{background:#fff8e1;border-color:#f0d58a}.pnews.t-wait small{color:#7a5a12}
+.pbox{border-radius:14px;padding:12px 16px;margin-bottom:12px;background:#fff8e1;border:1px solid #f0d58a}
+.pbox small{display:block;font-size:13px;font-weight:700;color:#7a5a12;margin-bottom:6px}
+.pbox dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:15px}.pbox dt{color:#7a5a12}.pbox dd{margin:0;font-weight:700;color:#14203f}
+.box .go.alt{background:#13265a;color:#fff}.box .go.ghost{background:#f1f4fa;color:#13265a}
+.pnote{margin-top:8px;padding-top:8px;border-top:1px dashed #f0d58a;font-size:12.5px;line-height:1.6;color:#7a5a12}
+.pout{text-align:center;margin-top:16px}.pout a{color:#6b7591;font-size:14px;font-weight:600;text-decoration:none;border-bottom:1px dashed #b9c1d6}
+.hide{display:none!important}
+.box .pinst{margin-top:12px}
+.phint{font-size:12.5px;color:#6b7591;text-align:center;margin-top:6px;line-height:1.6}
+.plinks{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.plinks a{font-size:14px;color:#13265a;background:#f1f4fa;border-radius:999px;padding:7px 14px;text-decoration:none;font-weight:600}
+@media (max-width:400px){.ptl span{font-size:10.5px}.ptl i{width:28px;height:28px}}
 @media print{.scr,.bar,.tip,.dev{display:none!important}.wrap{padding:0}.scale{transform:none!important;height:auto!important;margin:0!important}body{background:#fff}}
 html,body{background:#e9ecf2}
 </style>
@@ -148,7 +179,7 @@ html,body{background:#e9ecf2}
 </head>
 <body>
 <div id="root">
-  <div class="hero scr"><img src="../assets/tee-logo.png" alt=""><img src="../assets/tth-logo.png" alt=""><div class="eb">শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭</div><h1>প্রবেশপত্র</h1><p>টেকনিক ইজি এডুকেশন ও টেকনিক টিচিং হোম</p></div>
+  <div class="hero scr"><img src="../assets/tee-logo.png" alt=""><img src="../assets/tth-logo.png" alt=""><div class="eb">শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭</div><h1>আমার আবেদন</h1><p>টেকনিক ইজি এডুকেশন ও টেকনিক টিচিং হোম</p></div>
   <div class="box card2 scr" style="text-align:center"><div class="prog"><i></i></div></div>
 </div>
 <div class="dev">Developed By: Md. Ashraful Islam</div>
@@ -158,10 +189,22 @@ html,body{background:#e9ecf2}
 <script>
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function N(x) { return String(x == null ? '' : x).replace(/[0-9]/g, function (d) { return '০১২৩৪৫৬৭৮৯'[d]; }); }
-function call(fn, args) {
+function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+// ভিড়ের সময় সার্ভার ব্যস্ত থাকলে নিজে আবার চেষ্টা (৫ বার পর্যন্ত)
+function call(fn, args, tries, onRetry) {
+  tries = tries || 0;
   return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args || [] }) })
-    .then(function (r) { return r.json(); }, function () { throw new Error('ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।'); })
-    .then(function (j) { if (!j || !j.ok) throw new Error((j && j.error) || 'সমস্যা হয়েছে।'); return j.data; });
+    .then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.ok) return j.data;
+      var m = (j && j.error) || 'সমস্যা হয়েছে।';
+      if (/অনেকে একসাথে|too many|Service|timed out|LockService|invoked/i.test(m)) throw { busy: true, message: m };
+      throw new Error(m);
+    }).catch(function (e) {
+      if (e instanceof Error && !/Failed to fetch|NetworkError|JSON|Load failed/i.test(e.message)) throw e;
+      if (tries >= 5) throw new Error('এখন অনেকে একসাথে দেখছেন — একটু পরে আবার চেষ্টা করুন।');
+      if (onRetry) onRetry(tries + 1);
+      return sleep([1500, 3000, 5000, 8000, 12000][tries] + Math.random() * 1500).then(function () { return call(fn, args, tries + 1, onRetry); });
+    });
 }
 var root = document.getElementById('root');
 var SIG_ASHRAFUL = '<svg viewBox="0 0 860 240" aria-hidden="true"><g fill="none" stroke="#14275a" stroke-linecap="round" stroke-linejoin="round"><path d="M26 82 C28 75 34 72 44 72 C200 63 400 55 548 48 C556 48 562 46 568 42" stroke-width="4.4"/><path d="M46 186 C66 144 90 102 112 64 C120 102 130 146 140 174 C146 188 158 182 166 164" stroke-width="4.8"/><path d="M512 26 C504 84 492 140 480 178 C476 190 486 192 496 176" stroke-width="4.6"/><path d="M90 208 C300 214 600 202 800 152" stroke-width="4"/></g><ellipse cx="107" cy="136" rx="7" ry="6" fill="#14275a"/><text x="164" y="162" font-family="Mrs Saint Delafield" font-size="98" fill="#14275a">shraful</text><text x="494" y="162" font-family="Mrs Saint Delafield" font-size="98" fill="#14275a">slam</text><ellipse cx="812" cy="146" rx="6.5" ry="5.6" fill="#14275a"/></svg>';
@@ -218,9 +261,9 @@ window.addEventListener('resize', fit);
 
 function showAdmit(d) {
   document.title = 'প্রবেশপত্র — রোল ' + N(d.roll);
-  root.innerHTML = '<div class="bar scr"><b>প্রবেশপত্র · রোল ' + esc(d.rollBn) + '</b><button class="dl" id="dl">⬇ PDF নামান (A4)</button><button class="pr" onclick="window.print()">🖨 প্রিন্ট</button></div>' +
+  root.innerHTML = '<div class="bar scr"><button class="pr" onclick="location.hash=TOK">← আমার আবেদন</button><b>প্রবেশপত্র · রোল ' + esc(d.rollBn) + '</b><button class="dl" id="dl">⬇ প্রবেশপত্র ডাউনলোড (PDF)</button><button class="pr" onclick="window.print()">🖨 প্রিন্ট</button></div>' +
     (d.seat ? '<div class="seatb scr"><small>আপনার পরীক্ষার কক্ষ</small><b>' + (d.seat.floor ? esc(d.seat.floor) + ' তলা · ' : '') + 'কক্ষ ' + esc(d.seat.room) + '</b></div>' : '') +
-    '<div class="tip scr">📌 প্রবেশপত্র <b>ছাপিয়ে</b> পরীক্ষায় আনতে হবে — মোবাইলে দেখানো গ্রহণযোগ্য নয়। A4 কাগজে এক পাতায় ছাপুন, QR কোড ভাঁজ করবেন না।</div>' +
+    '<div class="tip scr">📌 প্রবেশপত্র <b>প্রিন্ট করে</b> পরীক্ষায় আনতে হবে — মোবাইলে দেখানো গ্রহণযোগ্য নয়। A4 কাগজে এক পাতায় প্রিন্ট করুন, QR কোড ভাঁজ করবেন না।</div>' +
     '<div class="wrap"><div class="scale">' + admitHtml(d) + '</div></div>';
   fit();
   document.getElementById('dl').onclick = function () { pdf(this, d); };
@@ -246,27 +289,68 @@ function hero(title) {
 function msgBox(title, body) {
   root.innerHTML = hero(title) + '<div class="box card2 scr" style="text-align:center">' + body + '</div>';
 }
+var TOK = '', SAVE_KEY = 'rc_my_app', INSTALL = null;
+function saved(v) { try { if (v === undefined) return localStorage.getItem(SAVE_KEY) || ''; if (v) localStorage.setItem(SAVE_KEY, v); else localStorage.removeItem(SAVE_KEY); } catch (e) { return ''; } }
+function logout() { saved(''); location.hash = ''; }
+// ফোনে "ইনস্টল" — ব্রাউজার সুযোগ দিলে বোতাম দেখায়
+window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); INSTALL = e; document.querySelectorAll('.pinst').forEach(function (b) { b.classList.remove('hide'); }); });
+function installBtn() { return '<button class="go alt pinst' + (INSTALL ? '' : ' hide') + '" onclick="doInstall()">📲 ওয়েব অ্যাপ হিসেবে ইনস্টল করুন</button>'; }
+function doInstall() { if (!INSTALL) return; INSTALL.prompt(); INSTALL.userChoice.then(function () { INSTALL = null; document.querySelectorAll('.pinst').forEach(function (b) { b.classList.add('hide'); }); }); }
 function findForm(err) {
-  root.innerHTML = hero('প্রবেশপত্র') + '<div class="box card2 scr"><p style="margin:0 0 6px;text-align:center">ইমেইলে পাওয়া রোল নম্বর আর আবেদনের সময় ব্যবহার করা মোবাইল নম্বর দিন।</p>' +
-    '<label for="fr">রোল নম্বর</label><input id="fr" inputmode="numeric" maxlength="6" placeholder="প্রবেশপত্রের ৬ অঙ্কের রোল নম্বর">' +
+  document.title = 'আমার আবেদন — শিক্ষক নিয়োগ ২০২৭';
+  root.innerHTML = hero('আমার আবেদন') + '<div class="box card2 scr"><p style="margin:0 0 6px;text-align:center">প্রবেশপত্র, ফলাফল, প্রশিক্ষণ, ডেমো ক্লাস বা নিয়োগ সংক্রান্ত সকল আপডেট এখানে পাবেন। তাই লিংকটি সংরক্ষণ করুন অথবা ওয়েব অ্যাপ হিসেবে ইনস্টল করে নিন।</p>' + installBtn() + '' +
+    '<label for="fr">রোল নম্বর</label><input id="fr" inputmode="numeric" maxlength="6" placeholder="ইমেইলে পাওয়া রোল নম্বরটি লিখুন">' +
     '<label for="fm">মোবাইল নম্বর</label><input id="fm" inputmode="tel" placeholder="আবেদনের সময় ব্যবহার করা মোবাইল নম্বর দিন">' +
-    '<button class="go" id="fgo">প্রবেশপত্র খুঁজুন</button><div class="err" id="fe" style="text-align:center">' + esc(err || '') + '</div></div>';
-  document.getElementById('fgo').onclick = function () {
-    var b = this; b.disabled = true; b.textContent = 'খুঁজছি…';
-    call('apiAdmitFind', [document.getElementById('fr').value, document.getElementById('fm').value]).then(function (r) {
-      location.hash = r.token; load();
-    }, function (e) { b.disabled = false; b.textContent = 'প্রবেশপত্র খুঁজুন'; document.getElementById('fe').textContent = e.message; });
+    '<button class="go" id="fgo">লগইন</button><div class="err" id="fe" style="text-align:center">' + esc(err || '') + '</div></div>';
+  var go = document.getElementById('fgo');
+  go.onclick = function () {
+    var fe = document.getElementById('fe');
+    if (!document.getElementById('fr').value.trim() || !document.getElementById('fm').value.trim()) { fe.textContent = 'রোল ও মোবাইল নম্বর দুটোই লিখুন।'; return; }
+    fe.textContent = ''; go.disabled = true; go.textContent = 'লগইন হচ্ছে…';
+    call('apiAdmitFind', [document.getElementById('fr').value, document.getElementById('fm').value], 0, function (n) { go.textContent = 'অনেকে একসাথে দেখছেন — আবার চেষ্টা (' + N(n) + ')…'; }).then(function (r) {
+      location.hash = r.token;
+    }, function (e) { go.disabled = false; go.textContent = 'লগইন'; document.getElementById('fe').textContent = e.message; });
   };
+  document.getElementById('fm').onkeydown = function (e) { if (e.key === 'Enter') go.click(); };
+}
+function waiting(t) { root.innerHTML = hero('আমার আবেদন') + '<div class="box card2 scr" style="text-align:center"><b style="font-size:17px;color:#13265a">' + t + '</b><div class="prog"><i></i></div><p id="wt">কয়েক সেকেন্ড অপেক্ষা করুন, পাতা বন্ধ করবেন না।</p></div>'; }
+function linksRow(d) {
+  var L = d.links || {}, a = [];
+  if (L.fb) a.push('<a href="https://' + esc(String(L.fb).replace(/^https?:\/\//, '')) + '" target="_blank" rel="noopener">ফেসবুক পেজ</a>');
+  if (L.web) a.push('<a href="https://' + esc(String(L.web).replace(/^https?:\/\//, '')) + '" target="_blank" rel="noopener">ওয়েবসাইট</a>');
+  if (d.helpline) a.push('<a href="tel:' + esc(String(d.helpline).replace(/[০-৯]/g, function (c) { return '০১২৩৪৫৬৭৮৯'.indexOf(c); }).replace(/[^\d+]/g, '')) + '">☎ ' + esc(d.helpline) + '</a>');
+  return a.length ? '<div class="plinks">' + a.join('') + '</div>' : '';
+}
+function showPortal(d) {
+  document.title = 'আমার আবেদন — ' + (d.roll ? 'রোল ' + d.roll : d.name);
+  var tl = d.stage < 0 ? '' : '<div class="ptl">' + d.steps.map(function (t, i) {
+    var cls = i < d.stage || (d.done && i === d.stage) ? 'done' : i === d.stage ? (d.stop ? 'stop' : 'now') : (d.stop ? 'off' : 'next');
+    return '<div class="' + cls + '"><i>' + (cls === 'done' ? '✓' : cls === 'stop' ? '✕' : N(i + 1)) + '</i><span>' + esc(t) + '</span></div>';
+  }).join('') + '</div>';
+  var box = d.box ? '<div class="pbox"><small>' + esc(d.box.icon + ' ' + d.box.title) + '</small><dl>' + d.box.rows.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>' + (d.box.note ? '<div class="pnote">ⓘ ' + esc(d.box.note) + '</div>' : '') + '</div>' : '';
+  var adm = d.admit ? '<button class="go' + (d.admitMain ? '' : ' alt') + '" onclick="location.hash=TOK+\'/admit\'">🎫 প্রবেশপত্র ডাউনলোড করুন</button>' +
+    (d.admitMain ? '' : '<div class="phint">প্রশিক্ষণ ও ডেমো ক্লাসেও প্রবেশপত্রের QR দিয়ে উপস্থিতি নেওয়া হয় — প্রিন্ট কপি সঙ্গে রাখুন।</div>') : '';
+  root.innerHTML = hero('আমার আবেদন') + '<div class="box card2 scr">' +
+    '<div class="pwho"><b>' + esc(d.name) + '</b><span>' + (d.roll ? 'রোল ' + esc(d.roll) + ' · ' : '') + esc(d.cs) + '</span></div>' + tl +
+    '<div class="pnews t-' + esc(d.tone) + '"><small>বর্তমান অবস্থা</small><b>' + esc(d.title) + '</b><p>' + esc(d.msg).replace(/\n/g, '<br>') + '</p></div>' + box + adm + linksRow(d) +
+    installBtn() + '<div class="pout"><a href="#" onclick="logout();return false">লগআউট</a></div></div>';
 }
 function load() {
-  var tok = (location.hash || '').replace(/^#/, '').trim();
-  if (!tok) return findForm();
-  root.innerHTML = hero('প্রবেশপত্র') + '<div class="box card2 scr" style="text-align:center"><b style="font-size:17px;color:#13265a">আপনার প্রবেশপত্র প্রস্তুত হচ্ছে…</b><div class="prog"><i></i></div><p>কয়েক সেকেন্ড অপেক্ষা করুন, পাতা বন্ধ করবেন না।</p></div>';
-  call('apiAdmit', [tok]).then(function (d) {
-    if (d.cancelled) return msgBox('আবেদন বাতিল', '<p>রোল ' + esc(d.roll) + '-এর আবেদন বাতিল করা হয়েছে।</p>' + (d.reason ? '<p>কারণ: ' + esc(d.reason) + '</p>' : '') + '<p>প্রয়োজনে যোগাযোগ: ' + esc(d.helpline) + '</p>');
-    if (d.pending) return msgBox('যাচাই চলছে', '<p>আপনার আবেদনটি এখনো যাচাই হচ্ছে। অনুমোদন হলে ইমেইলে জানানো হবে।</p><p>প্রয়োজনে যোগাযোগ: ' + esc(d.helpline) + '</p>');
-    showAdmit(d);
-  }, function (e) { findForm(e.message); });
+  var h = (location.hash || '').replace(/^#/, '').trim(), parts = h.split('/');
+  TOK = parts[0];
+  if (!TOK && saved()) { location.hash = saved(); return; }   // আগে লগইন করা থাকলে সরাসরি নিজের পাতা
+  if (!TOK) return findForm();
+  if (parts[1] === 'admit') {
+    document.title = 'প্রবেশপত্র';
+    waiting('আপনার প্রবেশপত্র প্রস্তুত হচ্ছে…');
+    return call('apiAdmit', [TOK]).then(function (d) {
+      if (d.cancelled || d.pending) { location.hash = TOK; return; }
+      showAdmit(d); window.scrollTo(0, 0);
+    }, function (e) { findForm(e.message); });
+  }
+  waiting('আপনার তথ্য আনা হচ্ছে…');
+  call('apiPortal', [TOK], 0, function (n) { var w = document.getElementById('wt'); if (w) w.textContent = 'অনেকে একসাথে দেখছেন — আবার চেষ্টা (' + N(n) + ')…'; })
+    .then(function (d) { saved(TOK); showPortal(d); window.scrollTo(0, 0); }, function (e) { saved(''); findForm(e.message); });
 }
 window.addEventListener('hashchange', load);
 load();

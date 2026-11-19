@@ -1648,8 +1648,8 @@ function rsLoad(btn) {
   var p = callServer('apiResultState');
   (btn ? busy(btn, p) : p).then(function (d) { RS.st = d; rsDraw(); }, function (e) { authFail(e); if (!btn && $('rsBox')) $('rsBox').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
 }
-function resLong() { return (RS.st && RS.st.site || S.boot.site) + '/r/'; }
-function resUrl() { var u = String((RS.st && RS.st.short) || '').trim(); return u ? (/^https?:\/\//.test(u) ? u : 'https://' + u) : resLong(); }
+function resLong() { return (RS.st && RS.st.site || S.boot.site) + '/a/'; }
+function resUrl() { var u = String(S.boot.settings.admitShort || '').trim(); return u ? (/^https?:\/\//.test(u) ? u : 'https://' + u) : resLong(); }
 function dtLocal(s) { return String(s || '').slice(0, 16); }
 
 function rsDraw() {
@@ -1666,12 +1666,11 @@ function rsDraw() {
   } else h += '<div class="tiny">প্রকাশের দিন-সময় ঠিক করা ও প্রকাশ শুধু মালিক পারেন।</div>';
   h += '</div>';
   // ২) প্রার্থীর ফলাফলের পাতা
-  h += '<div class="card"><h3>' + icon('share') + 'প্রার্থীর ফলাফলের পাতা</h3><div class="qrbox"><div class="qr" id="rsQr"></div><div style="flex:1;min-width:220px">' +
+  h += '<div class="card"><h3>' + icon('share') + 'প্রার্থীর পাতা — আমার আবেদন</h3><div class="qrbox"><div class="qr" id="rsQr"></div><div style="flex:1;min-width:220px">' +
     '<div style="margin:0 0 8px;word-break:break-all"><b>' + esc(resUrl()) + '</b></div>' +
-    (S.boot.me.scope ? '' : '<div class="fld" style="margin-bottom:10px"><label>নিজের ছোট লিংক (ঐচ্ছিক)</label><div class="btns" style="flex-wrap:nowrap"><input class="in" id="rsShort" placeholder="যেমন https://tee.com.bd/result" value="' + esc(d.short) + '"><button class="btn sm" onclick="rsSaveShort(this)">সেভ</button></div>' +
-    '<div class="hint">শর্টনারে নাম দিন / ছাড়া (যেমন result), লক্ষ্য ' + esc(resLong()) + ' — QR ও কপি এটাই দেখাবে।</div></div>') +
+    '<div class="tiny" style="margin-bottom:10px">ছোট লিংক বসানো ও পোস্টার নামানো: <a href="#" onclick="go(\'links\');return false">লিংক ও QR</a> পাতা থেকে।</div>' +
     '<div class="btns"><button class="btn sm" onclick="copyText(resUrl())">' + icon('copy') + 'লিংক কপি</button><a class="btn sm" href="' + esc(resLong()) + '" target="_blank">' + icon('ext') + 'খুলে দেখুন</a></div>' +
-    '<div class="tiny" style="margin-top:8px">প্রার্থী রোল ও আবেদনের মোবাইল নম্বর দিয়ে শুধু নিজের ফল দেখবেন (নম্বর নয়)। ফেসবুক পেজে এই লিংক দিন।</div></div></div></div>';
+    '<div class="tiny" style="margin-top:8px">প্রার্থী রোল ও আবেদনের মোবাইল নম্বর দিয়ে নিজের প্রবেশপত্র, ফল (নম্বর নয়) ও পরের সব খবর এক পাতায় দেখবেন। ফেসবুক পেজে এই লিংক দিন।</div></div></div></div>';
   // ৩) শ্রেণি-বিষয়ের তালিকা
   h += '<div class="card"><h3>' + icon('book') + 'শ্রেণি-বিষয় ধরে<span class="sp"></span><button class="btn sm" onclick="rsPrint(this)">' + icon('dl') + 'ফলাফল-শিট ছাপা</button>' +
     '<button class="btn sm" onclick="rsCsv(this)">' + icon('dl') + 'এক্সেল</button><button class="btn sm" onclick="rsPdf(this)">' + icon('dl') + 'PDF ড্রাইভে</button></h3>' +
@@ -2424,12 +2423,9 @@ function lkList() {
       poster: 'শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭', posterSub: 'আবেদন করতে QR স্ক্যান করুন', posterNote: 'আবেদনের শেষ তারিখ: ' + lkDate(s.deadline),
       text: function (u) { return '📢 শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭ — ' + org + '\n\nপঞ্চম থেকে দ্বাদশ শ্রেণির বিভিন্ন বিষয়ে পার্টটাইম শিক্ষক-শিক্ষিকা নিয়োগ দেওয়া হবে। শিক্ষাগত যোগ্যতা: ন্যূনতম স্নাতক অধ্যয়নরত।\n\n📅 আবেদনের শেষ তারিখ: ' + lkDate(s.deadline) + '\n📅 লিখিত পরীক্ষা: ' + exam + '\n\n✍️ আবেদন করুন: ' + u + '\n\n☎ ' + help; },
       extra: S.boot.form && S.boot.form.url ? { label: 'সরাসরি গুগল ফর্ম', url: S.boot.form.url } : null },
-    { key: 'admit', title: 'প্রবেশপত্র খোঁজা', who: 'প্রার্থীদের জন্য — রোল ও মোবাইল দিয়ে প্রবেশপত্র নামানো', perm: 'form', long: site + '/a/', short: 'admitShort',
-      poster: 'প্রবেশপত্র নামান', posterSub: 'রোল ও আবেদনের মোবাইল নম্বর দিয়ে', posterNote: 'লিখিত পরীক্ষা: ' + exam,
-      text: function (u) { return '🎫 শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭ — প্রবেশপত্র\n\nরোল ও আবেদনে দেওয়া মোবাইল নম্বর দিয়ে প্রবেশপত্র নামান: ' + u + '\n\n📅 লিখিত পরীক্ষা: ' + exam + '\nপ্রবেশপত্র A4 কাগজে ছাপিয়ে আনতে হবে — মোবাইলে দেখানো গ্রহণযোগ্য নয়।\n\n☎ ' + help; } },
-    { key: 'result', title: 'ফলাফল', who: 'প্রার্থীদের জন্য — নিজের ফল, প্রশিক্ষণ ও ডেমো ক্লাসের দিন', perm: 'result', long: site + '/r/', short: 'resultShort',
-      poster: 'লিখিত পরীক্ষার ফলাফল', posterSub: 'রোল ও আবেদনের মোবাইল নম্বর দিয়ে দেখুন', posterNote: 'ফল প্রকাশ: ' + lkDate(s.resultPub && s.resultPub.on && s.resultPub.at ? s.resultPub.at : s.resultDate),
-      text: function (u) { return '📢 শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭ — লিখিত পরীক্ষার ফল\n\nরোল ও আবেদনে দেওয়া মোবাইল নম্বর দিয়ে নিজের ফল দেখুন: ' + u + '\n\nউত্তীর্ণরা একই পাতায় নিজের প্রশিক্ষণ ও ডেমো ক্লাসের দিন দেখতে পাবেন।\n\n☎ ' + help; } },
+    { key: 'admit', title: 'আমার আবেদন (প্রার্থীর পাতা)', who: 'প্রার্থীদের জন্য — প্রবেশপত্র, ফলাফল, প্রশিক্ষণ, ডেমো ক্লাস, নিয়োগ — সব খবর এক লিংকে', any: ['form', 'result'], long: site + '/a/', short: 'admitShort', editPerm: 'form',
+      poster: 'আমার আবেদন', posterSub: 'রোল ও আবেদনের মোবাইল নম্বর দিয়ে দেখুন', posterNote: 'প্রবেশপত্র, ফলাফল, প্রশিক্ষণ, ডেমো ক্লাস ও নিয়োগ — সব খবর এখানে',
+      text: function (u) { return '📢 শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭ — আমার আবেদন\n\nপ্রবেশপত্র, লিখিত পরীক্ষার ফলাফল, প্রশিক্ষণ ও ডেমো ক্লাসের দিন, নিয়োগ — সব খবর এক পাতায়। রোল ও আবেদনের সময় ব্যবহার করা মোবাইল নম্বর দিয়ে দেখুন: ' + u + '\n\n📅 লিখিত পরীক্ষা: ' + exam + '\nপ্রবেশপত্র A4 কাগজে প্রিন্ট করে আনতে হবে — মোবাইলে দেখানো গ্রহণযোগ্য নয়।\n\n☎ ' + help; } },
     { key: 'duty', title: 'ডিউটি-পাতা (উপস্থিতি স্ক্যান)', who: 'ডিউটির শিক্ষকদের জন্য — শুধু তাঁদের দিন, প্রার্থীদের নয়', perm: 'attend', long: site + '/scan/', short: 'dutyShort',
       poster: 'ডিউটি — উপস্থিতি স্ক্যান', posterSub: 'শুধু দায়িত্বপ্রাপ্ত শিক্ষকের জন্য', posterNote: 'ডিউটি-কোড নিয়ন্ত্রণ কক্ষ থেকে নিন',
       text: function (u) { return 'শিক্ষক নিয়োগ পরীক্ষা — উপস্থিতি স্ক্যান\n' + u + '\nডিউটি-কোড: ' + (s.dutyCode ? N(s.dutyCode) : '(উপস্থিতি পাতা থেকে)') + '\n\nলিংক খুলে কোড ও আপনার নাম দিন → আপনার কক্ষ বাছুন → প্রার্থীর প্রবেশপত্রের QR (ছবির নিচের বড়টা) ক্যামেরার সামনে ধরুন। সবুজ ✔ = উপস্থিত। QR নষ্ট হলে রোল লিখে "উপস্থিত"।'; } },
@@ -2440,14 +2436,14 @@ function lkList() {
       poster: 'শিক্ষক নিয়োগ ২০২৭ — অফিসের অ্যাপ', posterSub: 'শুধু অফিসের কর্মীদের জন্য', posterNote: 'নিজের ইমেইল দিয়ে লগইন করুন',
       text: function (u) { return 'শিক্ষক নিয়োগ ২০২৭ — অফিসের অ্যাপ\n' + u + '\n\nনিজের ইমেইল দিয়ে লগইন করুন — ইমেইলে কোড যাবে। ফোনে "Add to Home screen" করে রাখতে পারেন।'; } }
   ];
-  return L.filter(function (x) { return !x.perm || can(x.perm); });
+  return L.filter(function (x) { return x.any ? x.any.some(can) : (!x.perm || can(x.perm)); });
 }
 function lkUrl(x) { return lkFull(S.boot.settings[x.short]) || x.long; }
 
 function page_links() {
   var L = lkList(), h = '<div class="ph"><h2>লিংক ও QR</h2><span class="sp"></span><button class="btn sm" onclick="lkAllPdf(this)">' + icon('dl') + 'সব QR পোস্টার (PDF)</button><button class="btn sm" onclick="busy(this,reload())">' + icon('renew') + 'হালনাগাদ</button></div>';
   h += '<div class="lkgrid">' + L.map(function (x) {
-    var u = lkUrl(x), sh = S.boot.settings[x.short] || '', canEdit = (x.owner ? S.boot.me.owner : true) && !S.boot.me.scope;
+    var u = lkUrl(x), sh = S.boot.settings[x.short] || '', canEdit = (x.owner ? S.boot.me.owner : x.editPerm ? can(x.editPerm) : true) && !S.boot.me.scope;
     return '<div class="card lkc" id="lk_' + x.key + '"><div class="lkhd"><div class="qr lkqr" id="lq_' + x.key + '"></div><div style="flex:1;min-width:0"><h3 style="margin:0 0 2px">' + esc(x.title) + '</h3><div class="tiny">' + esc(x.who) + '</div>' +
       '<div class="lku"><a href="' + esc(u) + '" target="_blank">' + esc(u.replace(/^https?:\/\//, '')) + '</a>' + (sh ? '<span class="chip ok">ছোট লিংক</span>' : '') + '</div>' +
       '<div class="btns"><button class="btn sm" onclick="copyText(\'' + esc(u) + '\')">' + icon('copy') + 'লিংক কপি</button><a class="btn sm" href="' + esc(u) + '" target="_blank">' + icon('ext') + 'খুলুন</a></div></div></div>' +

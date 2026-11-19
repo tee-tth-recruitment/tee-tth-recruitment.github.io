@@ -1,0 +1,17 @@
+{
+  "name": "আমার আবেদন — শিক্ষক নিয়োগ ২০২৭",
+  "short_name": "আমার আবেদন",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e9ecf2",
+  "theme_color": "#13265a",
+  "icons": [
+    {
+      "src": "../assets/tth-logo.png",
+      "sizes": "447x447",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
