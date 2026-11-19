@@ -308,6 +308,79 @@ table.rm td{vertical-align:middle}
 .lku{margin:8px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;word-break:break-all}.lku a{font-weight:700;color:var(--acc)}
 .lkdl{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
 @media (max-width:640px){.lkgrid{grid-template-columns:1fr}.lkqr{width:92px!important;height:92px!important}}
+
+.devlink{color:inherit;font-weight:700;text-decoration:none;border-bottom:1px dotted currentColor}.devlink:hover{color:var(--acc)}
+
+/* ═══════════ অফিসের অ্যাপ — নতুন সাজ (২০২৬-১১-১৯) ═══════════ */
+.side{width:262px;padding:16px 12px 12px;background:linear-gradient(180deg,var(--bg2),var(--bg))}
+.brand{padding:4px 6px 14px;gap:12px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.blogos{display:flex;flex:none}
+.blogos img{width:40px;height:40px;border-radius:50%;background:#fff;padding:2px;object-fit:contain;box-shadow:0 0 0 2px var(--bg2),0 4px 10px rgba(0,0,0,.25)}
+.blogos img+img{margin-left:-12px}
+.brand b{font-size:18.5px;line-height:1.25;padding-top:2px}
+.brand small{display:block;margin-top:1px;color:var(--acc);font-size:11.5px;font-weight:600;letter-spacing:.2px}
+.me{display:flex;align-items:center;gap:10px;margin:0 4px 12px;padding:8px 10px;border-radius:12px;white-space:normal;background:linear-gradient(90deg,rgba(230,199,125,.16),rgba(230,199,125,.04));border:1px solid rgba(230,199,125,.32)}
+.me .av{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;background:linear-gradient(180deg,var(--acc),var(--acc2));color:#1b1404;font-weight:800;font-size:15px}
+.me .mi{min-width:0}.me .mi b{display:block;color:var(--tx);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.me .mi small{display:block;color:var(--acc);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav{gap:2px;padding-right:2px;scrollbar-width:thin}
+.ngrp{margin-bottom:6px}
+.nhead{display:flex!important;align-items:center;justify-content:space-between;padding:8px 10px 4px!important;font-size:11.5px!important;font-weight:700;letter-spacing:.4px;color:var(--tx3)!important;background:none!important}
+.nhead .ic{width:14px;height:14px;transition:transform .15s}
+.ngrp.shut .nhead .ic{transform:rotate(-90deg)}
+.ngrp.shut .nitems{display:none}
+.nav button:not(.nhead){padding:8px 10px;gap:10px;font-size:14px;border-radius:9px}
+.nav button .ic{width:18px;height:18px;flex:none;opacity:.85}
+.nav button.on .ic{color:var(--acc);opacity:1}
+.dev{flex-wrap:wrap;justify-content:center;gap:5px;line-height:1.5;text-align:center;padding:10px 4px 0}
+.dev .devlink{white-space:nowrap}
+.page{padding:22px 30px 90px;max-width:1240px}
+.crumb{flex-basis:100%;font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--acc);margin-bottom:-10px}
+.ph h2{font-size:27px}
+/* হোমের ওপরের কার্ড */
+.hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(220px,1fr) 2fr;gap:18px;align-items:center;margin-bottom:16px;padding:20px 22px;border-radius:18px;border:1px solid var(--line);
+  background:radial-gradient(500px 220px at 0% 0%,rgba(230,199,125,.18),transparent 70%),radial-gradient(500px 260px at 100% 100%,rgba(91,140,255,.16),transparent 70%),var(--card)}
+.hero .hl small{color:var(--tx2);font-size:14px}.hero .hl>b{display:block;font-family:'Baloo Da 2',sans-serif;font-size:26px;line-height:1.3;margin:2px 0 6px}
+.hnext{font-size:14px;color:var(--tx2)}.hnext span{color:var(--tx);font-weight:700}.hnext em{font-style:normal;margin-left:6px;padding:2px 10px;border-radius:999px;background:linear-gradient(180deg,var(--acc),var(--acc2));color:#1b1404;font-weight:700;font-size:12.5px}
+.hform{margin-top:10px;font-size:13px;color:var(--tx2);display:flex;align-items:center;gap:7px}
+.hform .dot{width:9px;height:9px;border-radius:50%;background:var(--tx3)}.hform .dot.ok{background:var(--ok);box-shadow:0 0 0 4px var(--okb)}.hform .dot.bad{background:var(--bad)}
+.htl{display:grid;grid-template-columns:repeat(4,1fr);position:relative}
+.htl:before{content:'';position:absolute;left:12%;right:12%;top:9px;height:2px;background:var(--line2)}
+.htl div{position:relative;text-align:center;padding:0 4px}
+.htl i{display:block;width:20px;height:20px;margin:0 auto 8px;border-radius:50%;background:var(--card2);border:2px solid var(--line2)}
+.htl .past i{background:var(--acc2);border-color:var(--acc2)}
+.htl .now i{background:var(--bg);border-color:var(--acc);box-shadow:0 0 0 5px rgba(230,199,125,.25)}
+.htl b{display:block;font-size:13px}.htl small{color:var(--tx3);font-size:12px}
+.htl .now b{color:var(--acc)}
+/* দ্রুত কাজ */
+.qa{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:16px}
+.qa button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--tx);cursor:pointer;transition:border-color .15s,transform .15s}
+.qa button:hover{border-color:var(--acc);transform:translateY(-1px)}
+.qa .qi{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;margin-bottom:6px;background:rgba(230,199,125,.14);color:var(--acc)}
+.qa .qi .ic{width:19px;height:19px}.qa b{font-size:14.5px}.qa small{color:var(--tx3);font-size:12px}
+/* ফোন: ওপরের ফিতা, নিচের মেনু, "আরও" */
+.top .blogos img{width:32px;height:32px}.top .blogos img+img{margin-left:-10px}
+.top .tt{flex:1;min-width:0;line-height:1.25}.top .tt b{display:block;font-family:'Baloo Da 2',sans-serif;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .tt small{display:block;font-size:11px;color:var(--acc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bnav button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.bnav button.on .ic{color:var(--acc)}
+.ov.b{justify-content:center;align-items:flex-end}
+.md.sheet{width:min(560px,100%);max-height:86vh;overflow:auto;border-radius:20px 20px 0 0;margin:0;padding:14px 16px calc(16px + env(safe-area-inset-bottom))}
+@media (min-width:861px){.ov.b{align-items:center}.md.sheet{border-radius:18px}}
+.shh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.shh b{font-family:'Baloo Da 2',sans-serif;font-size:19px}
+.shg{margin-top:10px}.shg>small{display:block;font-size:11.5px;font-weight:700;letter-spacing:.4px;color:var(--tx3);margin:0 2px 6px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tiles button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--tx);cursor:pointer;font-size:12.5px;text-align:center;line-height:1.35}
+.tiles button .ic{width:20px;height:20px;color:var(--acc)}.tiles button.on{border-color:var(--acc)}
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;padding:16px}
+  .htl b{font-size:12px}.htl small{font-size:11px}
+  .crumb{margin-bottom:-6px}
+}
+:root[data-theme="light"] .side{background:linear-gradient(180deg,#eef2fa,#e7ecf6)}
+:root[data-theme="light"] .qa .qi{background:rgba(168,128,47,.12)}
+.brand>div:last-child{min-width:0}.brand b{font-size:17px;white-space:nowrap}.brand small{white-space:nowrap}
+.hnext em{white-space:nowrap;display:inline-block}
 </style>
 </head>
 <body>
@@ -330,20 +403,20 @@ table.rm td{vertical-align:middle}
       <button class="btn ghost sm" id="gBack" style="width:100%;margin-top:8px">← অন্য ইমেইল</button>
     </div>
     <div class="gmsg" id="gMsg"></div>
-    <div class="dev" style="justify-content:center;border:0">Developed By: Md. Ashraful Islam</div>
+    <div class="dev" style="justify-content:center;border:0">Developed By: <a class="devlink" href="https://m-ashraful.github.io/" target="_blank" rel="noopener">Md. Ashraful Islam</a></div>
   </div>
 </div>
 
 <!-- অ্যাপ -->
 <div class="app hide" id="app">
   <aside class="side">
-    <div class="brand"><img src="assets/tth-logo.png" alt=""><div><b>শিক্ষক নিয়োগ ২০২৭</b><small>টেকনিক</small></div></div>
+    <div class="brand"><div class="blogos"><img src="assets/tee-logo.png" alt=""><img src="assets/tth-logo.png" alt=""></div><div><b>শিক্ষক নিয়োগ ২০২৭</b><small>অফিসের অ্যাপ · টেকনিক</small></div></div>
     <div class="me" id="meBox"></div>
     <nav class="nav" id="nav"></nav>
     <div class="dev" id="devSide"></div>
   </aside>
   <div class="main">
-    <header class="top"><img src="assets/tth-logo.png" alt=""><b id="topTitle">শিক্ষক নিয়োগ ২০২৭</b><button class="btn sm ghost" id="topMore" aria-label="আরও">☰</button></header>
+    <header class="top"><div class="blogos"><img src="assets/tee-logo.png" alt=""><img src="assets/tth-logo.png" alt=""></div><div class="tt" id="topTitle"><b>শিক্ষক নিয়োগ ২০২৭</b></div><button class="btn sm ghost" id="topMore" aria-label="আরও">☰</button></header>
     <main class="page" id="page"><div class="loading"><span class="spin"></span> লোড হচ্ছে…</div></main>
   </div>
   <nav class="bnav" id="bnav"></nav>
@@ -473,78 +546,124 @@ function reload() {
 }
 
 var PAGES = [
-  ['home', 'হোম', 'home', null],
-  ['report', 'প্রতিবেদন', 'chart', 'reports'],
-  ['links', 'লিংক ও QR', 'share', null],
-  ['notice', 'প্রার্থীদের নোটিশ', 'bell', 'settings'],
-  ['applicants', 'প্রার্থী', 'users', 'applicants'],
-  ['subjects', 'শ্রেণি ও বিষয়', 'book', 'subjects'],
-  ['form', 'আবেদন ফর্ম', 'form', 'form'],
-  ['qedit', 'ফর্মের প্রশ্ন', 'edit', 'form'],
-  ['seat', 'আসন বিন্যাস', 'grid', 'seat'],
-  ['attend', 'উপস্থিতি', 'check', 'attend'],
-  ['marks', 'নম্বর তোলা', 'num', 'marks'],
-  ['result', 'ফলাফল', 'check', 'result'],
-  ['training', 'প্রশিক্ষণ', 'cal', 'training'],
-  ['panel', 'প্যানেলের নম্বর', 'clip', 'panel'],
-  ['demo', 'ডেমো ক্লাস ও নিয়োগ', 'award', 'demo'],
-  ['settings', 'সেটিংস', 'set', 'settings'],
-  ['sms', 'SMS', 'sms', 'sms'],
-  ['users', 'ব্যবহারকারী', 'key', 'owner'],
-  ['log', 'লগ', 'log', 'log'],
-  ['security', 'নিরাপত্তা', 'lock', null]
+  ['home', 'হোম', 'home', null, ''],
+  ['report', 'প্রতিবেদন', 'chart', 'reports', ''],
+  ['applicants', 'প্রার্থী', 'users', 'applicants', 'আবেদন'],
+  ['subjects', 'শ্রেণি ও বিষয়', 'book', 'subjects', 'আবেদন'],
+  ['form', 'আবেদন ফর্ম', 'form', 'form', 'আবেদন'],
+  ['qedit', 'ফর্মের প্রশ্ন', 'edit', 'form', 'আবেদন'],
+  ['seat', 'আসন বিন্যাস', 'grid', 'seat', 'লিখিত পরীক্ষা'],
+  ['attend', 'উপস্থিতি', 'check', 'attend', 'লিখিত পরীক্ষা'],
+  ['marks', 'নম্বর তোলা', 'num', 'marks', 'লিখিত পরীক্ষা'],
+  ['result', 'ফলাফল', 'award', 'result', 'লিখিত পরীক্ষা'],
+  ['training', 'প্রশিক্ষণ', 'cal', 'training', 'প্রশিক্ষণ ও নিয়োগ'],
+  ['panel', 'প্যানেলের নম্বর', 'clip', 'panel', 'প্রশিক্ষণ ও নিয়োগ'],
+  ['demo', 'ডেমো ক্লাস ও নিয়োগ', 'id', 'demo', 'প্রশিক্ষণ ও নিয়োগ'],
+  ['notice', 'প্রার্থীদের নোটিশ', 'bell', 'settings', 'যোগাযোগ'],
+  ['links', 'লিংক ও QR', 'share', null, 'যোগাযোগ'],
+  ['sms', 'SMS ও ইমেইল', 'sms', 'sms', 'যোগাযোগ'],
+  ['settings', 'সেটিংস', 'set', 'settings', 'ব্যবস্থাপনা'],
+  ['users', 'ব্যবহারকারী', 'key', 'owner', 'ব্যবস্থাপনা'],
+  ['log', 'লগ', 'log', 'log', 'ব্যবস্থাপনা'],
+  ['security', 'নিরাপত্তা ও পছন্দ', 'lock', null, 'ব্যবস্থাপনা']
 ];
+// ফোনের নিচের চারটা — যেটা যাঁর অনুমতিতে আছে, এই ক্রমে
+var BNAV_PREF = ['home', 'applicants', 'result', 'attend', 'report', 'links', 'demo', 'marks'];
 function allowed(p) { return !p[3] || (p[3] === 'owner' ? S.boot.me.owner : can(p[3])); }
+function pageOf(id) { return PAGES.filter(function (p) { return p[0] === id; })[0]; }
 function go(p) { S.page = p; render(); window.scrollTo(0, 0); try { history.replaceState(null, '', '#' + p); } catch (e) {} }
+
+// ভাঁজ করা দলগুলো (এই ব্রাউজারে মনে থাকে)
+var NAVC = (function () { try { return JSON.parse(localStorage.getItem('rc_navc') || '{}'); } catch (e) { return {}; } })();
+function navToggle(g) { NAVC[g] = !NAVC[g]; try { localStorage.setItem('rc_navc', JSON.stringify(NAVC)); } catch (e) {} drawNav(); }
+function navItem(p, prob) {
+  return '<button class="' + (S.page === p[0] ? 'on' : '') + '" onclick="go(\'' + p[0] + '\')">' + icon(p[2]) + '<span>' + p[1] + '</span>' +
+    (p[0] === 'applicants' && prob ? '<span class="cnt">' + N(prob) + '</span>' : '') + '</button>';
+}
+function drawNav() {
+  var pages = PAGES.filter(allowed), prob = (S.boot.counts.problem || 0) + (S.boot.counts.pending || 0), groups = [], by = {};
+  pages.forEach(function (p) { var g = p[4] || ''; if (!by[g]) { by[g] = []; groups.push(g); } by[g].push(p); });
+  $('nav').innerHTML = groups.map(function (g) {
+    var items = by[g].map(function (p) { return navItem(p, prob); }).join('');
+    if (!g) return '<div class="ngrp">' + items + '</div>';
+    var hasOn = by[g].some(function (p) { return p[0] === S.page; }), closed = NAVC[g] && !hasOn;
+    return '<div class="ngrp' + (closed ? ' shut' : '') + '"><button class="nhead" onclick="navToggle(\'' + g + '\')"><span>' + g + '</span>' + icon('down') + '</button><div class="nitems">' + items + '</div></div>';
+  }).join('');
+}
 
 function render() {
   if (!S.boot) return;
   var me = S.boot.me, pages = PAGES.filter(allowed);
   if (!pages.some(function (p) { return p[0] === S.page; })) S.page = 'home';
-  var prob = (S.boot.counts.problem || 0) + (S.boot.counts.pending || 0);
-  $('meBox').textContent = (me.owner ? '👑 ' : '') + me.name + ' · ' + (S.boot.roleNames[me.role] || '') + (me.scope && me.secNames && me.secNames.length ? ' (' + me.secNames.join(', ') + ')' : '');
-  $('nav').innerHTML = pages.map(function (p) {
-    return '<button class="' + (S.page === p[0] ? 'on' : '') + '" onclick="go(\'' + p[0] + '\')">' + icon(p[2]) + p[1] +
-      (p[0] === 'applicants' && prob ? '<span class="cnt">' + N(prob) + '</span>' : '') + '</button>';
-  }).join('');
-  $('devSide').innerHTML = markSvg() + 'Developed By: Md. Ashraful Islam';
-  var main = pages.slice(0, 4);
-  $('bnav').innerHTML = main.map(function (p) { return '<button class="' + (S.page === p[0] ? 'on' : '') + '" onclick="go(\'' + p[0] + '\')">' + icon(p[2]) + p[1] + '</button>'; }).join('') +
-    '<button onclick="moreMenu()">' + icon('menu') + 'আরও</button>';
+  var initial = String(me.name || me.email || '?').trim().charAt(0);
+  var role = me.owner ? (me.email || 'সব ক্ষমতা') : (S.boot.roleNames[me.role] || '') + (me.scope && me.secNames && me.secNames.length ? ' · ' + me.secNames.join(', ') : '');
+  $('meBox').innerHTML = '<span class="av">' + (me.owner ? '👑' : esc(initial)) + '</span><span class="mi"><b>' + esc(me.name) + '</b><small>' + esc(role) + '</small></span>';
+  drawNav();
+  $('devSide').innerHTML = markSvg() + '<span>Developed By: <a class="devlink" href="https://m-ashraful.github.io/" target="_blank" rel="noopener">Md. Ashraful Islam</a></span>';
+  var main = BNAV_PREF.map(pageOf).filter(function (p) { return p && allowed(p); }).slice(0, 4);
+  $('bnav').innerHTML = main.map(function (p) { return '<button class="' + (S.page === p[0] ? 'on' : '') + '" onclick="go(\'' + p[0] + '\')">' + icon(p[2]) + '<span>' + p[1] + '</span></button>'; }).join('') +
+    '<button onclick="moreMenu()">' + icon('menu') + '<span>আরও</span></button>';
   $('topMore').onclick = moreMenu;
+  var cur = pageOf(S.page);
+  $('topTitle').innerHTML = '<b>' + esc(cur ? cur[1] : 'শিক্ষক নিয়োগ ২০২৭') + '</b><small>শিক্ষক নিয়োগ ২০২৭' + (cur && cur[4] ? ' · ' + esc(cur[4]) : '') + '</small>';
   var f = window['page_' + S.page];
   $('page').innerHTML = f ? f() : '';
+  // পাতার শিরোনামের ওপরে কোন দলের পাতা
+  var h2 = document.querySelector('#page .ph h2');
+  if (h2 && cur && cur[4]) h2.insertAdjacentHTML('beforebegin', '<div class="crumb">' + esc(cur[4]) + '</div>');
   var a = window['after_' + S.page]; if (a) a();
 }
 function moreMenu() {
-  var pages = PAGES.filter(allowed);
-  modal('<div class="md"><h3 style="margin:0 0 10px">সব পাতা</h3><div class="nav">' + pages.map(function (p) {
-    return '<button onclick="closeLayer();go(\'' + p[0] + '\')">' + icon(p[2]) + p[1] + '</button>';
-  }).join('') + '</div><div class="dev" style="justify-content:center">' + markSvg() + 'Developed By: Md. Ashraful Islam</div></div>');
+  var pages = PAGES.filter(allowed), groups = [], by = {};
+  pages.forEach(function (p) { var g = p[4] || 'মূল'; if (!by[g]) { by[g] = []; groups.push(g); } by[g].push(p); });
+  modal('<div class="md sheet"><div class="shh"><b>সব পাতা</b><button class="btn sm ghost" onclick="closeLayer()">' + icon('x') + '</button></div>' + groups.map(function (g) {
+    return '<div class="shg"><small>' + esc(g) + '</small><div class="tiles">' + by[g].map(function (p) {
+      return '<button class="' + (S.page === p[0] ? 'on' : '') + '" onclick="closeLayer();go(\'' + p[0] + '\')">' + icon(p[2]) + '<span>' + p[1] + '</span></button>';
+    }).join('') + '</div></div>';
+  }).join('') + '<div class="dev" style="justify-content:center;border:0">' + markSvg() + '<span>Developed By: <a class="devlink" href="https://m-ashraful.github.io/" target="_blank" rel="noopener">Md. Ashraful Islam</a></span></div></div>', 'b');
 }
 
 /* ---------- হোম ---------- */
+// সময়রেখা: সেটিংসের তারিখ থেকে (আজকের সাথে তুলনা)
+function homeStages() {
+  var s = S.boot.settings, t = new Date(); t = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2);
+  var L = [['আবেদনের শেষ দিন', String(s.deadline || '').slice(0, 10)], ['লিখিত পরীক্ষা', s.examDate], ['ফলাফল', (s.resultPub && s.resultPub.on && s.resultPub.at) ? String(s.resultPub.at).slice(0, 10) : s.resultDate], ['প্রশিক্ষণ', s.trainingFrom]]
+    .filter(function (x) { return x[1]; }).map(function (x) { return { t: x[0], d: x[1], past: x[1] < t, today: x[1] === t }; });
+  var next = L.filter(function (x) { return !x.past; })[0] || null;
+  if (next) next.days = Math.round((new Date(next.d + 'T00:00:00') - new Date(t + 'T00:00:00')) / 864e5);
+  return { list: L, next: next };
+}
 function page_home() {
-  var c = S.boot.counts, f = S.boot.form, h = '';
+  var c = S.boot.counts, f = S.boot.form, me = S.boot.me, h = '', st = homeStages();
   h += '<div class="ph"><h2>হোম</h2><span class="sp"></span><button class="btn sm" onclick="busy(this,reload())">' + icon('renew') + 'হালনাগাদ</button></div>';
+  // ওপরের কার্ড: শুভেচ্ছা + এখন কোথায় + সময়রেখা
+  var hr = new Date().getHours(), hi = hr < 12 ? 'শুভ সকাল' : hr < 17 ? 'শুভ দুপুর' : hr < 20 ? 'শুভ সন্ধ্যা' : 'শুভ রাত্রি';
+  h += '<div class="hero"><div class="hl"><small>' + hi + ',</small><b>' + esc(me.name) + '</b>' +
+    (st.next ? '<div class="hnext">সামনে <span>' + esc(st.next.t) + '</span> — ' + N(ymdBn(st.next.d)) + ' <em>' + (st.next.days === 0 ? 'আজ' : st.next.days === 1 ? 'কাল' : N(st.next.days) + ' দিন পর') + '</em></div>' : '<div class="hnext">সব ধাপের তারিখ পার হয়েছে</div>') +
+    '<div class="hform"><span class="dot ' + (f.id ? (f.open ? 'ok' : 'bad') : '') + '"></span>আবেদন ফর্ম ' + (f.id ? (f.open ? 'চালু' : 'বন্ধ') : 'তৈরি হয়নি') + '</div></div>' +
+    '<div class="htl">' + st.list.map(function (x) { return '<div class="' + (x.past ? 'past' : x === st.next ? 'now' : '') + '"><i></i><b>' + esc(x.t) + '</b><small>' + N(ymdBn(x.d)) + '</small></div>'; }).join('') + '</div></div>';
   var warn = [];
   if (!f.id && can('form')) warn.push('গুগল ফর্ম এখনো তৈরি হয়নি — <a href="#" onclick="go(\'form\');return false">আবেদন ফর্ম</a> পাতায় তৈরি করুন।');
   if (f.id && !f.photoItem && can('form')) warn.push('ফর্মে "ছবি" প্রশ্ন নেই — <a href="#" onclick="go(\'form\');return false">যোগ করার নিয়ম দেখুন</a>।');
-  if (!S.boot.smsReady && can('sms')) warn.push('SMS গেটওয়ে বসানো নেই — <a href="#" onclick="go(\'sms\');return false">SMS</a> পাতায় বসান, নইলে প্রার্থীরা রোল ও প্রবেশপত্রের লিংক পাবেন না।');
   var q = S.boot.smsQueue || {};
-  if (q.total && (can('sms') || can('applicants_edit'))) warn.push(N(q.total) + 'টি SMS পাঠানো বাকি — <a href="#" onclick="go(\'sms\');return false">SMS পাতা থেকে "সব বাকি SMS পাঠাও"</a> চাপুন।');
+  if (q.total && (can('sms') || can('applicants_edit'))) warn.push(N(q.total) + 'টি SMS পাঠানো বাকি — <a href="#" onclick="go(\'sms\');return false">SMS ও ইমেইল পাতা থেকে "সব বাকি SMS পাঠাও"</a> চাপুন।');
   if (warn.length) h += '<div class="note warn" style="margin-bottom:14px">⚠️ ' + warn.join('<br>⚠️ ') + '</div>';
-  var st = [['মোট আবেদন', c.total, 'acc', 'all'], ['আজ', c.today, '', 'all'], ['অনুমোদিত', c.approved, 'ok', 'approved'],
+  var stt = [['মোট আবেদন', c.total, 'acc', 'all'], ['আজ', c.today, '', 'all'], ['অনুমোদিত', c.approved, 'ok', 'approved'],
             ['সমস্যা', c.problem, 'bad', 'problem'], ['অপেক্ষায়', c.pending, 'warn', 'pending'], ['বাতিল', c.cancelled, '', 'cancelled']];
-  h += '<div class="stats">' + st.map(function (x) {
+  h += '<div class="stats">' + stt.map(function (x) {
     return '<button class="stat ' + x[2] + '" onclick="' + (can('applicants') ? 'S.af.tab=\'' + x[3] + '\';go(\'applicants\')' : '') + '"><small>' + x[0] + '</small><b>' + N(x[1] || 0) + '</b></button>';
   }).join('') + '</div>';
+  // দ্রুত কাজ — যেটার অনুমতি আছে
+  var QA = [['applicants', 'প্রার্থী দেখুন', 'খোঁজা, অনুমোদন, সংশোধন'], ['links', 'লিংক ও QR', 'শেয়ারের লেখা, পোস্টার'], ['notice', 'নোটিশ দিন', 'প্রার্থীদের পাতায় ও ফোনে'],
+            ['attend', 'উপস্থিতি', 'QR স্ক্যান, গণনা'], ['marks', 'নম্বর তোলা', 'লিখিত পরীক্ষার নম্বর'], ['result', 'ফলাফল', 'নির্বাচন, প্রকাশ'],
+            ['training', 'প্রশিক্ষণ', 'দিন বাঁটোয়ারা'], ['demo', 'ডেমো ক্লাস ও নিয়োগ', 'সারি, শিক্ষক-ভান্ডার'], ['report', 'প্রতিবেদন', 'ধাপে ধাপে সংখ্যা']]
+    .filter(function (x) { var p = pageOf(x[0]); return p && allowed(p); }).slice(0, 6);
+  if (QA.length) h += '<div class="qa">' + QA.map(function (x) { var p = pageOf(x[0]); return '<button onclick="go(\'' + x[0] + '\')"><span class="qi">' + icon(p[2]) + '</span><b>' + x[1] + '</b><small>' + x[2] + '</small></button>'; }).join('') + '</div>';
   h += '<div class="grid g2"><div class="card"><h3>' + icon('form') + 'আবেদন ফর্ম<span class="sp"></span>' +
     (f.id ? '<span class="chip ' + (f.open ? 'ok' : 'bad') + '">' + (f.open ? 'চালু' : 'বন্ধ') + '</span>' : '<span class="chip">তৈরি হয়নি</span>') + '</h3>' +
     '<div class="kv"><dt>শেষ তারিখ</dt><dd>' + ymdBn(S.boot.settings.deadline) + '</dd><dt>লিখিত পরীক্ষা</dt><dd>' + ymdBn(S.boot.settings.examDate) + '</dd>' +
     '<dt>ফলাফল</dt><dd>' + ymdBn(S.boot.settings.resultDate) + '</dd><dt>প্রশিক্ষণ</dt><dd>' + ymdBn(S.boot.settings.trainingFrom) + ' থেকে ' + ymdBn(S.boot.settings.trainingTo) + '</dd></div>' +
     (f.url ? '<div class="btns" style="margin-top:12px"><a class="btn sm" href="' + esc(S.boot.site) + '/apply/" target="_blank">' + icon('ext') + 'প্রার্থীর ফর্ম</a></div>' : '') + '</div>';
-  // বিষয়ভিত্তিক সংখ্যা
   var rows = S.boot.subjects.map(function (s) { return [s.cls, s.subject, c.bySubject[s.cls + '|' + s.subject] || 0, s.active]; });
   h += '<div class="card"><h3>' + icon('book') + 'বিষয়ভিত্তিক আবেদন</h3><div class="tw" style="max-height:340px"><table class="t"><tr><th>শ্রেণি</th><th>বিষয়</th><th style="text-align:right">আবেদন</th></tr>' +
     rows.map(function (r) { return '<tr' + (r[3] ? '' : ' style="opacity:.5"') + '><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td><td style="text-align:right;font-weight:700">' + N(r[2]) + '</td></tr>'; }).join('') +

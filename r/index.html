@@ -47,6 +47,7 @@ html,body{margin:0;background:#e9ecf2;font-family:'Noto Sans Bengali',sans-serif
 .train{margin-top:14px;border-radius:14px;padding:14px 16px;background:#fff8e1;border:1px solid #f0d58a}
 .train small{display:block;font-size:13px;font-weight:700;color:#7a5a12;margin-bottom:6px}
 .train dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:15px}.train dt{color:#7a5a12}.train dd{margin:0;font-weight:700;color:#14203f}
+.devlink{color:inherit;font-weight:700;text-decoration:none;border-bottom:1px dotted currentColor}.devlink:hover{opacity:.8}
 </style>
 <script>var API_URL = 'https://script.google.com/macros/s/AKfycbyfL1EUYdUrfEqIwvBVi2Ia8J8sEqXA4Byo78EaccmH-9oIb3YAnHil0SjlUS-YdFCH/exec';</script>
 </head>
@@ -54,7 +55,7 @@ html,body{margin:0;background:#e9ecf2;font-family:'Noto Sans Bengali',sans-serif
 <div class="top"><img src="../assets/tee-logo.png" alt=""><img src="../assets/tth-logo.png" alt="">
   <h1>লিখিত পরীক্ষার ফলাফল</h1><p>শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭ · টেকনিক ইজি এডুকেশন ও টেকনিক টিচিং হোম</p></div>
 <div class="box" id="root"><div class="prog"><i></i></div></div>
-<div class="dev">Developed By: Md. Ashraful Islam</div>
+<div class="dev">Developed By: <a class="devlink" href="https://m-ashraful.github.io/" target="_blank" rel="noopener">Md. Ashraful Islam</a></div>
 <script>
 var root = document.getElementById('root');
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
