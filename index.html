@@ -834,9 +834,9 @@ function page_form() {
   // লেখা
   h += '<div class="card"><h3>' + icon('edit') + 'ফর্মের লেখা</h3>' +
     fld('fTitle', 'ফর্মের শিরোনাম', s.formTitle) +
-    fld('fNotice', 'বিজ্ঞপ্তি (ফর্মের ওপরে)', s.noticeBody, true, '{শেষ তারিখ} {পরীক্ষার তারিখ} {সময়} {ফলের তারিখ} {প্রশিক্ষণের তারিখ} — এগুলো সেটিংসের তারিখ থেকে নিজে বসবে।') +
+    fld('fNotice', 'বিজ্ঞপ্তি (ফর্মের ওপরে)', s.noticeBody, true, '{শেষ তারিখ} {পরীক্ষার তারিখ} {সময়} {ফলের তারিখ} {প্রশিক্ষণের তারিখ} {শ্রেণি ও বিষয়} — এগুলো সেটিংসের তারিখ থেকে নিজে বসবে; {শ্রেণি ও বিষয়} = চালু শ্রেণি-বিষয়ের তালিকা, শ্রেণি ধরে লাইনে লাইনে (শ্রেণি ও বিষয় পাতা বদলালে নিজে বদলায়)। <a href="#" onclick="fillDefault(\'fNotice\',\'noticeBody\');return false">নতুন নমুনা লেখা বসান</a>') +
     fld('fWarn', '⚠️ জরুরি কথা (বড় অক্ষরে দেখায়)', s.warning, true) +
-    fld('fConfirm', 'জমার পরের বার্তা', s.confirmMsg, true, '{আমার আবেদনের লিংক} — নিচের "আমার আবেদন"-এর ছোট লিংক বসবে (না থাকলে সাইটের /a/)।') +
+    fld('fConfirm', 'জমার পরের বার্তা', s.confirmMsg, true, '{আমার আবেদনের লিংক} — নিচের "আমার আবেদন"-এর ছোট লিংক বসবে (না থাকলে সাইটের /a/)। <a href="#" onclick="fillDefault(\'fConfirm\',\'confirmMsg\');return false">নতুন নমুনা লেখা বসান</a>') +
     fld('fAdmShort', '"আমার আবেদন"-এর ছোট লিংক (ঐচ্ছিক)', s.admitShort, false, 'যেমন https://tee.com.bd/myapp — ওয়েবসাইটের শর্টনারে লক্ষ্য দিন ' + S.boot.site + '/a/ । খালি থাকলে সাইটের লিংক দেখাবে।') +
     fld('fClosed', 'আবেদন বন্ধ থাকলে বার্তা', s.closedMsg, true) +
     '<div class="fld">' + sw('fManual', s.manualApprove, 'সব আবেদন হাতে দেখে অনুমোদন (চালু থাকলে কেউ নিজে রোল পাবেন না)') + '</div>' +
@@ -848,6 +848,8 @@ function fld(id, label, val, long, hint) {
   return '<div class="fld"><label for="' + id + '">' + label + '</label>' + (long ? '<textarea class="in" id="' + id + '" rows="' + Math.min(14, Math.max(3, String(val || '').split('\n').length + 1)) + '">' + esc(val) + '</textarea>' : '<input class="in" id="' + id + '" value="' + esc(val) + '">') +
     (hint ? '<div class="hint">' + hint + '</div>' : '') + '</div>';
 }
+// নমুনা লেখা ঘরে বসানো (সেভ না চাপা পর্যন্ত কিছু বদলায় না)
+function fillDefault(id, key) { var v = (S.boot.defaults || {})[key]; if (!v) return toast('নমুনা পাওয়া যায়নি — হালনাগাদ করে আবার চেষ্টা করুন।'); $(id).value = v; $(id).focus(); toast('নমুনা লেখা বসানো হলো — দেখে "সেভ" চাপুন', 5000); }
 function after_form() {
   if ($('fqr')) { var q = qrcode(0, 'M'); q.addData(applyUrl()); q.make(); $('fqr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); }
 }
