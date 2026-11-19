@@ -522,10 +522,8 @@ var ST = { approved: ['অনুমোদিত', 'ok'], problem: ['সমস্
 function can(p) { var me = S.boot && S.boot.me; return !!me && (me.owner || me.perms.indexOf(p) !== -1); }
 // সংবেদনশীল নিয়ন্ত্রণ (লিংক-QR, কোড, চালু/বন্ধ, গেটওয়ে, ফর্ম, তারিখ, লেখা, নোটিশ) — সার্ভারও একই নিয়ম মানে (canSecure_)
 function canSec() { var me = S.boot && S.boot.me; return !!me && (me.owner || (me.perms.indexOf('secure') !== -1 && !me.scope)); }
-function lockCard(title, extra) {
-  return '<div class="card lockc"><h3>' + icon('lock') + esc(title) + '<span class="sp"></span><span class="chip">🔒 সংরক্ষিত</span></h3>' + (extra || '') +
-    '<div class="tiny">এই অংশ শুধু ' + esc((S.boot.roleNames || {}).owner || 'প্রধান পরীক্ষা নিয়ন্ত্রক') + ' (বা যাঁকে "সংবেদনশীল নিয়ন্ত্রণ" দেওয়া হয়েছে) দেখতে ও বদলাতে পারেন। দরকার হলে তাঁকে বলুন।</div></div>';
-}
+// যাঁর ক্ষমতা নেই, তিনি সংবেদনশীল অংশের অস্তিত্বও দেখেন না (ব্যবহারকারীর সিদ্ধান্ত) — তাই কিছুই আঁকে না
+function lockCard() { return ''; }
 
 /* ---------- লগইন ---------- */
 function showGate() { $('app').classList.add('hide'); $('gate').classList.remove('hide'); closeLayer(); }
@@ -920,7 +918,7 @@ function after_subjects() {
     var L = S.subEdit.filter(function (s) { return s.subject; });
     busy(this, callServer('apiSaveSubjects', [L])).then(function (r) {
       S.boot.subjects = r.subjects; S.subEdit = null; render(); toast('সেভ হয়েছে');
-      if (S.boot.form.id && !canSec()) toast('সেভ হয়েছে — গুগল ফর্মে পাঠাতে ' + ((S.boot.roleNames || {}).owner || 'প্রধান পরীক্ষা নিয়ন্ত্রক') + '-কে বলুন ("আবেদন ফর্ম" → "ফর্ম হালনাগাদ")।', 7000);
+      if (!canSec()) { if (r.formSynced) toast('সেভ হয়েছে — ফর্মেও হালনাগাদ হয়েছে'); }
       else if (S.boot.form.id) confirmBox('ফর্মে পাঠাবেন?', 'গুগল ফর্মের শ্রেণি-বিষয় এখনই হালনাগাদ করবেন?', 'ফর্মে পাঠাও').then(function (ok) {
         if (ok) busy(null, callServer('apiSyncForm')).then(function (f) { S.boot.form = f.form; toast('ফর্ম হালনাগাদ হয়েছে'); });
       });
