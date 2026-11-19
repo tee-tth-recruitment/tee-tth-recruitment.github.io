@@ -218,7 +218,7 @@ table.t th.r,table.t td.r{text-align:right}
 @keyframes slin{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
 .dr .dh{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .dr .dh h3{margin:0;flex:1;font-size:19px}
-.md{margin:auto;width:min(480px,94%);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--sh)}
+.md{margin:auto;width:min(480px,94%);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--sh);max-height:94vh;overflow:auto}
 .ov.c{justify-content:center;align-items:center}
 .pf{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
 .pf .ph35{width:105px;height:135px;border-radius:8px;background:var(--card2);border:1px solid var(--line);object-fit:cover;flex:none;display:grid;place-items:center;color:var(--tx3);font-size:12px;text-align:center}
@@ -381,6 +381,19 @@ table.rm td{vertical-align:middle}
 :root[data-theme="light"] .qa .qi{background:rgba(168,128,47,.12)}
 .brand>div:last-child{min-width:0}.brand b{font-size:17px;white-space:nowrap}.brand small{white-space:nowrap}
 .hnext em{white-space:nowrap;display:inline-block}
+
+/* ব্যবহারকারী: ভূমিকার টাইল */
+.rolepick{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px}
+.rt{display:flex;flex-direction:column;gap:4px;text-align:left;border:1px solid var(--line2);background:var(--card2);border-radius:12px;padding:10px 12px;cursor:pointer;color:var(--tx);font:inherit}
+.rt:hover{border-color:var(--tx3)}
+.rt.on{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc);background:var(--bg2)}
+.rt .rh{display:flex;align-items:center;gap:8px}
+.rt .rh b{flex:1;font-size:15px}
+.rt .rh i{display:none;color:var(--acc)}.rt.on .rh i{display:inline-flex}
+.rt .rk{font-size:12.5px;font-weight:700;color:var(--acc)}
+.rt .rd{font-size:12.5px;color:var(--tx2);line-height:1.5}
+.rt .rp{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.rt .rp em{font-style:normal;font-size:11px;padding:1px 7px;border-radius:999px;background:var(--infob);color:var(--info)}
 </style>
 </head>
 <body>
@@ -1245,9 +1258,10 @@ function drawUsers() {
 }
 function editUser(i) {
   var u = S.users, x = i == null ? { email: '', name: '', role: 'staff', perms: u.presets.staff, off: false } : u.users[i];
-  var h = '<div class="md" style="width:min(640px,96%)"><h3 style="margin:0 0 12px">' + (i == null ? 'নতুন ব্যবহারকারী' : 'ব্যবহারকারী বদল') + '</h3>' +
+  var h = '<div class="md" style="width:min(760px,96%)"><h3 style="margin:0 0 12px">' + (i == null ? 'নতুন ব্যবহারকারী' : 'ব্যবহারকারী বদল') + '</h3>' +
     '<div class="grid g2"><div class="fld"><label>ইমেইল</label><input class="in" id="u_e" value="' + esc(x.email) + '"' + (i == null ? '' : ' disabled') + '></div><div class="fld"><label>নাম</label><input class="in" id="u_n" value="' + esc(x.name) + '"></div></div>' +
-    '<div class="fld"><label>ভূমিকা</label><select class="sel" id="u_r">' + Object.keys(u.presets).map(function (r) { return '<option value="' + r + '"' + (x.role === r ? ' selected' : '') + '>' + esc(u.roles[r]) + '</option>'; }).join('') + '</select><div class="hint">ভূমিকা বদলালে নিচের টিক সেই ভূমিকার মতো হয়ে যাবে — তারপর ইচ্ছেমতো বদলান।</div></div>' +
+    '<div class="fld"><label>ভূমিকা — কে কী করবেন</label><input type="hidden" id="u_r" value="' + esc(x.role) + '"><div class="rolepick" id="u_rp">' + Object.keys(u.presets).map(function (r) { return roleTile(r, x.role === r); }).join('') + '</div>' +
+    '<div class="hint">একটা ভূমিকা বাছলে নিচের টিক সেই ভূমিকার মতো হয়ে যাবে — তারপর দরকারমতো এক-একটা টিক বদলাতে পারেন।</div></div>' +
     '<div class="perm" id="u_p">' + Object.keys(u.perms).map(function (p) { return '<label><input type="checkbox" value="' + p + '"' + (x.perms.indexOf(p) !== -1 ? ' checked' : '') + '><span>' + esc(u.perms[p][0]) + '<small>' + esc(u.perms[p][1]) + '</small></span></label>'; }).join('') + '</div>' +
     '<div class="fld" style="margin-top:12px"><label>কোন বিভাগ দেখবেন</label><div class="pnsubs" id="u_s">' + u.sections.map(function (s) {
       var on = (x.secs || []).indexOf(s.id) !== -1;
@@ -1256,7 +1270,7 @@ function editUser(i) {
     '<div class="fld" style="margin-top:12px">' + sw('u_off', x.off, 'সাময়িক বন্ধ (ঢুকতে পারবেন না)') + '</div>' +
     '<div class="btns" style="justify-content:flex-end">' + (i == null ? '' : '<button class="btn bad" id="u_del" style="margin-right:auto">সরান</button>') + '<button class="btn" onclick="closeLayer()">বাদ</button><button class="btn pri" id="u_save">সেভ</button></div></div>';
   modal(h);
-  $('u_r').onchange = function () { var pre = u.presets[this.value] || []; document.querySelectorAll('#u_p input').forEach(function (c) { c.checked = pre.indexOf(c.value) !== -1; }); uSecHint(); };
+  document.querySelectorAll('#u_rp .rt').forEach(function (b) { b.onclick = function () { pickRole(b.getAttribute('data-r')); }; });
   uSecHint();
   $('u_save').onclick = function () {
     var perms = [].filter.call(document.querySelectorAll('#u_p input'), function (c) { return c.checked; }).map(function (c) { return c.value; });
@@ -1272,6 +1286,27 @@ function editUser(i) {
   };
 }
 
+/* ভূমিকার টাইল: পদবি, কাদের জন্য, শুরুতে কী কী পারবেন */
+var ROLE_DESC = {
+  admin: ['পুরো নিয়োগ চালান', 'আবেদন থেকে চূড়ান্ত নিয়োগ পর্যন্ত প্রায় সব কাজ। শুধু ব্যবহারকারী যোগ আর পদবি বদল প্রধান পরীক্ষা নিয়ন্ত্রকের হাতে।'],
+  boss: ['শুধু দেখেন, বদলান না', 'প্রতিবেদন: ধাপে ধাপে কতজন, শ্রেণি-বিষয় ধরে সংখ্যা। কোনো তথ্য বদলাতে পারেন না।'],
+  staff: ['প্রার্থীদের দেখাশোনা', 'প্রার্থী খোঁজা, তথ্য সংশোধন, অনুমোদন বা বাতিল, ইমেইল-SMS আবার পাঠানো।'],
+  marks: ['শুধু নম্বর তোলেন', 'লিখিত পরীক্ষার খাতা দেখে শ্রেণি-বিষয় ধরে নম্বর তোলা আর সংশোধন। আর কিছু দেখেন না।'],
+  head: ['নিজের বিভাগ চালান', 'নিজের বিভাগের শ্রেণির প্রার্থী, নম্বর, ফলাফল, প্যানেল আর ডেমো ক্লাস। অন্য বিভাগ দেখেন না — নিচে বিভাগ বাছতে হবে।']
+};
+function roleTile(r, on) {
+  var u = S.users, d = ROLE_DESC[r] || ['', ''], pre = u.presets[r] || [];
+  return '<button type="button" class="rt' + (on ? ' on' : '') + '" data-r="' + r + '"><span class="rh"><b>' + esc(u.roles[r] || r) + '</b><i>' + icon('check') + '</i></span>' +
+    '<span class="rk">' + esc(d[0]) + '</span><span class="rd">' + esc(d[1]) + '</span>' +
+    '<span class="rp">' + pre.map(function (p) { return '<em>' + esc((u.perms[p] || [p])[0]) + '</em>'; }).join('') + '</span></button>';
+}
+function pickRole(r) {
+  var pre = S.users.presets[r] || [];
+  $('u_r').value = r;
+  document.querySelectorAll('#u_rp .rt').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-r') === r); });
+  document.querySelectorAll('#u_p input').forEach(function (c) { c.checked = pre.indexOf(c.value) !== -1; });
+  uSecHint();
+}
 function uSecHint() {
   var u = S.users, any = [].some.call(document.querySelectorAll('#u_s input'), function (c) { return c.checked; });
   var g = (u.globalPerms || []).map(function (p) { return (u.perms[p] || [p])[0]; }).join(', ');
