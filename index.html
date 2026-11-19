@@ -408,6 +408,95 @@ table.rm td{vertical-align:middle}
 .prv{overflow:hidden;border-radius:10px;border:1px solid var(--line);background:#fff;position:relative}
 .prv iframe{border:0;transform-origin:0 0;position:absolute;left:0;top:0;pointer-events:none;background:#fff}
 .prc textarea.in{font-size:13px;min-height:150px}
+
+/* ===== প্রতিবেদন (বসের পাতা) — প্রিমিয়াম ===== */
+.rpx{--i1:#6366f1;--i2:#8b5cf6;--i3:#0ea5e9;--i4:#10b981;--i5:#f59e0b}
+.rpx .card.rx-card{border-radius:18px;padding:18px 20px}
+.rpx .card+.card,.rpx .rx-two{margin-top:16px}
+.rx-hero{position:relative;overflow:hidden;border-radius:22px;padding:26px 30px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;color:#fff;
+  background:radial-gradient(700px 300px at 90% -20%,rgba(230,199,125,.35),transparent 60%),radial-gradient(600px 300px at -10% 120%,rgba(139,92,246,.45),transparent 60%),linear-gradient(135deg,#0b1838 0%,#13265a 45%,#2a2f7a 100%);
+  box-shadow:0 18px 40px rgba(11,24,56,.35);border:1px solid rgba(230,199,125,.25)}
+.rx-glow{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.08) 1.5px,transparent 1.5px);background-size:22px 22px;pointer-events:none}
+.rx-hl{flex:1;min-width:240px;position:relative}
+.rx-kick{font-size:13.5px;font-weight:700;color:#e6c77d;letter-spacing:.3px}
+.rx-hero h1{font-family:'Baloo Da 2',sans-serif;font-weight:800;font-size:34px;line-height:1.15;margin:4px 0 12px}
+.rx-hero h1 em{font-style:normal;background:linear-gradient(90deg,#e6c77d,#f8e3a8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rx-now{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14.5px}
+.rx-dot{width:9px;height:9px;border-radius:50%;background:#34d399;box-shadow:0 0 0 0 rgba(52,211,153,.7);animation:rxp 1.8s infinite}
+@keyframes rxp{0%{box-shadow:0 0 0 0 rgba(52,211,153,.7)}70%{box-shadow:0 0 0 10px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.rx-upd{margin-top:10px;font-size:12.5px;opacity:.75}
+.rx-ring{position:relative;display:flex;align-items:center;gap:16px}
+.rx-ringin{width:118px;height:118px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle,#1d3478,#0b1838);border:5px solid #e6c77d;box-shadow:0 0 0 7px rgba(230,199,125,.18),inset 0 0 18px rgba(0,0,0,.4)}
+.rx-ringin b{font-family:'Baloo Da 2',sans-serif;font-size:44px;line-height:1;color:#e6c77d}
+.rx-ringin span{font-size:12px;font-weight:700;margin-top:2px}
+.rx-next small{display:block;font-size:12px;opacity:.75}.rx-next b{display:block;font-size:17px;line-height:1.3}.rx-next span{font-size:14px;color:#e6c77d;font-weight:700}
+
+.rx-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:16px 0}
+.rx-kpi{position:relative;overflow:hidden;border-radius:18px;padding:14px 16px 12px;background:var(--card);border:1px solid var(--line);box-shadow:var(--sh)}
+.rx-kpi::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--g)}
+.rx-kpi::after{content:"";position:absolute;right:-30px;top:-30px;width:110px;height:110px;border-radius:50%;background:var(--g);opacity:.12}
+.rx-kpi.k1{--g:linear-gradient(135deg,#6366f1,#8b5cf6)}.rx-kpi.k2{--g:linear-gradient(135deg,#0ea5e9,#6366f1)}.rx-kpi.k3{--g:linear-gradient(135deg,#14b8a6,#0ea5e9)}
+.rx-kpi.k4{--g:linear-gradient(135deg,#10b981,#84cc16)}.rx-kpi.k5{--g:linear-gradient(135deg,#f59e0b,#e6c77d)}
+.rx-ic{display:inline-flex;width:36px;height:36px;border-radius:11px;align-items:center;justify-content:center;background:var(--g);color:#fff;margin-bottom:8px}
+.rx-ic .ic{width:19px;height:19px}
+.rx-kpi small{display:block;font-size:13px;color:var(--tx2);font-weight:600}
+.rx-kpi b{display:block;font-size:34px;font-weight:800;line-height:1.15;margin:2px 0}
+.rx-kpi em{font-style:normal;font-size:12.5px;color:var(--tx3);font-weight:600}
+
+.rx-tl{position:relative;display:grid;grid-template-columns:repeat(var(--n),1fr);gap:6px;padding-top:4px}
+.rx-line{position:absolute;left:calc(50% / var(--n));right:calc(50% / var(--n));top:19px;height:4px;border-radius:4px;background:var(--line)}
+.rx-line i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#e6c77d,#c39a45)}
+.rx-ev{position:relative;text-align:center;padding:0 4px}
+.rx-pt{position:relative;z-index:1;display:inline-flex;width:32px;height:32px;border-radius:50%;align-items:center;justify-content:center;background:var(--card2);border:3px solid var(--line2);margin-bottom:8px}
+.rx-ev.past .rx-pt{background:linear-gradient(135deg,#e6c77d,#c39a45);border-color:#c39a45;color:#1b1404}
+.rx-ev.past .rx-pt .ic{width:16px;height:16px;stroke-width:3}
+.rx-ev.next .rx-pt{border-color:#6366f1;background:#6366f1;box-shadow:0 0 0 6px rgba(99,102,241,.25)}
+.rx-ev b{display:block;font-size:13.5px;line-height:1.35}.rx-ev small{font-size:12.5px;color:var(--tx3)}
+.rx-ev.next b{color:var(--pri)}.rx-ev.past b{color:var(--tx2)}
+
+.rx-two{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}
+.rx-two .card+.card{margin-top:0}
+.rx-fun{display:flex;flex-direction:column}
+.rx-fs{display:grid;grid-template-columns:180px 1fr 46px;gap:10px;align-items:center}
+.rx-fl{font-size:13.5px;font-weight:600}.rx-fl small{color:var(--tx3);font-weight:500}
+.rx-fb{height:22px;border-radius:8px;background:var(--bg2);overflow:hidden;display:flex;justify-content:center}
+.rx-fb i{display:block;height:100%;border-radius:8px}
+.rx-fs b{text-align:right;font-size:18px;font-weight:800}
+.rx-fs.zero{opacity:.55}
+.rx-fs.s0 i{background:linear-gradient(90deg,#6366f1,#8b5cf6)}.rx-fs.s1 i{background:linear-gradient(90deg,#4f7cf5,#6366f1)}.rx-fs.s2 i{background:linear-gradient(90deg,#0ea5e9,#4f7cf5)}
+.rx-fs.s3 i{background:linear-gradient(90deg,#14b8a6,#0ea5e9)}.rx-fs.s4 i{background:linear-gradient(90deg,#10b981,#14b8a6)}.rx-fs.s5 i{background:linear-gradient(90deg,#22c55e,#10b981)}
+.rx-fs.s6 i{background:linear-gradient(90deg,#84cc16,#22c55e)}.rx-fs.s7 i{background:linear-gradient(90deg,#eab308,#84cc16)}.rx-fs.s8 i{background:linear-gradient(90deg,#f59e0b,#e6c77d)}
+.rx-conv{font-size:11.5px;color:var(--tx3);font-weight:700;padding:1px 0 1px 190px;line-height:1.3;min-height:6px}
+.rx-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.rx-mini div{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:8px 10px;text-align:center}
+.rx-mini b{display:block;font-size:22px;font-weight:800}.rx-mini small{font-size:12px;color:var(--tx3)}
+.rx-bars{display:flex;align-items:flex-end;gap:5px;height:170px;padding-top:16px}
+.rx-bars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.rx-bars i{display:block;width:100%;max-width:26px;border-radius:7px 7px 3px 3px;background:linear-gradient(180deg,#8b5cf6,#6366f1);min-height:0}
+.rx-bars div.today i{background:linear-gradient(180deg,#f8e3a8,#c39a45)}
+.rx-bars em{font-style:normal;font-size:11.5px;color:var(--tx2);font-weight:700;margin-bottom:3px}
+.rx-bars small{font-size:11px;color:var(--tx3);margin-top:5px}.rx-bars div.today small{color:var(--acc);font-weight:800}
+
+.rx-cls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.rx-c{border-radius:16px;padding:14px;border:1px solid var(--line);background:var(--card2);position:relative;overflow:hidden}
+.rx-c::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--g)}
+.rx-c.c0{--g:linear-gradient(180deg,#6366f1,#8b5cf6)}.rx-c.c1{--g:linear-gradient(180deg,#0ea5e9,#6366f1)}.rx-c.c2{--g:linear-gradient(180deg,#14b8a6,#0ea5e9)}.rx-c.c3{--g:linear-gradient(180deg,#10b981,#84cc16)}.rx-c.c4{--g:linear-gradient(180deg,#f59e0b,#e6c77d)}
+.rx-ch b{display:block;font-family:'Baloo Da 2',sans-serif;font-size:22px;line-height:1.1}.rx-ch small{font-size:12px;color:var(--tx3)}
+.rx-cn{margin-top:8px}.rx-cn b{font-size:30px;font-weight:800;line-height:1}.rx-cn small{font-size:12.5px;color:var(--tx2);margin-left:6px}
+.rx-cb{height:7px;border-radius:5px;background:var(--bg2);overflow:hidden;margin:8px 0}.rx-cb i{display:block;height:100%;background:var(--g);border-radius:5px}
+.rx-cs{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12.5px;color:var(--tx2)}.rx-cs b{color:var(--tx)}
+
+.rx-t th{white-space:normal;min-width:66px;vertical-align:bottom;line-height:1.35;font-size:12.5px}
+.rx-t th:first-child{min-width:170px}
+.rx-t td{white-space:nowrap}
+.rx-t tr.rx-g td{background:var(--card2);font-weight:800;color:var(--acc);font-size:13px;padding-top:9px}
+.rx-t tr.tot td{border-top:2px solid var(--line2);background:var(--card2)}
+.rx-z{color:var(--tx3);opacity:.6}
+@media (max-width:1100px){.rx-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.rx-two{grid-template-columns:1fr}}
+@media (max-width:640px){.rx-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.rx-hero{padding:20px}.rx-hero h1{font-size:27px}
+  .rx-tl{grid-template-columns:1fr;gap:10px}.rx-line{display:none}.rx-ev{display:flex;align-items:center;gap:10px;text-align:left}.rx-ev .rx-pt{margin:0;flex:none}.rx-ev small{margin-left:auto}
+  .rx-fs{grid-template-columns:120px 1fr 38px;gap:6px}.rx-fl{font-size:12px}.rx-conv{padding-left:126px}}
 </style>
 </head>
 <body>
@@ -2583,28 +2672,86 @@ function rpLoad(btn) {
   (btn ? busy(btn, p) : p).then(function (d) { RP.d = d; rpDraw(); }, function (e) { authFail(e); if (!btn && $('rpBox')) $('rpBox').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
 }
 function rpDraw() {
-  var d = RP.d, T = d.total, st = d.stage, h = '';
+  var d = RP.d, T = d.total, st = d.stage, h = '<div class="rpx">';
+  var pct = function (a, b) { return b ? Math.round(a / b * 100) : 0; };
   if (d.secNames && d.secNames.length) h += '<div class="note" style="margin-bottom:14px">শুধু আপনার বিভাগ: <b>' + esc(d.secNames.join(', ')) + '</b></div>';
-  // ১) এখন কোথায়
-  h += '<div class="card"><h3>' + icon('cal') + 'এখন যেখানে<span class="sp"></span><span class="chip ok">' + esc(st.now) + '</span></h3>' +
-    (st.next ? '<div class="rpnext">সামনে: <b>' + esc(st.next.t) + '</b> — ' + N(ymdBn(st.next.d)) + (st.next.days === 0 ? ' (আজ)' : st.next.days === 1 ? ' (কাল)' : ' (' + N(st.next.days) + ' দিন পর)') + '</div>' : '') +
-    '<div class="rptl">' + st.events.map(function (e) { return '<div class="' + (e.past ? 'past' : '') + '"><i></i><b>' + esc(e.t) + '</b><small>' + N(ymdBn(e.d)) + '</small></div>'; }).join('') + '</div></div>';
-  // ২) ধাপে ধাপে (মোট)
-  var max = Math.max(1, T.applied);
-  h += '<div class="card"><h3>' + icon('grid') + 'ধাপে ধাপে কতজন (মোট)</h3><div class="rpfun">' + d.steps.map(function (k, i) {
-    var v = T[k[0]] || 0, prev = i ? (T[d.steps[k[0] === 'called' ? 3 : i - 1][0]] || 0) : 0;
-    var hint = k[0] === 'wait' ? '' : (i && prev ? Math.round(v / prev * 100) + '%' : '');
-    return '<div class="rpf"><span>' + esc(k[1]) + '</span><div class="pbar"><i style="width:' + Math.max(v ? 2 : 0, Math.round(v / max * 100)) + '%"></i></div><b>' + N(v) + '</b><small>' + (hint ? N(hint) : '') + '</small></div>';
-  }).join('') + '</div><div class="tiny" style="margin-top:6px">ডানের শতাংশ = আগের ধাপের কত ভাগ পরের ধাপে গেছেন।</div></div>';
-  // ৩) শেষ ১৪ দিনের আবেদন
-  var rmax = Math.max(1, Math.max.apply(null, d.recent.map(function (x) { return x.n; })));
-  h += '<div class="card"><h3>' + icon('log') + 'শেষ ১৪ দিনে আবেদন<span class="sp"></span><span class="chip">' + N(d.recent.reduce(function (a, x) { return a + x.n; }, 0)) + ' জন</span></h3><div class="rpbars">' +
-    d.recent.map(function (x) { return '<div title="' + esc(ymdBn(x.d)) + '"><em>' + (x.n ? N(x.n) : '') + '</em><i style="height:' + Math.round(x.n / rmax * 100) + '%"></i><small>' + N(x.d.slice(8)) + '</small></div>'; }).join('') + '</div></div>';
-  // ৪) শ্রেণি-বিষয় ধরে
-  h += '<div class="card"><h3>' + icon('book') + 'শ্রেণি-বিষয় ধরে<span class="sp"></span><button class="btn sm" onclick="rpPrint()">' + icon('dl') + 'ছাপা</button><button class="btn sm" onclick="rpCsv()">' + icon('dl') + 'এক্সেল</button></h3>' +
-    '<div class="tw"><table class="t rpt"><tr><th>শ্রেণি-বিষয়</th>' + d.steps.map(function (k) { return '<th class="r">' + esc(k[1]) + '</th>'; }).join('') + '</tr>' +
-    d.rows.map(function (r) { return '<tr><td><b>' + esc(r.cls) + '</b> — ' + esc(r.subject) + '</td>' + d.steps.map(function (k) { return '<td class="r">' + (r[k[0]] ? N(r[k[0]]) : '<span class="tiny">০</span>') + '</td>'; }).join('') + '</tr>'; }).join('') +
+
+  // ১) মাথা — এখনকার অবস্থা + সামনের তারিখের কাউন্টডাউন
+  var nx = st.next;
+  h += '<div class="rx-hero"><div class="rx-glow"></div><div class="rx-hl">' +
+    '<div class="rx-kick">' + esc(d.title || 'শিক্ষক নিয়োগ') + '</div>' +
+    '<h1>নিয়োগের অবস্থা <em>এক নজরে</em></h1>' +
+    '<div class="rx-now"><span class="rx-dot"></span>' + esc(st.now) + '</div>' +
+    '<div class="rx-upd">হালনাগাদ: ' + dtx(d.at || Date.now()) + (T.cancelled ? ' · বাতিল ' + N(T.cancelled) + 'টি আবেদন হিসাবের বাইরে' : '') + '</div></div>' +
+    (nx ? '<div class="rx-ring"><div class="rx-ringin"><b>' + (nx.days === 0 ? 'আজ' : N(nx.days)) + '</b><span>' + (nx.days === 0 ? '' : nx.days === 1 ? 'দিন — কাল' : 'দিন বাকি') + '</span></div>' +
+      '<div class="rx-next"><small>সামনে</small><b>' + esc(nx.t) + '</b><span>' + N(ymdBn(nx.d)) + '</span></div></div>' : '') + '</div>';
+
+  // ২) মূল সংখ্যা
+  var K = [
+    ['users', 'মোট আবেদন', T.applied, d.today ? 'আজ +' + N(d.today) : 'আজ নতুন নেই', 'k1'],
+    ['check', 'অনুমোদিত', T.approved, N(pct(T.approved, T.applied)) + '% আবেদন', 'k2'],
+    ['num', 'লিখিত পরীক্ষায় উপস্থিত', T.written, T.approved ? N(pct(T.written, T.approved)) + '% অনুমোদিত' : 'পরীক্ষা হয়নি', 'k3'],
+    ['award', 'উত্তীর্ণ', T.pass, 'অপেক্ষমাণ ' + N(T.wait || 0), 'k4'],
+    ['id', 'চূড়ান্ত নিয়োগ', T.hired, T.demo ? 'ডেমো দিয়েছেন ' + N(T.demo) : 'এখনো শুরু হয়নি', 'k5']
+  ];
+  h += '<div class="rx-kpis">' + K.map(function (k) {
+    return '<div class="rx-kpi ' + k[4] + '"><span class="rx-ic">' + icon(k[0]) + '</span><small>' + esc(k[1]) + '</small><b>' + N(k[2] || 0) + '</b><em>' + k[3] + '</em></div>';
+  }).join('') + '</div>';
+
+  // ৩) সময়রেখা
+  var ev = st.events, done = ev.filter(function (e) { return e.past; }).length;
+  h += '<div class="card rx-card"><h3>' + icon('cal') + 'সময়রেখা</h3><div class="rx-tl" style="--n:' + ev.length + ';--done:' + done + '">' +
+    '<div class="rx-line"><i style="width:' + (ev.length > 1 ? Math.min(100, Math.max(0, (done - 0.5) / (ev.length - 1) * 100)) : 0) + '%"></i></div>' +
+    ev.map(function (e) {
+      var isNext = nx && e.t === nx.t && e.d === nx.d;
+      return '<div class="rx-ev' + (e.past ? ' past' : '') + (isNext ? ' next' : '') + '"><span class="rx-pt">' + (e.past ? icon('check') : '') + '</span><b>' + esc(e.t) + '</b><small>' + N(ymdBn(e.d)) + '</small></div>';
+    }).join('') + '</div></div>';
+
+  // ৪) ধাপে ধাপে (ফানেল) + শেষ ১৪ দিন
+  var FS = ['applied', 'approved', 'written', 'pass', 'called', 'trained', 'paneled', 'demo', 'hired'];
+  var name = {}; d.steps.forEach(function (k) { name[k[0]] = k[1]; });
+  var top = Math.max(1, T.applied);
+  h += '<div class="rx-two"><div class="card rx-card"><h3>' + icon('grid') + 'ধাপে ধাপে কতজন</h3><div class="rx-fun">' + FS.map(function (k, i) {
+    var v = T[k] || 0, prev = i ? (T[FS[i - 1]] || 0) : 0, w = v ? Math.max(14, Math.round(v / top * 100)) : 0;
+    return (i ? '<div class="rx-conv">' + (prev ? '↓ ' + N(pct(v, prev)) + '%' : '') + '</div>' : '') +
+      '<div class="rx-fs s' + i + (v ? '' : ' zero') + '"><span class="rx-fl">' + esc(name[k]) + (k === 'pass' && T.wait ? ' <small>(+ অপেক্ষমাণ ' + N(T.wait) + ')</small>' : '') + '</span>' +
+      '<div class="rx-fb"><i style="width:' + w + '%"></i></div><b>' + N(v) + '</b></div>';
+  }).join('') + '</div><div class="tiny" style="margin-top:8px">↓ শতাংশ = আগের ধাপের কত ভাগ পরের ধাপে গেছেন।</div></div>';
+  var rec = d.recent, rmax = Math.max(1, Math.max.apply(null, rec.map(function (x) { return x.n; }))), rsum = rec.reduce(function (a, x) { return a + x.n; }, 0);
+  h += '<div class="card rx-card"><h3>' + icon('log') + 'শেষ ১৪ দিনে আবেদন</h3>' +
+    '<div class="rx-mini"><div><b>' + N(rsum) + '</b><small>মোট</small></div><div><b>' + N(d.today || 0) + '</b><small>আজ</small></div><div><b>' + N((Math.round(rsum / 14 * 10) / 10).toString()) + '</b><small>দিনে গড়</small></div></div>' +
+    '<div class="rx-bars">' + rec.map(function (x, i) {
+      var t = i === rec.length - 1;
+      return '<div class="' + (t ? 'today' : '') + '" title="' + esc(ymdBn(x.d)) + ': ' + N(x.n) + '"><em>' + (x.n ? N(x.n) : '') + '</em><i style="height:' + (x.n ? Math.max(6, Math.round(x.n / rmax * 100)) : 0) + '%"></i><small>' + N(+x.d.slice(8)) + '</small></div>';
+    }).join('') + '</div></div></div>';
+
+  // ৫) শ্রেণি অনুযায়ী এক নজরে
+  var cls = [], by = {};
+  d.rows.forEach(function (r) { var c = by[r.cls]; if (!c) { c = by[r.cls] = { cls: r.cls, n: 0, applied: 0, approved: 0, pass: 0, hired: 0 }; cls.push(c); } c.n++; ['applied', 'approved', 'pass', 'hired'].forEach(function (k) { c[k] += r[k] || 0; }); });
+  if (cls.length) {
+    var cmax = Math.max(1, Math.max.apply(null, cls.map(function (c) { return c.applied; })));
+    h += '<div class="card rx-card"><h3>' + icon('book') + 'শ্রেণি অনুযায়ী</h3><div class="rx-cls">' + cls.map(function (c, i) {
+      return '<div class="rx-c c' + (i % 5) + '"><div class="rx-ch"><b>' + esc(c.cls) + '</b><small>' + N(c.n) + 'টি বিষয়ে আবেদন</small></div>' +
+        '<div class="rx-cn"><b>' + N(c.applied) + '</b><small>আবেদন</small></div><div class="rx-cb"><i style="width:' + Math.round(c.applied / cmax * 100) + '%"></i></div>' +
+        '<div class="rx-cs"><span>অনুমোদিত <b>' + N(c.approved) + '</b></span><span>উত্তীর্ণ <b>' + N(c.pass) + '</b></span><span>নিয়োগ <b>' + N(c.hired) + '</b></span></div></div>';
+    }).join('') + '</div></div>';
+  }
+
+  // ৬) শ্রেণি-বিষয় ধরে — রঙের গাঢ়তা = সংখ্যা
+  var colMax = {}; d.steps.forEach(function (k) { colMax[k[0]] = Math.max(1, Math.max.apply(null, d.rows.map(function (r) { return r[k[0]] || 0; }).concat([0]))); });
+  var lastCls = null;
+  h += '<div class="card rx-card"><h3>' + icon('book') + 'শ্রেণি-বিষয় ধরে বিস্তারিত<span class="sp"></span><button class="btn sm" onclick="rpPrint()">' + icon('dl') + 'প্রিন্ট</button><button class="btn sm" onclick="rpCsv()">' + icon('dl') + 'এক্সেল</button></h3>' +
+    '<div class="tw"><table class="t rx-t"><tr><th>শ্রেণি-বিষয়</th>' + d.steps.map(function (k) { return '<th class="r">' + esc(k[1]) + '</th>'; }).join('') + '</tr>' +
+    d.rows.map(function (r) {
+      var g = '';
+      if (r.cls !== lastCls) { lastCls = r.cls; g = '<tr class="rx-g"><td colspan="' + (d.steps.length + 1) + '">' + esc(r.cls) + ' শ্রেণি</td></tr>'; }
+      return g + '<tr><td>' + esc(r.subject) + '</td>' + d.steps.map(function (k) {
+        var v = r[k[0]] || 0, a = v ? (0.12 + 0.5 * v / colMax[k[0]]).toFixed(2) : 0;
+        return '<td class="r"' + (v ? ' style="background:rgba(99,102,241,' + a + ')"' : '') + '>' + (v ? '<b>' + N(v) + '</b>' : '<span class="rx-z">·</span>') + '</td>';
+      }).join('') + '</tr>';
+    }).join('') +
     '<tr class="tot"><td><b>মোট</b></td>' + d.steps.map(function (k) { return '<td class="r"><b>' + N(T[k[0]] || 0) + '</b></td>'; }).join('') + '</tr></table></div></div>';
+  h += '</div>';
   $('rpBox').innerHTML = h;
 }
 function rpPrint() {
