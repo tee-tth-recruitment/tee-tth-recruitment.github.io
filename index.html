@@ -400,6 +400,14 @@ table.rm td{vertical-align:middle}
 .lockc h3{color:var(--tx2)}
 .perm label.secp{grid-column:1/-1;border-color:var(--acc);background:linear-gradient(90deg,rgba(230,199,125,.12),transparent)}
 .perm label.secp span{color:var(--acc)}
+
+/* প্রচার */
+.prgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.prgrid .card+.card{margin-top:0}
+.prc .sel{max-width:260px}
+.prv{overflow:hidden;border-radius:10px;border:1px solid var(--line);background:#fff;position:relative}
+.prv iframe{border:0;transform-origin:0 0;position:absolute;left:0;top:0;pointer-events:none;background:#fff}
+.prc textarea.in{font-size:13px;min-height:150px}
 </style>
 </head>
 <body>
@@ -473,7 +481,8 @@ var ICONS = {
   dl: 'M12 4v12|m6 10 6 6 6-6|M4 20h16', renew: 'M3 12a9 9 0 0 1 15.5-6.2L21 8|M21 3v5h-5|M21 12a9 9 0 0 1-15.5 6.2L3 16|M3 21v-5h5',
   alert: 'M12 9v4|M12 17h.01|M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
   edit: 'M4 20h4L19 9l-4-4L4 16z|m13.5 6.5 4 4', send: 'M22 2 11 13|M22 2 15 22l-4-9-9-4z', out: 'M15 4h4v16h-4|M10 8l-4 4 4 4|M6 12h10',
-  menu: 'M4 6h16|M4 12h16|M4 18h16', grid: 'M4 4h7v7H4z|M13 4h7v7h-7z|M4 13h7v7H4z|M13 13h7v7h-7z', share: 'M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|m8.6 13.5 6.8 4|m15.4 6.5-6.8 4',
+  mega: 'M3 10v4a1 1 0 0 0 1 1h3l6 4V5L7 9H4a1 1 0 0 0-1 1z|M16.5 9a4 4 0 0 1 0 6|M19 6.5a7.5 7.5 0 0 1 0 11',
+  menu: 'M4 6h16|M4 12h16|M4 18h16', grid:'M4 4h7v7H4z|M13 4h7v7h-7z|M4 13h7v7H4z|M13 13h7v7h-7z', share: 'M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|m8.6 13.5 6.8 4|m15.4 6.5-6.8 4',
   bell: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9|M10.3 21a1.94 1.94 0 0 0 3.4 0', chart: 'M4 20V11|M10 20V5|M16 20v-7|M21 20H3', cal: 'M4 6h16v14H4z|M4 10h16|M8 3v4|M16 3v4', clip: 'M9 4h6v3H9z|M7 5H5v16h14V5h-2|M9 12h6|M9 16h4',
   num: 'M4 9h16|M4 15h16|M10 3 8 21|M16 3l-2 18', award: 'M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12z|M8.2 13.9 7 22l5-3 5 3-1.2-8.1',
   id: 'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z|M9 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z|M6 16c.5-1.5 1.7-2 3-2s2.5.5 3 2|M14 10h4|M14 14h4'
@@ -584,6 +593,7 @@ var PAGES = [
   ['demo', 'ডেমো ক্লাস ও নিয়োগ', 'id', 'demo', 'প্রশিক্ষণ ও নিয়োগ'],
   ['notice', 'প্রার্থীদের নোটিশ', 'bell', 'settings', 'যোগাযোগ'],
   ['links', 'লিংক ও QR', 'share', 'secure', 'যোগাযোগ'],
+  ['promo', 'প্রচার', 'mega', 'secure', 'যোগাযোগ'],
   ['sms', 'SMS ও ইমেইল', 'sms', 'sms', 'যোগাযোগ'],
   ['settings', 'সেটিংস', 'set', 'settings', 'ব্যবস্থাপনা'],
   ['users', 'ব্যবহারকারী', 'key', 'owner', 'ব্যবস্থাপনা'],
@@ -2811,6 +2821,168 @@ function ntDel(btn, id) {
   });
 }
 function ntRePush(btn, id) { busy(btn, callServer('apiNoticePush', [id])).then(function (d) { NT.d = d; ntDraw(); toast('পুশ পাঠানো হয়েছে'); }); }
+
+/* ═════════════ প্রচার — দেয়ালের A4 পোস্টার আর ফেসবুকের ছবি ও লেখা, সব অ্যাপের তথ্য থেকে নিজে ═════════════
+ * নকশা থাকে সাইটের /promo/ পাতায় (poster-design/promo.html থেকে তৈরি)। এই পাতা তথ্য rc_promo-তে রেখে
+ * সেটাকে ছোট করে দেখায় (iframe), আর ছবি নেয় iframe-এর promoPng() দিয়ে। শুধু সংবেদনশীল ক্ষমতায়। */
+
+var PR = { cls: 0, days: null };
+
+function prData() {
+  var s = S.boot.settings, L = s.links || {}, groups = [];
+  S.boot.subjects.filter(function (x) { return x.active; }).forEach(function (x) {
+    var g = groups.filter(function (y) { return y[0] === x.cls; })[0];
+    if (!g) { g = [x.cls, []]; groups.push(g); }
+    g[1].push(x.subject);
+  });
+  var full = function (u) { u = String(u || '').trim(); return u ? (/^https?:\/\//.test(u) ? u : 'https://' + u) : ''; };
+  var org = s.orgNames || 'টেকনিক ইজি এডুকেশন ও টেকনিক টিচিং হোম';
+  return {
+    D: {
+      year: s.year || '২০২৭', deadline: s.deadline, examDate: s.examDate, examStart: s.examStart, examEnd: s.examEnd,
+      resultDate: s.resultDate, trainingFrom: s.trainingFrom, trainingTo: s.trainingTo,
+      orgNames: org, posterOrg: org.split(' ও ').pop(), address: s.address || '', phones: s.phones || '',
+      web: L.web || '', fb: L.fb || '', warning: String(s.warning || '').replace(/^\s*⚠️?\s*/, ''),
+      apply: full(s.shareUrl) || S.boot.site + '/apply/', map: full(s.mapUrl)
+    },
+    SUB: groups
+  };
+}
+
+// শেষ তারিখ পর্যন্ত কত দিন (ঢাকার তারিখে)
+function prDaysLeft() {
+  var dl = String(S.boot.settings.deadline || '').slice(0, 10).split('-');
+  if (dl.length < 3) return null;
+  var now = new Date(Date.now() + 6 * 3600000), t0 = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  return Math.round((Date.UTC(+dl[0], +dl[1] - 1, +dl[2]) - t0) / 86400000);
+}
+
+var PR_ITEMS = [
+  { key: 'A', title: 'দেয়ালের পোস্টার — রঙিন', sub: 'A4, রঙিন প্রিন্টারের জন্য', w: 794, h: 1123, file: 'poster-color', poster: true },
+  { key: 'Abw', title: 'দেয়ালের পোস্টার — সাদা-কালো', sub: 'A4, ফটোকপি বা সাদা-কালো প্রিন্টারের জন্য (কালি কম)', w: 794, h: 1123, file: 'poster-bw', poster: true },
+  { key: 'G', title: 'ফেসবুক — প্রথম ঘোষণা', sub: '১০৮০×১৩৫০ · নিয়োগের খবর প্রথমবার দেওয়ার সময়', w: 1080, h: 1350, file: 'fb-1-announcement' },
+  { key: 'M', title: 'ফেসবুক — মূল পোস্ট', sub: '১০৮০×১৩৫০ · সব শ্রেণি, বিষয় ও তারিখ', w: 1080, h: 1350, file: 'fb-2-details' },
+  { key: 'K', title: 'ফেসবুক — শ্রেণি অনুযায়ী', sub: '১০৮০×১৩৫০ · প্রতিটা শ্রেণির আলাদা ছবি', w: 1080, h: 1350, file: 'fb-3-class', cls: true },
+  { key: 'L', title: 'ফেসবুক — শেষ দিনের মনে করানো', sub: '১০৮০×১৩৫০ · শেষ তারিখ থেকে "কত দিন বাকি" নিজে গোনে', w: 1080, h: 1350, file: 'fb-4-last-days', days: true }
+];
+
+function prSrc(it, extra) {
+  var q = 'v=' + it.key + '&embed=1';
+  if (it.cls) q += '&c=' + PR.cls;
+  if (it.days && PR.days != null) q += '&days=' + PR.days;
+  return 'promo/?' + q + (extra || '') + '&t=' + PR.stamp;
+}
+
+function page_promo() {
+  var d = prData(), s = S.boot.settings, warn = [];
+  if (!s.shareUrl) warn.push('আবেদনের ছোট লিংক বসানো নেই — পোস্টারে সাইটের লম্বা লিংক যাচ্ছে। <a href="#" onclick="go(\'links\');return false">লিংক ও QR</a> পাতায় বসান।');
+  if (!s.mapUrl || /maps\.google\.com\/\?q=/.test(s.mapUrl)) warn.push('ম্যাপের লিংক এখনো সাধারণ খোঁজ — গুগল ম্যাপে অফিসের পিন → শেয়ার → লিংক কপি করে <a href="#" onclick="go(\'settings\');return false">সেটিংস</a>-এ দিন, তাহলে পোস্টারের "ম্যাপে দেখুন" QR ঠিক জায়গায় নেবে।');
+  if (!d.SUB.length) warn.push('কোনো চালু শ্রেণি-বিষয় নেই।');
+  var h = '<div class="ph"><h2>প্রচার</h2><span class="sp"></span><button class="btn sm" onclick="prRefresh()">' + icon('renew') + 'নতুন তথ্যে হালনাগাদ</button></div>';
+  h += '<div class="note" style="margin-bottom:14px">সব তথ্য অ্যাপ থেকেই আসে — সেটিংসের তারিখ, চালু শ্রেণি-বিষয়, আবেদনের ছোট লিংক, ঠিকানা, ফোন। ওগুলো বদলালে এখানে পোস্টার আর ছবিও নিজে বদলায়। প্রতিটা ছবির সঙ্গে ফেসবুকে দেওয়ার মতো লেখাও তৈরি আছে।</div>';
+  if (warn.length) h += '<div class="note warn" style="margin-bottom:14px">⚠️ ' + warn.join('<br>⚠️ ') + '</div>';
+  h += '<div class="prgrid">' + PR_ITEMS.map(function (it) {
+    var tools = '';
+    if (it.cls) tools = '<select class="sel" id="prCls" onchange="PR.cls=+this.value;prReload(\'K\')">' + d.SUB.map(function (c, i) { return '<option value="' + i + '"' + (PR.cls === i ? ' selected' : '') + '>' + esc(c[0]) + ' শ্রেণি</option>'; }).join('') + '</select>';
+    if (it.days) {
+      var auto = prDaysLeft();
+      tools = '<select class="sel" id="prDays" onchange="PR.days=this.value===\'\'?null:+this.value;prReload(\'L\');prCap(\'L\')"><option value="">নিজে গোনা (' + (auto == null ? '—' : auto < 0 ? 'শেষ' : auto === 0 ? 'আজ শেষ দিন' : N(auto) + ' দিন বাকি') + ')</option>' +
+        [7, 5, 3, 2, 1, 0].map(function (n) { return '<option value="' + n + '"' + (PR.days === n ? ' selected' : '') + '>' + (n ? N(n) + ' দিন বাকি' : 'আজ শেষ দিন') + '</option>'; }).join('') + '</select>';
+    }
+    var k = 260 / it.w;
+    return '<div class="card prc"><h3>' + icon(it.poster ? 'id' : 'share') + esc(it.title) + '</h3><div class="tiny" style="margin:-6px 0 10px">' + esc(it.sub) + '</div>' +
+      (tools ? '<div style="margin-bottom:10px">' + tools + '</div>' : '') +
+      '<div class="prv" style="width:260px;height:' + Math.round(it.h * k) + 'px"><iframe id="pf_' + it.key + '" src="' + prSrc(it) + '" style="width:' + it.w + 'px;height:' + it.h + 'px;transform:scale(' + k + ')" loading="lazy" title="' + esc(it.title) + '"></iframe></div>' +
+      '<div class="btns" style="margin-top:10px">' +
+      (it.poster ? '<button class="btn sm pri" onclick="prPrint(\'' + it.key + '\')">' + icon('dl') + 'প্রিন্ট / PDF</button>' : '') +
+      '<button class="btn sm' + (it.poster ? '' : ' pri') + '" onclick="prPng(this,\'' + it.key + '\')">' + icon('dl') + 'ছবি (PNG)</button>' +
+      (it.cls ? '<button class="btn sm" onclick="prAllCls(this)">' + icon('dl') + 'সব শ্রেণির ছবি</button>' : '') +
+      '<button class="btn sm ghost" onclick="prOpen(\'' + it.key + '\')">' + icon('ext') + 'বড় করে দেখুন</button></div>' +
+      (it.poster ? '' : '<div class="fld" style="margin:12px 0 0"><label>ফেসবুকে দেওয়ার লেখা</label><textarea class="in" id="pc_' + it.key + '" rows="7"></textarea>' +
+        '<div class="btns" style="margin-top:6px"><button class="btn sm" onclick="copyText($(\'pc_' + it.key + '\').value)">' + icon('copy') + 'লেখা কপি</button></div></div>') +
+      '</div>';
+  }).join('') + '</div>';
+  h += '<div class="tiny" style="margin-top:12px">"প্রিন্ট / PDF" নতুন ট্যাবে পোস্টার খুলে প্রিন্টের জানালা দেয় — সেখানে প্রিন্টার বাছুন, অথবা "Save as PDF"। কাগজ A4, মার্জিন "None", "Background graphics" চালু রাখুন।</div>';
+  return h;
+}
+
+function after_promo() {
+  PR.stamp = PR.stamp || Date.now();
+  try { localStorage.setItem('rc_promo', JSON.stringify(prData())); } catch (e) {}
+  PR_ITEMS.forEach(function (it) { if (!it.poster) prCap(it.key); });
+}
+function prRefresh() { PR.stamp = Date.now(); render(); toast('নতুন তথ্যে হালনাগাদ হয়েছে'); }
+function prItem(key) { return PR_ITEMS.filter(function (x) { return x.key === key; })[0]; }
+function prReload(key) { var it = prItem(key), f = $('pf_' + key); if (f) f.src = prSrc(it); if (key === 'K') prCap('K'); }
+function prOpen(key) { window.open(prSrc(prItem(key)).replace('&embed=1', ''), '_blank'); }
+function prPrint(key) {
+  try { localStorage.setItem('rc_promo', JSON.stringify(prData())); } catch (e) {}
+  window.open(prSrc(prItem(key)).replace('&embed=1', '') + '&print=1', '_blank');
+}
+function prDownload(url, name) { var a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+function prClsFile(i) { var c = (prData().SUB[i] || [''])[0]; return 'fb-class-' + String(c).replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); }).replace(/[^\w-]+/g, '') + '.png'; }
+function prShot(frame, it) {
+  var w = frame && frame.contentWindow;
+  if (!w || !w.promoPng) return Promise.reject(new Error('ছবি এখনো তৈরি হচ্ছে — কয়েক সেকেন্ড পরে আবার চাপুন।'));
+  return w.promoPng(it.poster ? 2 : 1);
+}
+function prPng(btn, key) {
+  var it = prItem(key);
+  busy(btn, prShot($('pf_' + key), it)).then(function (url) {
+    prDownload(url, it.cls ? prClsFile(PR.cls) : it.file + '.png'); toast('ছবি নামানো হয়েছে');
+  });
+}
+// সব শ্রেণির ছবি — একটা লুকানো iframe-এ একে একে তৈরি
+function prAllCls(btn) {
+  var it = prItem('K'), n = prData().SUB.length, i = 0;
+  var f = document.createElement('iframe'); f.style.cssText = 'position:fixed;left:-3000px;top:0;width:1080px;height:1350px;border:0';
+  document.body.appendChild(f);
+  var p = new Promise(function (ok, bad) {
+    function next() {
+      if (i >= n) { f.remove(); return ok(); }
+      f.onload = function () { prShot(f, it).then(function (url) { prDownload(url, prClsFile(i)); i++; setTimeout(next, 300); }, function (e) { f.remove(); bad(e); }); };
+      f.src = 'promo/?v=K&embed=1&c=' + i + '&t=' + PR.stamp;
+    }
+    next();
+  });
+  busy(btn, p).then(function () { toast(N(n) + 'টি শ্রেণির ছবি নামানো হয়েছে'); });
+}
+
+/* ---------- ফেসবুকের লেখা ---------- */
+var PR_MON = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+var PR_DAY = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'];
+function prDt(ymd, withDay) {
+  var p = String(ymd || '').slice(0, 10).split('-'); if (p.length < 3) return '';
+  return N(+p[2]) + ' ' + PR_MON[+p[1] - 1] + (withDay ? ' (' + PR_DAY[new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).getUTCDay()] + ')' : '');
+}
+function prTime(a, b) {
+  var h = +String(a || '16').slice(0, 2), e = +String(b || '17').slice(0, 2);
+  var part = h < 12 ? 'সকাল' : h < 15 ? 'দুপুর' : h < 18 ? 'বিকাল' : 'সন্ধ্যা';
+  return part + ' ' + N(h % 12 || 12) + '–' + N(e % 12 || 12) + 'টা';
+}
+function prCaption(key) {
+  var d = prData(), D = d.D, y = D.year, link = D.apply;
+  var tags = '\n\n#শিক্ষক_নিয়োগ #শিক্ষক_নিয়োগ_' + y + ' #পার্টটাইম_চাকরি #মিরপুর #শেওড়াপাড়া #টেকনিক_টিচিং_হোম';
+  var foot = '\n\n⚠️ ' + D.warning + '\n\n📍 ' + D.address + '\n☎ ' + D.phones;
+  var dates = '📅 আবেদনের শেষ তারিখ: ' + prDt(D.deadline, true) + '\n📝 লিখিত পরীক্ষা: ' + prDt(D.examDate, true) + ', ' + prTime(D.examStart, D.examEnd);
+  var subj = d.SUB.map(function (c) { return '🔹 ' + c[0] + ' শ্রেণি: ' + c[1].join(', '); }).join('\n');
+  if (key === 'G') return '📢 শিক্ষক-শিক্ষিকা নিয়োগ বিজ্ঞপ্তি ' + y + '\n\n' + D.orgNames + '-এ ' + y + ' সালের জন্য পঞ্চম থেকে দ্বাদশ শ্রেণির বিভিন্ন বিষয় পড়াতে আগ্রহী কিছু সংখ্যক দক্ষ, মেধাবী ও পরিশ্রমী শিক্ষক-শিক্ষিকা নিয়োগ দেওয়া হবে।\n\n' +
+    '✅ যোগ্যতা: ন্যূনতম স্নাতক অধ্যয়নরত\n✅ ধরন: পার্টটাইম · আবেদন ফি নেই\n' + dates + '\n\n👉 আবেদন করতে ভিজিট করুন: ' + link + '\n\nশ্রেণি ও বিষয়ের পুরো তালিকা আবেদনের লিংকে আছে।' + foot + tags;
+  if (key === 'M') return '📢 শিক্ষক-শিক্ষিকা নিয়োগ ' + y + ' — শ্রেণি, বিষয় ও তারিখ\n\n✅ যোগ্যতা: ন্যূনতম স্নাতক অধ্যয়নরত\n✅ ধরন: পার্টটাইম · আবেদন ফি নেই\n📝 যেকোনো ১টি শ্রেণির ১টি বিষয়ে আবেদন করা যাবে।\n\n📚 নিয়োগের শ্রেণি ও বিষয়:\n' + subj + '\n\n' + dates +
+    '\n\n👉 আবেদন করতে ভিজিট করুন: ' + link + foot + tags;
+  if (key === 'K') {
+    var c = d.SUB[PR.cls] || ['', []];
+    return '📚 ' + c[0] + ' শ্রেণির শিক্ষক-শিক্ষিকা নিয়োগ ' + y + '\n\nবিষয়: ' + c[1].join(', ') + '\n\n✅ যোগ্যতা: ন্যূনতম স্নাতক অধ্যয়নরত · ধরন: পার্টটাইম\n📝 যেকোনো ১টি বিষয়ে আবেদন করা যাবে।\n📅 আবেদনের শেষ তারিখ: ' + prDt(D.deadline, true) +
+      '\n\n👉 আবেদন করতে ভিজিট করুন: ' + link + foot + tags;
+  }
+  if (key === 'L') {
+    var n = PR.days != null ? PR.days : prDaysLeft();
+    var head = n == null ? '⏰ আবেদনের সময় শেষ হচ্ছে!' : n < 0 ? '⏰ আবেদনের সময় শেষ হয়েছে।' : n === 0 ? '⏰ আজই আবেদনের শেষ দিন!' : '⏰ আর মাত্র ' + N(n) + ' দিন বাকি!';
+    return head + '\n\nশিক্ষক-শিক্ষিকা নিয়োগ ' + y + '-এর আবেদনের শেষ তারিখ ' + prDt(D.deadline, true) + ', রাত ১১:৫৯ পর্যন্ত। যাঁরা এখনো আবেদন করেননি, দেরি না করে আজই আবেদন করুন।\n\n👉 আবেদন করতে ভিজিট করুন: ' + link + foot + tags;
+  }
+  return '';
+}
+function prCap(key) { var el = $('pc_' + key); if (el) el.value = prCaption(key); }
 </script>
 </body>
 </html>

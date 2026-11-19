@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>প্রচার — শিক্ষক নিয়োগ ২০২৭</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@500;600;700;800;900&family=Baloo+Da+2:wght@700;800&family=Anek+Bangla:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#d9dee8;font-family:'Noto Sans Bengali',sans-serif}
+:root{--navy:#13265a;--navy2:#0b1838;--gold:#c39a45;--gold2:#e6c77d;--ink:#14203f;--mute:#3c476a;--soft:#eef2fa;--cream:#fbf7ee;--line:#c9d1e3}
+.qr svg{width:100%;height:100%;display:block}
+.nw{white-space:nowrap}
+/* সব বাংলা অঙ্ক Anek Bangla-তে (ব্যবহারকারীর বাছাই) — Baloo-র গোল অঙ্ক বেমানান */
+dg{font-family:'Anek Bangla',sans-serif;font-weight:inherit}
+
+/* ============ A4 পোস্টার (রঙিন + সাদা-কালো) ============ */
+.A{width:794px;height:1123px;background:#fff;position:relative;overflow:hidden;color:var(--ink)}
+.A .frame{position:absolute;inset:12px;border:2.5px solid var(--navy);border-radius:6px;pointer-events:none}
+.A .frame::after{content:"";position:absolute;inset:4px;border:1px solid var(--gold);border-radius:3px}
+.A .in{position:absolute;inset:26px 30px 0}
+.A .hd{display:flex;align-items:center;gap:14px}
+.A .hd img{width:96px;height:96px;object-fit:contain}
+.A .hd .t{flex:1;text-align:center}
+.A .hd .t b{display:block;white-space:nowrap;font-family:'Baloo Da 2',sans-serif;font-weight:800;font-size:50px;color:var(--navy);line-height:1.05}
+.A .hd .t small{display:block;font-size:12.8px;font-weight:600;color:var(--mute);margin-top:2px;white-space:nowrap}
+.A .rl{height:3px;background:var(--navy);margin:10px 0 2px}.A .rl2{height:2px;background:var(--gold)}
+.A .title{text-align:center;margin:14px 0 0}
+.A .title .k{display:inline-block;background:linear-gradient(180deg,#1b3478,var(--navy));color:#fff;font-family:'Baloo Da 2';font-weight:800;font-size:37px;line-height:1.2;padding:6px 28px 1px;white-space:nowrap;border-radius:14px;box-shadow:0 5px 0 var(--gold)}
+.A .intro{text-align:center;font-size:20px;font-weight:600;line-height:1.5;margin:12px 0 0}
+.A .intro .ln{display:block;white-space:nowrap}
+.A .intro b{font-weight:800;color:var(--navy)}
+.A .facts{display:flex;justify-content:center;gap:9px;margin:10px 0 0}
+.A .facts span{background:var(--soft);border:2px solid var(--navy);border-radius:999px;padding:3px 14px;font-weight:800;font-size:15px;color:var(--navy)}
+.A h4{font-size:17px;font-weight:800;color:var(--navy);margin:12px 0 7px;display:flex;align-items:center;gap:10px}
+.A h4 small{font-size:15px;font-weight:700;color:var(--mute)}
+.A h4::before,.A h4::after{content:"";flex:1;height:2px;background:linear-gradient(90deg,transparent,var(--gold))}
+.A h4::after{background:linear-gradient(90deg,var(--gold),transparent)}
+.A .subj{border:2px solid var(--navy);border-radius:12px;overflow:hidden}
+.A .subj .r{display:flex;align-items:stretch;border-top:1.5px solid var(--line)}
+.A .subj .r:first-child{border-top:0}
+.A .subj .c{width:84px;flex:none;background:var(--navy);color:#fff;font-weight:800;font-size:calc(var(--cs,15px) + 2px);display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2}
+.A .subj .s{flex:1;padding:6px 7px;display:flex;flex-wrap:wrap;gap:5px 4px;align-items:center;align-content:center}
+.A .subj .s span{background:var(--soft);border-radius:7px;padding:1px 6px;font-size:var(--cs,15px);font-weight:700;white-space:nowrap}
+.A .dates{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0 0}
+.A .dates div{border:2px solid var(--navy);border-radius:12px;padding:5px 4px;text-align:center;background:#fff}
+.A .dates small{display:block;font-size:15px;font-weight:700;color:var(--mute)}
+.A .dates b{display:block;font-size:27px;line-height:1.2;font-weight:900;color:var(--navy);line-height:1.3}
+.A .dates i{display:block;font-style:normal;font-size:13px;font-weight:700}
+.A .dates .hot{background:var(--navy);border-color:var(--navy)}.A .dates .hot small,.A .dates .hot b,.A .dates .hot i{color:#fff}.A .dates .hot b{color:var(--gold2)}
+.A .ap{display:flex;gap:14px;align-items:center;margin:12px 0 0;border:2.5px solid var(--gold);border-radius:14px;padding:9px 12px;background:var(--cream)}
+.A .ap .qr{width:124px;height:124px;flex:none;background:#fff;padding:6px;border-radius:8px;border:1.5px solid var(--line)}
+.A .ap .mid{flex:1}
+.A .ap .mid b{display:block;font-family:'Baloo Da 2';font-weight:800;font-size:40px;color:var(--navy);line-height:1.15}
+.A .ap .u{display:inline-block;margin:6px 0 0;font-weight:900;font-size:30px;color:#fff;background:var(--navy);padding:2px 14px;border-radius:8px}
+.A .ap p{font-size:17px;font-weight:700;line-height:1.5}
+.A .ap .map{width:104px;flex:none;text-align:center}
+.A .ap .map .qr{width:96px;height:96px;padding:5px;margin:0 auto}
+.A .ap .map small{display:block;font-size:13px;font-weight:800;color:var(--navy);margin-top:4px;line-height:1.3}
+.A .wrow{display:flex;gap:12px;align-items:stretch;margin:10px 0 0}
+.A .wrow .map{width:100px;flex:none;text-align:center;border:2px solid var(--navy);border-radius:10px;padding:5px 4px 3px;background:#fff}
+.A .wrow .map .qr{width:80px;height:80px;margin:0 auto}
+.A .wrow .map small{display:block;font-size:12.5px;font-weight:800;color:var(--navy);margin-top:2px}
+.A .warn{flex:1;display:flex;align-items:center;margin:0;border-left:6px solid var(--gold);background:var(--soft);padding:8px 14px;font-weight:800;font-size:18px;line-height:1.5;color:var(--navy);border-radius:0 10px 10px 0}
+.A .ft{position:absolute;left:12px;right:12px;bottom:12px;background:var(--navy);color:#fff;padding:8px 20px 7px;border-top:4px solid var(--gold);border-radius:0 0 4px 4px;text-align:center}
+.A .ft .ad{font-size:13.5px;font-weight:600}
+.A .ft .ph{font-size:20px;font-weight:900;color:var(--gold2);margin-top:1px}
+.A .ft .ph small{font-size:14px;font-weight:600;color:#fff;opacity:.85;margin:0 6px}
+/* সাদা-কালো: কালি কম, ফটোকপিতে পরিষ্কার */
+.A.bw{--navy:#000;--gold:#000;--gold2:#000;--ink:#000;--mute:#222;--soft:#fff;--cream:#fff;--line:#777}
+.A.bw .title .k{background:#fff;color:#000;border:3px solid #000;box-shadow:none}
+.A.bw .subj .c{background:#fff;color:#000;border-right:2px solid #000}
+.A.bw .subj .s span{border:1.2px solid #555}
+.A.bw .dates .hot{background:#fff;border-width:3.5px}.A.bw .dates .hot small,.A.bw .dates .hot i{color:#000}.A.bw .dates .hot b{color:#000}
+.A.bw .ap .u{background:#fff;color:#000;border:2.5px solid #000}
+.A.bw .ft{background:#fff;color:#000;border-top:3px solid #000}.A.bw .ft .ph{color:#000}.A.bw .ft .ph small{color:#000}
+.A.bw .hd img{filter:grayscale(1) contrast(1.2)}
+.A.bw h4::before,.A.bw h4::after{background:#000;height:1.5px}
+.A.bw .frame::after{border-color:#000}
+
+/* ============ ফেসবুক ১০৮০×১৩৫০ — সব একই পরিবারের ============ */
+.F{width:1080px;height:1350px;position:relative;overflow:hidden;color:var(--ink);background:#fff}
+.F .fh{display:flex;align-items:center;gap:18px}
+.F .fh img{width:124px;height:124px;border-radius:50%;background:#fff;padding:5px;object-fit:contain;box-shadow:0 0 0 4px var(--gold);flex:none}
+.F .fh .nm{flex:1;text-align:center;font-family:'Baloo Da 2';font-weight:800;line-height:1.08;color:#fff}
+.F .fh .nm b{display:block;font-size:50px;white-space:nowrap}
+.F .fh .nm i{display:block;font-style:normal;font-size:30px;color:var(--gold2);line-height:1.25}
+.F .lg{display:flex;align-items:center;gap:14px}
+.F .lg img{width:92px;height:92px;border-radius:50%;background:#fff;padding:4px;object-fit:contain;box-shadow:0 0 0 3px var(--gold)}
+.F .lg span{font-family:'Baloo Da 2';font-weight:800;font-size:30px;line-height:1.15}
+.F .ft{position:absolute;left:0;right:0;bottom:0;background:var(--navy);color:#fff;padding:20px 60px;display:flex;justify-content:space-between;align-items:center;font-size:24px;font-weight:700;border-top:6px solid var(--gold)}
+.F .ft b{color:var(--gold2);font-size:28px}
+.F .link{display:inline-block;background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1b1404;font-weight:900;font-size:40px;padding:10px 30px;border-radius:16px}
+.F .chip{display:inline-block;background:var(--navy);color:#fff;border-radius:999px;padding:8px 24px;font-weight:800;font-size:28px}
+
+/* ঘোষণা (প্রথমবার) */
+.G{background:radial-gradient(900px 700px at 85% 10%,#24418f 0,transparent 60%),radial-gradient(700px 600px at 0% 100%,#2a1f05 0,transparent 55%),linear-gradient(160deg,var(--navy2),var(--navy));color:#fff}
+.G .pat{position:absolute;inset:0;background-image:radial-gradient(rgba(230,199,125,.16) 2px,transparent 2px);background-size:34px 34px;opacity:.6}
+.G .in{position:absolute;inset:46px 60px 112px;display:flex;flex-direction:column;justify-content:space-between}
+.G .lg span{color:#fff}
+.G .badge{align-self:flex-start;display:inline-block;margin-top:10px;border:3px solid var(--gold2);color:var(--gold2);font-weight:800;font-size:34px;padding:6px 26px;border-radius:999px;letter-spacing:.5px}
+.G h1{font-family:'Baloo Da 2';font-weight:800;font-size:112px;line-height:1.05;margin:0;white-space:nowrap}
+.G h1 em{font-size:146px}
+.G h1 em{font-style:normal;color:var(--gold2)}
+.G .sub{font-size:40px;font-weight:700;opacity:.95}
+.G .row{display:flex;flex-wrap:wrap;gap:14px}
+.G .row .chip{font-size:31px;padding:6px 26px}
+.G .row .chip{background:rgba(255,255,255,.12);border:2px solid rgba(230,199,125,.6)}
+.G .dl{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.G .dl .wide{grid-column:1/-1;flex-direction:row!important;align-items:baseline;gap:18px;justify-content:flex-start!important}
+.G .dl div{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.18);border-radius:18px;padding:10px 20px;display:flex;flex-direction:column;justify-content:center}
+.G .dl small{display:block;font-size:23px;font-weight:600;opacity:.85}.G .dl b{font-size:36px;font-weight:900;color:var(--gold2);white-space:nowrap}
+.G .cta{display:flex;align-items:center;gap:26px;background:rgba(255,255,255,.07);border:2px solid rgba(230,199,125,.5);border-radius:22px;padding:18px 22px}
+.G .cta .qr{width:170px;height:170px;flex:none;background:#fff;padding:10px;border-radius:14px}
+.G .cta .tx{flex:1}
+.G .cta .tx span{display:block;font-size:33px;font-weight:800;margin-bottom:12px}
+.G .cta .tx .link{font-size:44px}
+.G .ft{background:rgba(0,0,0,.35);border-top-color:var(--gold)}
+
+/* মূল পোস্ট (সব তথ্য) */
+.M .top{background:linear-gradient(160deg,var(--navy2),var(--navy));padding:36px 60px 28px;color:#fff;border-bottom:8px solid var(--gold)}
+.M .top .lg span{color:#fff}
+.M h1{font-family:'Baloo Da 2';font-weight:800;font-size:74px;line-height:1.05;margin-top:14px}
+.M h1 em{font-style:normal;color:var(--gold2)}
+.M .top p{font-size:28px;font-weight:600;margin-top:10px;opacity:.95}
+.M .body{padding:22px 60px 0}
+.M .facts{display:flex;gap:12px;margin-bottom:16px}
+.M .facts span{background:var(--soft);border:3px solid var(--navy);border-radius:999px;padding:4px 20px;font-weight:800;font-size:24px;color:var(--navy)}
+.M .subj{border:3px solid var(--navy);border-radius:18px;overflow:hidden}
+.M .subj .r{display:flex;border-top:2px solid var(--line)}.M .subj .r:first-child{border-top:0}
+.M .subj .c{width:130px;flex:none;background:var(--navy);color:#fff;font-weight:800;font-size:28px;display:flex;align-items:center;justify-content:center}
+.M .subj .s{flex:1;padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;align-content:center}
+.M .subj .s span,.A .subj .s span{line-height:1.55}
+.M .subj .s span{background:var(--soft);border-radius:10px;padding:3px 12px;font-size:var(--ms,24px);font-weight:700;white-space:nowrap}
+.M .dl{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.M .dl div{border:3px solid var(--navy);border-radius:16px;padding:6px 8px;text-align:center}
+.M .dl small{display:block;font-size:21px;font-weight:700;color:var(--mute)}.M .dl b{font-size:34px;line-height:1.2;font-weight:900;color:var(--navy)}
+.M .dl .hot{background:var(--navy)}.M .dl .hot small{color:#fff}.M .dl .hot b{color:var(--gold2)}
+.M .cta{margin-top:16px;display:flex;align-items:center;gap:24px;background:var(--cream);border:3px solid var(--gold);border-radius:20px;padding:14px 20px}
+.M .cta .qr{width:132px;height:132px;flex:none;background:#fff;padding:8px;border-radius:12px;border:2px solid var(--line)}
+.M .cta .tx span{display:block;font-size:30px;font-weight:800;color:var(--navy);margin-bottom:10px}
+.M .cta .tx .link{font-size:40px}
+
+/* শ্রেণি অনুযায়ী */
+.K .top{background:linear-gradient(160deg,var(--navy2),var(--navy));padding:46px 60px 60px;color:#fff;border-bottom:8px solid var(--gold)}
+.K .top .lg span{color:#fff}
+.K .kick{margin-top:50px;font-size:34px;font-weight:700;color:var(--gold2)}
+.K h1{font-family:'Baloo Da 2';font-weight:800;font-size:150px;line-height:1;margin-top:6px}
+.K h1 small{font-size:70px}
+.K .body{padding:44px 60px 0}
+.K h3{font-size:36px;font-weight:800;color:var(--navy);margin-bottom:22px}
+.K .list{display:flex;flex-wrap:wrap;gap:16px}
+.K .list span{background:var(--soft);border:3px solid var(--navy);border-radius:16px;padding:8px 22px;font-size:var(--ks,40px);font-weight:800;color:var(--navy);white-space:nowrap}
+.K .note{margin-top:28px;font-size:29px;font-weight:700;line-height:1.5}
+.K .note b{color:var(--navy)}
+.K .cta{margin-top:26px;display:flex;align-items:center;justify-content:space-between;background:var(--cream);border:3px solid var(--gold);border-radius:20px;padding:20px 26px}
+.K .cta div{font-size:28px;font-weight:700}.K .cta div b{display:block;font-size:40px;font-weight:900;color:var(--navy)}
+
+/* শেষ দিনের মনে করানো */
+.L{background:linear-gradient(170deg,var(--navy2),var(--navy) 70%);color:#fff;text-align:center}
+.L .pat{position:absolute;inset:0;background-image:radial-gradient(rgba(230,199,125,.14) 2px,transparent 2px);background-size:34px 34px}
+.L .in{position:absolute;inset:56px 64px 110px;display:flex;flex-direction:column;align-items:center}
+.L .in .lg{align-self:stretch}
+.L .grow{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.L .lg{justify-content:center}.L .lg span{color:#fff}
+.L .kick{font-size:44px;font-weight:800}
+.L .ring{width:470px;height:470px;margin:34px auto 0;border-radius:50%;background:radial-gradient(circle,#24418f,var(--navy2));border:14px solid var(--gold2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 0 10px rgba(230,199,125,.25)}
+.L .ring b{font-family:'Baloo Da 2';font-weight:800;font-size:250px;line-height:.9;color:var(--gold2)}
+.L .ring span{font-size:56px;font-weight:800;margin-top:8px}
+.L h2{font-family:'Baloo Da 2';font-weight:800;font-size:74px;margin-top:40px;line-height:1.1}
+.L p{font-size:34px;font-weight:700;margin-top:14px;opacity:.95}
+.L .link{margin-top:36px}
+.L .ft{background:rgba(0,0,0,.35)}
+@page{size:A4;margin:0}
+@media print{html,body{background:#fff}}
+body.embed{background:transparent}
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script>
+/* ===== তথ্য: অফিসের অ্যাপের "প্রচার" পাতা localStorage-এর rc_promo-তে রাখে (সেটিংস + চালু শ্রেণি-বিষয়)।
+ * না থাকলে নিচের নমুনা দেখায়। নকশা বদলাতে poster-design/promo.html বদলে make-site-promo.js চালান। ===== */
+var P = {}; try { P = JSON.parse(localStorage.getItem('rc_promo') || '{}') || {}; } catch (e) {}
+var D = P.D || { deadline: '2026-12-09T23:59', examDate: '2026-12-12', examStart: '16:00', examEnd: '17:00', resultDate: '2026-12-14', trainingFrom: '2026-12-17', trainingTo: '2026-12-20',
+  orgNames: 'টেকনিক ইজি এডুকেশন ও টেকনিক টিচিং হোম', posterOrg: 'টেকনিক টিচিং হোম', address: '৬৮৬ পশ্চিম শেওড়াপাড়া বাসস্ট্যান্ড (মেট্রোরেলের ৩১৩ নং পিলারের পশ্চিম পাশে), মিরপুর, ঢাকা',
+  phones: '০১৭৭৫৭৭৭৭৭২, ০১৭৭৫৭৭৭৭৭৩', web: 'tpl.com.bd', fb: 'facebook.com/TEE724',
+  warning: 'অনুগ্রহপূর্বক যারা প্রতিষ্ঠানে (শেওড়াপাড়া, মিরপুর, ঢাকা) এসে সরাসরি ক্লাস নিতে পারবেন, শুধু তারাই আবেদন করবেন।',
+  apply: 'https://tee.com.bd/hr-apply-27', map: 'https://maps.google.com/?q=Technique+Easy+Education+Shewrapara' };
+var SUB = P.SUB || [['৫ম', ['ইংরেজি', 'গণিত', 'বাংলাদেশ ও বিশ্বপরিচয়', 'ইসলাম শিক্ষা']], ['৬ষ্ঠ-৭ম', ['ইংরেজি ২য় পত্র', 'তথ্য ও যোগাযোগ প্রযুক্তি', 'ইসলাম শিক্ষা']],
+  ['৮ম', ['বাংলা ১ম পত্র', 'বাংলা ২য় পত্র', 'ইংরেজি ১ম পত্র', 'ইংরেজি ২য় পত্র', 'গণিত', 'বিজ্ঞান']],
+  ['৯ম-১০ম', ['বাংলা ১ম পত্র', 'বাংলা ২য় পত্র', 'ইংরেজি ১ম পত্র', 'ইংরেজি ২য় পত্র', 'গণিত', 'উচ্চতর গণিত', 'পদার্থবিজ্ঞান', 'রসায়ন', 'জীববিজ্ঞান', 'বাংলাদেশ ও বিশ্বপরিচয়', 'ফিন্যান্স ও ব্যাংকিং', 'ব্যবসায় উদ্যোগ']],
+  ['১১শ-১২শ', ['বাংলা ১ম পত্র', 'বাংলা ২য় পত্র', 'ইংরেজি ১ম পত্র', 'ইংরেজি ২য় পত্র', 'তথ্য ও যোগাযোগ প্রযুক্তি', 'পদার্থবিজ্ঞান', 'রসায়ন', 'জীববিজ্ঞান', 'উচ্চতর গণিত', 'হিসাববিজ্ঞান', 'ইসলাম শিক্ষা']]];
+
+function N(x) { return String(x).replace(/[0-9]/g, function (d) { return '০১২৩৪৫৬৭৮৯'[d]; }); }
+var MON = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+var DAY = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'];
+function dt(ymd) { var p = ymd.slice(0, 10).split('-'); return N(+p[2]) + ' ' + MON[+p[1] - 1]; }
+function day(ymd) { var p = ymd.slice(0, 10).split('-'); return DAY[new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).getUTCDay()]; }
+function part(h) { return h < 12 ? 'সকাল' : h < 15 ? 'দুপুর' : h < 18 ? 'বিকাল' : 'সন্ধ্যা'; }
+function examTime() { var a = +D.examStart.slice(0, 2), b = +D.examEnd.slice(0, 2); return part(a) + ' ' + N(a % 12 || 12) + '–' + N(b % 12 || 12) + 'টা'; }
+function trn() { return N(+D.trainingFrom.slice(8, 10)) + '–' + dt(D.trainingTo); }
+function link() { return D.apply.replace(/^https?:\/\//, '').replace(/^www\./, ''); }
+// QR-এ www-সহ (tee.com.bd নিজে www-তে পাঠায় — এক ধাপ কম); লেখায় ছোট রূপ
+function qrUrl(u) { return String(u).replace(/^(https?:\/\/)(tee\.com\.bd\/)/, '$1www.$2'); }
+function qr(u, lv) { var q = qrcode(0, lv || 'M'); q.addData(qrUrl(u)); q.make(); return q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); }
+function chips(L) { return L.map(function (s) { return '<span>' + s + '</span>'; }).join(''); }
+function fhead() { return '<div class="fh"><img src="../assets/tee-logo.png" alt=""><div class="nm"><b>টেকনিক ইজি এডুকেশন</b><i>ও</i><b>টেকনিক টিচিং হোম</b></div><img src="../assets/tth-logo.png" alt=""></div>'; }
+function logos() { return '<img src="../assets/tee-logo.png" alt=""><img src="../assets/tth-logo.png" alt="">'; }
+if (!D.year) D.year = '২০২৭';
+// শেষ দিনের হিসাব: ঢাকার আজকের তারিখ থেকে শেষ তারিখ পর্যন্ত (URL-এ days= দিলে সেটা)
+function daysLeft() {
+  var q = (location.search.match(/days=(-?\d+)/) || [])[1]; if (q != null) return +q;
+  var now = new Date(Date.now() + 6 * 3600000), t0 = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  var p = D.deadline.slice(0, 10).split('-'), t1 = Date.UTC(+p[0], +p[1] - 1, +p[2]);
+  return Math.round((t1 - t0) / 86400000);
+}
+
+var V = {
+  A: function (bw) {
+    return '<div class="A' + (bw ? ' bw' : '') + '"><div class="frame"></div><div class="in">' +
+      '<div class="hd"><img src="../assets/tth-logo.png" alt=""><div class="t"><b>' + D.posterOrg + '</b><small>' + D.address + '</small></div><img src="../assets/tee-logo.png" alt=""></div>' +
+      '<div class="rl"></div><div class="rl2"></div>' +
+      '<div class="title"><div class="k">শিক্ষক-শিক্ষিকা নিয়োগ বিজ্ঞপ্তি ' + D.year + '</div></div>' +
+      '<div class="intro"><span class="ln">' + D.year + ' সালের জন্য পঞ্চম থেকে দ্বাদশ শ্রেণির বিভিন্ন বিষয় পড়াতে আগ্রহী</span><span class="ln">কিছু সংখ্যক <b>দক্ষ, মেধাবী ও পরিশ্রমী</b> শিক্ষক-শিক্ষিকা নিয়োগ দেওয়া হবে।</span></div>' +
+      '<div class="facts"><span>যোগ্যতা: ন্যূনতম স্নাতক অধ্যয়নরত</span><span>ধরন: পার্টটাইম</span><span>আবেদন ফি নেই</span></div>' +
+      '<h4>নিয়োগের শ্রেণি ও বিষয় <small>(যেকোনো ১টি শ্রেণির ১টি বিষয়ে আবেদন করা যাবে)</small></h4><div class="subj">' + SUB.map(function (c) { return '<div class="r"><div class="c">' + c[0] + '</div><div class="s">' + chips(c[1]) + '</div></div>'; }).join('') + '</div>' +
+      '<div class="dates"><div class="hot"><small>আবেদনের শেষ তারিখ</small><b>' + dt(D.deadline) + '</b></div>' +
+      '<div><small>লিখিত পরীক্ষা</small><b>' + dt(D.examDate) + '</b></div>' +
+      '</div>' +
+      '<div class="ap"><div class="qr">' + qr(D.apply) + '</div><div class="mid"><b>স্ক্যান করে আবেদন করুন</b><div class="u">' + link() + '</div>' +
+      '</div>' +
+      '</div>' +
+      '<div class="wrow"><div class="warn">' + D.warning + '</div><div class="map"><div class="qr">' + qr(D.map, 'L') + '</div><small>ম্যাপে দেখুন</small></div></div></div>' +
+      '<div class="ft"><div class="ad">' + D.address + '</div><div class="ph">' + D.phones + '<small>·</small><small>' + D.web + ' · ' + D.fb + '</small></div></div></div>';
+  },
+  Abw: function () { return V.A(true); },
+  G: function () {
+    var n = SUB.reduce(function (a, c) { return a + c[1].length; }, 0);
+    return '<div class="F G"><div class="pat"></div><div class="in">' + fhead() + '' +
+      '<div class="badge">📢 নিয়োগ বিজ্ঞপ্তি</div><h1>শিক্ষক-শিক্ষিকা<br><em>নিয়োগ ' + D.year + '</em></h1>' +
+      '<div class="sub">পঞ্চম থেকে দ্বাদশ শ্রেণির বিভিন্ন বিষয়ে · পার্টটাইম</div>' +
+      '<div class="row">' + SUB.map(function (c) { return '<span class="chip">' + c[0] + '</span>'; }).join('') + '</div>' +
+      '<div class="dl"><div><small>আবেদনের শেষ তারিখ</small><b>' + dt(D.deadline) + '</b></div><div><small>লিখিত পরীক্ষা</small><b>' + dt(D.examDate) + '</b></div><div class="wide"><small>যোগ্যতা</small><b>ন্যূনতম স্নাতক অধ্যয়নরত</b></div></div>' +
+      '<div class="cta"><div class="qr">' + qr(D.apply) + '</div><div class="tx"><span>আবেদন করতে QR স্ক্যান বা ভিজিট করুন</span><b class="link">' + link() + '</b></div></div></div>' +
+      '<div class="ft"><span>' + D.fb + ' · ' + D.web + '</span><b>' + D.phones + '</b></div></div>';
+  },
+  M: function () {
+    return '<div class="F M"><div class="top">' + fhead() + '' +
+      '<h1>শিক্ষক-শিক্ষিকা <em>নিয়োগ ' + D.year + '</em></h1><p>পঞ্চম থেকে দ্বাদশ শ্রেণি · পার্টটাইম · আবেদন ফি নেই</p></div>' +
+      '<div class="body"><div class="facts"><span>যোগ্যতা: ন্যূনতম স্নাতক অধ্যয়নরত</span><span>যেকোনো ১টি বিষয়ে</span></div>' +
+      '<div class="subj">' + SUB.map(function (c) { return '<div class="r"><div class="c">' + c[0] + '</div><div class="s">' + chips(c[1]) + '</div></div>'; }).join('') + '</div>' +
+      '<div class="dl"><div class="hot"><small>আবেদনের শেষ তারিখ</small><b>' + dt(D.deadline) + '</b></div><div><small>লিখিত পরীক্ষা</small><b>' + dt(D.examDate) + '</b></div></div>' +
+      '<div class="cta"><div class="qr">' + qr(D.apply) + '</div><div class="tx"><span>আবেদন করতে QR স্ক্যান বা ভিজিট করুন</span><b class="link">' + link() + '</b></div></div></div>' +
+      '<div class="ft"><span>' + D.fb + '</span><b>' + D.phones + '</b></div></div>';
+  },
+  K: function () {
+    var i = +((location.search.match(/c=(\d)/) || [])[1] || 3), c = SUB[i];
+    return '<div class="F K"><div class="top">' + fhead() + '' +
+      '<div class="kick">শিক্ষক-শিক্ষিকা নিয়োগ ' + D.year + '</div><h1>' + c[0] + ' <small>শ্রেণি</small></h1></div>' +
+      '<div class="body"><h3>যেসব বিষয়ে শিক্ষক নেওয়া হবে</h3><div class="list">' + chips(c[1]) + '</div>' +
+      '<div class="note">যোগ্যতা: <b>ন্যূনতম স্নাতক অধ্যয়নরত</b> · ধরন: <b>পার্টটাইম</b><br>যেকোনো ১টি বিষয়ে আবেদন করা যাবে।</div>' +
+      '<div class="cta"><div>আবেদনের শেষ তারিখ<b>' + dt(D.deadline) + ', ' + day(D.deadline) + '</b></div><span class="link">' + link() + '</span></div></div>' +
+      '<div class="ft"><span>' + D.fb + '</span><b>' + D.phones + '</b></div></div>';
+  },
+  L: function () {
+    var d = daysLeft();
+    return '<div class="F L"><div class="pat"></div><div class="in">' + fhead() + '' +
+      '<div class="grow"><div class="kick">শিক্ষক-শিক্ষিকা নিয়োগ ' + D.year + '</div>' +
+      (d < 0 ? '<div class="ring"><b style="font-size:120px">শেষ</b><span>সময় পার</span></div><h2>আবেদনের সময় শেষ হয়েছে</h2>' : d > 0 ? '<div class="ring"><b>' + N(d) + '</b><span>দিন বাকি</span></div><h2>আবেদনের সময় শেষ হচ্ছে!</h2>' : '<div class="ring"><b style="font-size:150px">আজ</b><span>শেষ দিন</span></div><h2>আজই আবেদনের শেষ দিন!</h2>') +
+      '<p>শেষ তারিখ: ' + dt(D.deadline) + ', ' + day(D.deadline) + ' · রাত ১১:৫৯ পর্যন্ত</p><div class="link">' + link() + '</div></div></div>' +
+      '<div class="ft"><span>' + D.fb + '</span><b>' + D.phones + '</b></div></div>';
+  }
+};
+var v = (location.search.match(/v=(\w+)/) || [])[1] || 'A';
+document.getElementById('out').innerHTML = V[v]();
+digits(document.getElementById('out'));
+function digits(root) {
+  var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), L = [], n;
+  while ((n = w.nextNode())) if (/[০-৯]/.test(n.nodeValue) && !(n.parentNode.closest && n.parentNode.closest('svg'))) L.push(n);
+  L.forEach(function (x) {
+    // আলাদা ট্যাগ <dg> — পাতার span/b/i-এর নকশা এতে লাগে না, লেখাও ভাঙে না
+    var tmp = document.createElement('div'); tmp.innerHTML = x.nodeValue.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/([০-৯][০-৯,:–\-\/]*[০-৯]|[০-৯])/g, '<dg>$1</dg>');
+    var fr = document.createDocumentFragment(); while (tmp.firstChild) fr.appendChild(tmp.firstChild); x.parentNode.replaceChild(fr, x);
+  });
+}
+(document.fonts ? Promise.all(['800 30px "Anek Bangla"', '700 30px "Anek Bangla"', '800 30px "Baloo Da 2"', '700 30px "Noto Sans Bengali"', '800 30px "Noto Sans Bengali"'].map(function (f) { return document.fonts.load(f, 'অ০১২'); })).then(function () { return document.fonts.ready; }) : Promise.resolve()).then(function () { fitA(); fitK(); fitM(); document.body.setAttribute("data-ready", "1"); window.__ready = true;
+  if (/print=1/.test(location.search)) setTimeout(function () { window.print(); }, 300);
+});
+if (/embed=1/.test(location.search)) document.body.className = "embed";
+// অ্যাপ থেকে ডাকা হয় (একই সাইট): ছবি তৈরি → Promise<dataURL>
+window.promoPng = function (scale) {
+  var el = document.querySelector(".A, .F");
+  return new Promise(function (ok) { (function w() { if (window.__ready) ok(); else setTimeout(w, 100); })(); })
+    .then(function () { return html2canvas(el, { scale: scale || 1, useCORS: true, backgroundColor: "#ffffff", logging: false }); })
+    .then(function (c) { return c.toDataURL("image/png"); });
+};
+function fitM() {
+  var m = document.querySelector('.M'); if (!m) return;
+  var cta = m.querySelector('.cta'), ft = m.querySelector('.ft'), s = 28; m.style.setProperty('--ms', s + 'px');
+  while (cta.getBoundingClientRect().bottom > ft.getBoundingClientRect().top - 24 && s > 16) { s -= 0.5; m.style.setProperty('--ms', s + 'px'); }
+}
+function fitK() {
+  var k = document.querySelector('.K'); if (!k) return;
+  var cta = k.querySelector('.cta'), ft = k.querySelector('.ft'), s = 40; k.style.setProperty('--ks', s + 'px');
+  while (cta.getBoundingClientRect().bottom > ft.getBoundingClientRect().top - 30 && s > 22) { s -= 1; k.style.setProperty('--ks', s + 'px'); }
+}
+function fitA() {
+  var a = document.querySelector('.A'); if (!a) return;
+  var it = a.querySelector('.intro'), W = it.clientWidth, f = 20;
+  it.style.fontSize = f + 'px';
+  var widest = function () { return Math.max.apply(null, [].map.call(it.querySelectorAll('.ln'), function (l) { var r = document.createRange(); r.selectNodeContents(l); return r.getBoundingClientRect().width; })); };
+  f = f * (W * 0.985) / widest(); it.style.fontSize = Math.min(f, 26) + 'px';
+  var inr = a.querySelector('.in'), ft = a.querySelector('.ft'), warn = a.querySelector('.warn');
+  var wrow = a.querySelector('.wrow');
+  var room = function () { return ft.getBoundingClientRect().top - wrow.getBoundingClientRect().bottom; };
+  var cs = 21; a.style.setProperty('--cs', cs + 'px');
+  while (room() < 8 && cs > 11) { cs -= 0.5; a.style.setProperty('--cs', cs + 'px'); }
+}
+</script>
+</body>
+</html>
