@@ -497,6 +497,112 @@ table.rm td{vertical-align:middle}
 @media (max-width:640px){.rx-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.rx-hero{padding:20px}.rx-hero h1{font-size:27px}
   .rx-tl{grid-template-columns:1fr;gap:10px}.rx-line{display:none}.rx-ev{display:flex;align-items:center;gap:10px;text-align:left}.rx-ev .rx-pt{margin:0;flex:none}.rx-ev small{margin-left:auto}
   .rx-fs{grid-template-columns:120px 1fr 38px;gap:6px}.rx-fl{font-size:12px}.rx-conv{padding-left:126px}}
+
+/* ═════════ প্রিমিয়াম সাজ (২০২৬-১১-২০) — প্রতিবেদন পাতার ধাঁচে পুরো Control Panel ═════════ */
+:root{--gA:linear-gradient(135deg,#6366f1,#8b5cf6);--gB:linear-gradient(135deg,#0ea5e9,#6366f1);--gC:linear-gradient(135deg,#14b8a6,#0ea5e9);--gD:linear-gradient(135deg,#10b981,#84cc16);--gE:linear-gradient(135deg,#f59e0b,#e6c77d);--gGold:linear-gradient(180deg,#f2d68f,#c39a45)}
+
+/* ---- সাইডবার: দুই থিমেই গাঢ় নীল ---- */
+.side{width:272px;padding:0 12px 12px;color:#e9eefb;border-right:1px solid rgba(230,199,125,.18);
+  background:radial-gradient(420px 260px at 0% 0%,rgba(139,92,246,.28),transparent 60%),radial-gradient(360px 300px at 100% 100%,rgba(230,199,125,.14),transparent 60%),linear-gradient(180deg,#0d1a3f 0%,#0a1431 100%)}
+.side::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.05) 1.2px,transparent 1.2px);background-size:20px 20px;pointer-events:none}
+.side>*{position:relative}
+.brand2{text-align:center;padding:18px 6px 14px;margin:0 -2px 12px;border-bottom:1px solid rgba(230,199,125,.22)}
+.brand2 .bl{display:flex;justify-content:center;gap:12px;margin-bottom:10px}
+.brand2 .bl img{width:50px;height:50px;border-radius:50%;background:#fff;padding:3px;object-fit:contain;box-shadow:0 0 0 2px #e6c77d,0 6px 16px rgba(0,0,0,.4)}
+.brand2 b{display:block;font-family:'Baloo Da 2',sans-serif;font-weight:800;font-size:19.5px;line-height:1.2;color:#fff}
+.brand2 span{display:block;font-size:11.5px;line-height:1.45;color:#aab6d6;margin-top:4px}
+.brand2 em{display:inline-block;margin-top:9px;font-style:normal;font-weight:800;font-size:11.5px;letter-spacing:1.6px;text-transform:uppercase;color:#1b1404;background:var(--gGold);padding:3px 14px;border-radius:999px;box-shadow:0 3px 10px rgba(195,154,69,.35)}
+.side .me{background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(230,199,125,.3);margin:0 2px 14px}
+.side .me .mi b{color:#fff}.side .me .mi small{color:#e6c77d}
+.side .nhead{color:#c9a96a!important;letter-spacing:.6px}
+.side .nhead:hover{color:#e6c77d!important}
+.side .nav button:not(.nhead){color:#b9c3df;position:relative}
+.side .nav button:not(.nhead):hover{background:rgba(255,255,255,.07);color:#fff}
+.side .nav button:not(.nhead) .ic{opacity:.8}
+.side .nav button.on{background:linear-gradient(90deg,#6366f1,#8b5cf6)!important;color:#fff!important;box-shadow:0 6px 18px rgba(99,102,241,.45)!important;font-weight:700}
+.side .nav button.on .ic{color:#fff!important;opacity:1}
+.side .nav button.on::after{content:"";position:absolute;right:10px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:#e6c77d;box-shadow:0 0 8px #e6c77d}
+.side .nav .cnt{background:#f87171;color:#fff;font-weight:700}
+.side .dev{border-top-color:rgba(255,255,255,.1);color:#8d99bd}
+
+/* ---- ফোনের মাথা ---- */
+@media (max-width:860px){
+  .top{background:linear-gradient(135deg,#0d1a3f,#13265a 60%,#2a2f7a)!important;border-bottom:1px solid rgba(230,199,125,.25)!important;color:#fff}
+  .top .tt b{color:#fff}.top .tt small{color:#e6c77d}
+  .top .btn{color:#fff;border-color:rgba(255,255,255,.25)}
+  .bnav{box-shadow:0 -6px 20px rgba(0,0,0,.18)}
+  .bnav button.on{color:var(--pri)!important}.bnav button.on .ic{color:var(--pri)!important}
+}
+
+/* ---- লগইন ---- */
+.gbox{position:relative;overflow:hidden;border-radius:24px;border:1px solid rgba(230,199,125,.3)}
+.gbox::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#6366f1,#8b5cf6,#e6c77d)}
+.gcp{text-align:center;margin:-10px 0 18px}
+.gcp{display:block}
+.gbox .gcp{font-weight:800;font-size:11.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--acc)}
+
+/* ---- পাতার শিরোনাম: গ্রেডিয়েন্ট ব্যানার (প্রতিবেদনে নিজের বড় মাথা আছে, তাই সাধারণ) ---- */
+.page>.ph,.page .ph:first-child,#page>div>.ph:first-child{position:relative;overflow:hidden;border-radius:20px;padding:18px 22px;margin-bottom:18px;color:#fff;
+  background:radial-gradient(500px 200px at 95% -30%,rgba(230,199,125,.32),transparent 60%),radial-gradient(500px 220px at -5% 130%,rgba(139,92,246,.4),transparent 60%),linear-gradient(135deg,#0d1a3f,#13265a 55%,#2a2f7a);
+  box-shadow:0 14px 34px rgba(11,24,56,.28);border:1px solid rgba(230,199,125,.22)}
+.page .ph:first-child::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.07) 1.4px,transparent 1.4px);background-size:20px 20px;pointer-events:none}
+.page .ph:first-child>*{position:relative}
+.page .ph:first-child h2{color:#fff;font-size:28px}
+.page .ph:first-child .crumb{color:#e6c77d;margin-bottom:-12px}
+.page .ph:first-child .btn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.28);color:#fff;backdrop-filter:blur(4px)}
+.page .ph:first-child .btn:hover{background:rgba(255,255,255,.22);border-color:#fff}
+.page .ph:first-child .btn.pri{background:linear-gradient(135deg,#f2d68f,#c39a45);border-color:#c39a45;color:#1b1404}
+.page .ph:first-child .chip{background:rgba(255,255,255,.16);color:#fff;border-color:transparent}
+.page .ph:first-child .chip.ok{background:rgba(52,211,153,.25);color:#a7f3d0}.page .ph:first-child .chip.warn{background:rgba(251,191,36,.25);color:#fde68a}.page .ph:first-child .chip.bad{background:rgba(248,113,113,.25);color:#fecaca}
+body[data-page=report] .page .ph:first-child{background:none;box-shadow:none;border:0;padding:0;color:inherit}
+body[data-page=report] .page .ph:first-child::before{display:none}
+body[data-page=report] .page .ph:first-child h2{color:var(--tx)}
+body[data-page=report] .page .ph:first-child .btn{background:var(--card2);border-color:var(--line2);color:var(--tx)}
+
+/* ---- কার্ড: গোল কোণ, আইকনে রঙিন গ্রেডিয়েন্ট বাক্স (পালা করে পাঁচ রং) ---- */
+.card{border-radius:18px;padding:18px 20px;position:relative}
+.card h3{font-size:17px}
+.card h3>.ic{width:32px;height:32px;padding:7px;border-radius:10px;color:#fff;background:var(--gA);box-shadow:0 4px 12px rgba(99,102,241,.3);flex:none}
+.card:nth-of-type(5n+2) h3>.ic{background:var(--gB);box-shadow:0 4px 12px rgba(14,165,233,.3)}
+.card:nth-of-type(5n+3) h3>.ic{background:var(--gC);box-shadow:0 4px 12px rgba(20,184,166,.3)}
+.card:nth-of-type(5n+4) h3>.ic{background:var(--gD);box-shadow:0 4px 12px rgba(16,185,129,.3)}
+.card:nth-of-type(5n+5) h3>.ic{background:var(--gE);box-shadow:0 4px 12px rgba(245,158,11,.3)}
+
+/* ---- সংখ্যার ঘর (হোম, প্রার্থী ইত্যাদি) ---- */
+.stat{position:relative;overflow:hidden;border-radius:18px;padding:16px 18px 14px;box-shadow:var(--sh);transition:transform .15s,box-shadow .15s}
+.stat::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--sg,var(--gA))}
+.stat::after{content:"";position:absolute;right:-28px;top:-28px;width:100px;height:100px;border-radius:50%;background:var(--sg,var(--gA));opacity:.12}
+.stat:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(11,24,56,.2)}
+.stat.ok{--sg:var(--gD)}.stat.bad{--sg:linear-gradient(135deg,#f87171,#fb7185)}.stat.warn{--sg:var(--gE)}.stat.acc{--sg:var(--gA)}
+.stat b{font-size:32px}
+
+/* ---- বোতাম ও ট্যাব ---- */
+.btn{border-radius:11px;transition:transform .12s,box-shadow .12s,background .12s}
+.btn:not(:disabled):active{transform:translateY(1px)}
+.btn.pri{background:linear-gradient(135deg,#6366f1,#8b5cf6);border-color:transparent;box-shadow:0 6px 16px rgba(99,102,241,.35)}
+.btn.pri:hover{background:linear-gradient(135deg,#5457e8,#7c4ff0);box-shadow:0 8px 20px rgba(99,102,241,.45)}
+.btn.gold{background:var(--gGold);border-color:transparent;box-shadow:0 6px 16px rgba(195,154,69,.35)}
+.btn.ok{background:linear-gradient(135deg,#10b981,#34d399);border-color:transparent;color:#03241a;box-shadow:0 6px 16px rgba(16,185,129,.3)}
+.tabs button{transition:all .12s}
+.tabs button.on{background:linear-gradient(135deg,#6366f1,#8b5cf6);border-color:transparent;box-shadow:0 5px 14px rgba(99,102,241,.35)}
+
+/* ---- তালিকা, ঘর, নোট ---- */
+.row{border-radius:14px;transition:border-color .12s,box-shadow .12s,transform .12s}
+.row:hover{border-color:rgba(99,102,241,.55);box-shadow:0 8px 20px rgba(11,24,56,.14)}
+.in:focus,.sel:focus,textarea.in:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.2)}
+.note{border-radius:12px;border-left:4px solid #6366f1}
+.note.warn{border-left-color:#f59e0b}.note.bad{border-left-color:#f87171}.note.ok{border-left-color:#10b981}
+.chip.ok,.chip.bad,.chip.warn,.chip.info{font-weight:700}
+.md{border-radius:20px}
+/* দিনের থিমেও সাইডবার গাঢ় নীল (আগের হালকা নিয়মের ওপরে) */
+:root[data-theme="light"] .side{background:radial-gradient(420px 260px at 0% 0%,rgba(139,92,246,.28),transparent 60%),radial-gradient(360px 300px at 100% 100%,rgba(230,199,125,.14),transparent 60%),linear-gradient(180deg,#0d1a3f 0%,#0a1431 100%)}
+:root[data-theme="light"] .side .nav button:not(.nhead){color:#b9c3df}
+:root[data-theme="light"] .side .me .mi b{color:#fff}
+/* হোমের দ্রুত কাজ: রঙিন আইকন */
+.qa button{border-radius:16px;transition:transform .15s,box-shadow .15s,border-color .15s}
+.qa button:hover{box-shadow:0 12px 26px rgba(11,24,56,.18);border-color:rgba(99,102,241,.5)}
+.qa .qi,:root[data-theme="light"] .qa .qi{color:#fff;background:var(--gA);box-shadow:0 4px 12px rgba(99,102,241,.3)}
+.qa button:nth-child(5n+2) .qi{background:var(--gB)}.qa button:nth-child(5n+3) .qi{background:var(--gC)}.qa button:nth-child(5n+4) .qi{background:var(--gD)}.qa button:nth-child(5n+5) .qi{background:var(--gE)}
 </style>
 </head>
 <body>
@@ -505,8 +611,9 @@ table.rm td{vertical-align:middle}
 <div class="gate hide" id="gate">
   <div class="gbox">
     <div class="glogos"><img src="assets/tee-logo.png" alt=""><img src="assets/tth-logo.png" alt=""></div>
-    <h1>শিক্ষক নিয়োগ ২০২৭</h1>
+    <h1>শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭</h1>
     <div class="sub">টেকনিক ইজি এডুকেশন ও টেকনিক টিচিং হোম</div>
+    <div class="gcp">Control Panel</div>
     <div id="gStep1">
       <label for="gEmail">আপনার ইমেইল</label>
       <input class="in" id="gEmail" type="email" autocomplete="email" placeholder="name@gmail.com">
@@ -526,7 +633,7 @@ table.rm td{vertical-align:middle}
 <!-- অ্যাপ -->
 <div class="app hide" id="app">
   <aside class="side">
-    <div class="brand"><div class="blogos"><img src="assets/tee-logo.png" alt=""><img src="assets/tth-logo.png" alt=""></div><div><b>শিক্ষক নিয়োগ ২০২৭</b><small>অফিসের অ্যাপ · টেকনিক</small></div></div>
+    <div class="brand2"><div class="bl"><img src="assets/tee-logo.png" alt=""><img src="assets/tth-logo.png" alt=""></div><b>শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭</b><span>টেকনিক ইজি এডুকেশন ও টেকনিক টিচিং হোম</span><em>Control Panel</em></div>
     <div class="me" id="meBox"></div>
     <nav class="nav" id="nav"></nav>
     <div class="dev" id="devSide"></div>
@@ -727,7 +834,8 @@ function render() {
     '<button onclick="moreMenu()">' + icon('menu') + '<span>আরও</span></button>';
   $('topMore').onclick = moreMenu;
   var cur = pageOf(S.page);
-  $('topTitle').innerHTML = '<b>' + esc(cur ? cur[1] : 'শিক্ষক নিয়োগ ২০২৭') + '</b><small>শিক্ষক নিয়োগ ২০২৭' + (cur && cur[4] ? ' · ' + esc(cur[4]) : '') + '</small>';
+  $('topTitle').innerHTML = '<b>' + esc(cur ? cur[1] : 'শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭') + '</b><small>Control Panel · শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭</small>';
+  document.body.setAttribute('data-page', S.page);
   var f = window['page_' + S.page];
   $('page').innerHTML = f ? f() : '';
   // পাতার শিরোনামের ওপরে কোন দলের পাতা
