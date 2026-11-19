@@ -793,6 +793,7 @@ var PAGES = [
   ['sms', 'SMS ও ইমেইল', 'sms', 'sms', 'যোগাযোগ'],
   ['settings', 'সেটিংস', 'set', 'settings', 'ব্যবস্থাপনা'],
   ['users', 'ব্যবহারকারী', 'key', 'owner', 'ব্যবস্থাপনা'],
+  ['sections', 'বিভাগ ও প্রধান', 'grid', 'owner', 'ব্যবস্থাপনা'],
   ['log', 'লগ', 'log', 'log', 'ব্যবস্থাপনা'],
   ['security', 'নিরাপত্তা ও পছন্দ', 'lock', null, 'ব্যবস্থাপনা']
 ];
@@ -1464,16 +1465,16 @@ function drawSecs() {
     '<div class="tiny" style="margin-bottom:10px">বিভাগীয় প্রধান শুধু নিজের বিভাগের শ্রেণির প্রার্থী, নম্বর, ফল, প্যানেল, ডেমো ও প্রতিবেদন দেখেন। কোনো শ্রেণি কোনো বিভাগে না থাকলে সেটা শুধু "সব বিভাগ"-এর ব্যবহারকারীরা দেখেন।</div>' +
     SECS.map(function (sec, i) {
       return '<div class="pnp"><div class="btns" style="flex-wrap:nowrap;margin-bottom:8px"><input class="in" value="' + esc(sec.name) + '" placeholder="বিভাগের নাম" onchange="SECS[' + i + '].name=this.value">' +
-        (SECS.length > 1 ? '<button class="btn sm ghost" onclick="SECS.splice(' + i + ',1);drawUsers()">' + icon('trash') + '</button>' : '') + '</div><div class="pnsubs">' +
+        (SECS.length > 1 ? '<button class="btn sm ghost" onclick="SECS.splice(' + i + ',1);secRedraw()">' + icon('trash') + '</button>' : '') + '</div><div class="pnsubs">' +
         u.classes.map(function (c) {
           var on = (sec.classes || []).indexOf(c) !== -1;
           return '<label class="chip' + (on ? ' ok' : '') + '" style="cursor:pointer"><input type="checkbox" style="margin:0 4px 0 0"' + (on ? ' checked' : '') + ' onchange="secCls(' + i + ',\'' + esc(c) + '\',this.checked)">' + esc(c) + '</label>';
         }).join('') + '</div></div>';
     }).join('') +
-    '<div class="btns"><button class="btn sm" onclick="SECS.push({id:\'\',name:\'\',classes:[]});drawUsers()">' + icon('plus') + 'বিভাগ যোগ</button><button class="btn sm pri" onclick="saveSecs(this)">সেভ</button></div></div>';
+    '<div class="btns"><button class="btn sm" onclick="SECS.push({id:\'\',name:\'\',classes:[]});secRedraw()">' + icon('plus') + 'বিভাগ যোগ</button><button class="btn sm pri" onclick="saveSecs(this)">সেভ</button></div></div>';
 }
-function secCls(i, c, on) { var L = SECS[i].classes = (SECS[i].classes || []).filter(function (x) { return x !== c; }); if (on) L.push(c); drawUsers(); }
-function saveSecs(btn) { busy(btn, callServer('apiSaveSections', [SECS])).then(function (r) { S.users = r; SECS = null; drawUsers(); toast('বিভাগ সেভ হয়েছে'); }); }
+function secCls(i, c, on) { var L = SECS[i].classes = (SECS[i].classes || []).filter(function (x) { return x !== c; }); if (on) L.push(c); secRedraw(); }
+function saveSecs(btn) { busy(btn, callServer('apiSaveSections', [SECS])).then(function (r) { S.users = r; SECS = null; secRedraw(); toast('বিভাগ সেভ হয়েছে'); }); }
 function secNamesOf(ids) { return (S.users.sections || []).filter(function (s) { return (ids || []).indexOf(s.id) !== -1; }).map(function (s) { return s.name; }); }
 function drawRoles() {
   var u = S.users;
@@ -1487,14 +1488,15 @@ function saveRoles(btn) {
   busy(btn, callServer('apiSaveRoleNames', [m, $('rn_me').value.trim()])).then(function (r) { S.users = r; drawUsers(); toast('সেভ হয়েছে'); reload(); });
 }
 function drawUsers() {
+  if (!$('ulist')) { if ($('secbox')) drawSecPage(); return; }
   var u = S.users;
-  $('ulist').innerHTML = drawRoles() + drawSecs() + '<div class="list"><div class="row" style="cursor:default"><span class="chip ok">' + esc(u.roles.owner) + '</span><div class="nm"><b>' + esc(u.ownerName) + '</b><small>' + esc([u.owner].concat(u.aliases).join(', ')) + ' · সব ক্ষমতা</small></div></div>' +
+  $('ulist').innerHTML = drawRoles() + '<div class="note" style="margin-bottom:14px">বিভাগ (শ্রেণির দল) আর বিভাগীয় প্রধান এখন আলাদা পাতায় — <a href="#" onclick="go(\'sections\');return false">বিভাগ ও প্রধান</a>।</div>' + '<div class="list"><div class="row" style="cursor:default"><span class="chip ok">' + esc(u.roles.owner) + '</span><div class="nm"><b>' + esc(u.ownerName) + '</b><small>' + esc([u.owner].concat(u.aliases).join(', ')) + ' · সব ক্ষমতা</small></div></div>' +
     u.users.map(function (x, i) {
       return '<div class="row" onclick="editUser(' + i + ')"><span class="chip ' + (x.off ? 'bad' : 'info') + '">' + esc(x.off ? 'বন্ধ' : (u.roles[x.role] || x.role)) + '</span><div class="nm"><b>' + esc(x.name) + '</b><small>' + esc(x.email) + ' · ' + ((x.secs || []).length ? '<b>বিভাগ: ' + esc(secNamesOf(x.secs).join(', ')) + '</b> · ' : '') + (x.perms.length ? x.perms.map(function (p) { return (u.perms[p] || [p])[0]; }).join(', ') : 'কোনো ক্ষমতা নেই') + '</small></div></div>';
     }).join('') + '</div>';
 }
-function editUser(i) {
-  var u = S.users, x = i == null ? { email: '', name: '', role: 'staff', perms: u.presets.staff, off: false } : u.users[i];
+function editUser(i, preRole) {
+  var u = S.users, r0 = preRole && u.presets[preRole] ? preRole : 'staff', x = i == null ? { email: '', name: '', role: r0, perms: u.presets[r0], off: false } : u.users[i];
   var h = '<div class="md" style="width:min(760px,96%)"><h3 style="margin:0 0 12px">' + (i == null ? 'নতুন ব্যবহারকারী' : 'ব্যবহারকারী বদল') + '</h3>' +
     '<div class="grid g2"><div class="fld"><label>ইমেইল</label><input class="in" id="u_e" value="' + esc(x.email) + '"' + (i == null ? '' : ' disabled') + '></div><div class="fld"><label>নাম</label><input class="in" id="u_n" value="' + esc(x.name) + '"></div></div>' +
     '<div class="fld"><label>ভূমিকা — কে কী করবেন</label><input type="hidden" id="u_r" value="' + esc(x.role) + '"><div class="rolepick" id="u_rp">' + Object.keys(u.presets).map(function (r) { return roleTile(r, x.role === r); }).join('') + '</div>' +
@@ -1585,6 +1587,28 @@ function logout(btn) { busy(btn, callServer('apiLogout')).then(function () { set
   var h = (location.hash || '').slice(1); if (h && PAGES.some(function (p) { return p[0] === h; })) S.page = h;
   start();
 })();
+
+/* ---------- বিভাগ ও বিভাগীয় প্রধান (শুধু প্রধান পরীক্ষা নিয়ন্ত্রক) ---------- */
+function secRedraw() { if ($('secbox')) drawSecPage(); else drawUsers(); }
+function page_sections() {
+  return '<div class="ph"><h2>বিভাগ ও প্রধান</h2><span class="sp"></span><button class="btn pri" onclick="editUser(null,\'head\')">' + icon('plus') + 'নতুন বিভাগীয় প্রধান যোগ</button></div>' +
+    '<div class="note" style="margin-bottom:14px">বিভাগ = কয়েকটা শ্রেণির দল (যেমন ৫ম–৭ম)। বিভাগীয় প্রধান শুধু নিজের বিভাগের শ্রেণির প্রার্থী, লিখিত নম্বর, ফলাফল, প্যানেলের নম্বর, ডেমো ক্লাস আর প্রতিবেদন দেখেন ও কাজ করেন — অন্য বিভাগ দেখেন না। পুরো প্রতিষ্ঠানের কাজ (লিংক, কোড, ফর্ম, তারিখ, নোটিশ) তাঁর হাতে থাকে না।</div>' +
+    '<div id="secbox"><div class="loading"><span class="spin"></span></div></div>';
+}
+function after_sections() { callServer('apiUsers').then(function (u) { S.users = u; SECS = null; drawSecPage(); }, function (e) { authFail(e); if ($('secbox')) $('secbox').textContent = e.message; }); }
+function drawSecPage() {
+  var u = S.users, heads = u.users.filter(function (x) { return x.role === 'head'; });
+  var h = drawSecs();
+  h += '<div class="card"><h3>' + icon('users') + 'বিভাগীয় প্রধান<span class="sp"></span><button class="btn sm" onclick="editUser(null,\'head\')">' + icon('plus') + 'যোগ করুন</button></h3>';
+  if (!heads.length) h += '<div class="empty" style="padding:24px">' + icon('users') + 'এখনো কোনো বিভাগীয় প্রধান নেই — "নতুন বিভাগীয় প্রধান যোগ" চাপুন, ইমেইল আর নাম দিয়ে নিচে বিভাগ বাছুন।</div>';
+  else h += '<div class="list">' + heads.map(function (x) {
+    var i = u.users.indexOf(x), sn = secNamesOf(x.secs);
+    return '<div class="row" onclick="editUser(' + i + ')"><span class="chip ' + (x.off ? 'bad' : 'info') + '">' + esc(x.off ? 'বন্ধ' : (u.roles.head || 'বিভাগীয় প্রধান')) + '</span><div class="nm"><b>' + esc(x.name) + '</b><small>' + esc(x.email) + '</small></div>' +
+      (sn.length ? sn.map(function (s) { return '<span class="chip ok">' + esc(s) + '</span>'; }).join(' ') : '<span class="chip warn">বিভাগ বাছা হয়নি</span>') + '</div>';
+  }).join('') + '</div>';
+  h += '<div class="tiny" style="margin-top:10px">কারও নামে চাপলে বদলানো যায় — বিভাগ, ক্ষমতা, সাময়িক বন্ধ বা সরানো। অন্য সব ব্যবহারকারী "ব্যবহারকারী" পাতায়।</div></div>';
+  $('secbox').innerHTML = h;
+}
 
 /* ═════════════ ফর্মের প্রশ্ন — অ্যাপ থেকে গুগল ফর্মের প্রশ্ন বদলানো ═════════════ */
 var QE = { items: null, open: '', types: {} };
