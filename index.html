@@ -382,7 +382,7 @@ var ICONS = {
   alert: 'M12 9v4|M12 17h.01|M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
   edit: 'M4 20h4L19 9l-4-4L4 16z|m13.5 6.5 4 4', send: 'M22 2 11 13|M22 2 15 22l-4-9-9-4z', out: 'M15 4h4v16h-4|M10 8l-4 4 4 4|M6 12h10',
   menu: 'M4 6h16|M4 12h16|M4 18h16', grid: 'M4 4h7v7H4z|M13 4h7v7h-7z|M4 13h7v7H4z|M13 13h7v7h-7z', share: 'M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|m8.6 13.5 6.8 4|m15.4 6.5-6.8 4',
-  chart: 'M4 20V11|M10 20V5|M16 20v-7|M21 20H3', cal: 'M4 6h16v14H4z|M4 10h16|M8 3v4|M16 3v4', clip: 'M9 4h6v3H9z|M7 5H5v16h14V5h-2|M9 12h6|M9 16h4',
+  bell: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9|M10.3 21a1.94 1.94 0 0 0 3.4 0', chart: 'M4 20V11|M10 20V5|M16 20v-7|M21 20H3', cal: 'M4 6h16v14H4z|M4 10h16|M8 3v4|M16 3v4', clip: 'M9 4h6v3H9z|M7 5H5v16h14V5h-2|M9 12h6|M9 16h4',
   num: 'M4 9h16|M4 15h16|M10 3 8 21|M16 3l-2 18', award: 'M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12z|M8.2 13.9 7 22l5-3 5 3-1.2-8.1',
   id: 'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z|M9 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z|M6 16c.5-1.5 1.7-2 3-2s2.5.5 3 2|M14 10h4|M14 14h4'
 };
@@ -476,6 +476,7 @@ var PAGES = [
   ['home', 'হোম', 'home', null],
   ['report', 'প্রতিবেদন', 'chart', 'reports'],
   ['links', 'লিংক ও QR', 'share', null],
+  ['notice', 'প্রার্থীদের নোটিশ', 'bell', 'settings'],
   ['applicants', 'প্রার্থী', 'users', 'applicants'],
   ['subjects', 'শ্রেণি ও বিষয়', 'book', 'subjects'],
   ['form', 'আবেদন ফর্ম', 'form', 'form'],
@@ -924,10 +925,10 @@ function saveSettings() {
   var go2 = function (notify) {
     busy(btn, callServer('apiSaveSettings', [p, { notify: notify }])).then(function (r) {
       S.boot.settings = r.settings; render();
-      toast('সেভ হয়েছে' + (r.admitChanged ? ' — প্রবেশপত্র সংস্করণ ' + N(r.settings.admitVersion) : '') + (r.formNote ? ' · ' + r.formNote : '') + (r.smsNote ? ' · ' + r.smsNote : ''), 6000);
+      toast('সেভ হয়েছে' + (r.admitChanged ? ' — প্রবেশপত্র সংস্করণ ' + N(r.settings.admitVersion) : '') + (r.formNote ? ' · ' + r.formNote : '') + (r.smsNote ? ' · ' + r.smsNote : '') + (r.noticeNote ? ' · ' + r.noticeNote : ''), 7000);
     });
   };
-  if (admitCh && appr) confirmBox('প্রবেশপত্র বদলাচ্ছে', 'এই বদল প্রবেশপত্রে দেখাবে। লিংক একই থাকবে, খুললেই নতুন কপি। ' + N(appr) + 'জন অনুমোদিত প্রার্থীকে SMS-এ জানাবেন?', 'সেভ',
+  if (admitCh && appr) confirmBox('প্রবেশপত্র বদলাচ্ছে', 'এই বদল প্রবেশপত্রে দেখাবে। লিংক একই থাকবে, খুললেই নতুন কপি।' + (['examDate', 'examStart', 'examEnd', 'venue'].some(function (k) { return k in p; }) ? ' পরীক্ষার তারিখ/সময়/কেন্দ্র বদলাচ্ছে, তাই প্রার্থীদের "আমার আবেদন" পাতায় নোটিশ নিজে যাবে (নোটিফিকেশন চালু থাকলে পুশও)।' : '') + ' ' + N(appr) + 'জন অনুমোদিত প্রার্থীকে SMS-এ জানাবেন?', 'সেভ',
     '<div style="margin-top:12px">' + '<label class="sw"><input type="checkbox" data-x="notify"><i></i>হ্যাঁ, SMS-এ জানাও</label></div>').then(function (x) { if (x) go2(!!x.notify); });
   else go2(false);
 }
@@ -2551,6 +2552,51 @@ function lkPdfOf(list) {
 }
 function lkPosterPdf(btn, key) { var x = lkGet(key); busy(btn, lkPdfOf([x])).then(function (doc) { doc.save(lkName(x, 'poster') + '.pdf'); }); }
 function lkAllPdf(btn) { busy(btn, lkPdfOf(lkList())).then(function (doc) { doc.save('shob-qr-poster.pdf'); toast('সব পোস্টার এক PDF-এ নামানো হলো'); }); }
+
+/* ═════════════ প্রার্থীদের নোটিশ — "আমার আবেদন" পাতার ওপরে দেখায়, অনুমতি দেওয়া ফোনে পুশ যায় ═════════════ */
+var NT = { d: null };
+
+function page_notice() {
+  return '<div class="ph"><h2>প্রার্থীদের নোটিশ</h2><span class="sp"></span><button class="btn sm" onclick="ntLoad(this)">' + icon('renew') + 'হালনাগাদ</button></div><div id="ntBox"><div class="loading"><span class="spin"></span></div></div>';
+}
+function after_notice() { if (NT.d) ntDraw(); ntLoad(); }
+function ntLoad(btn) {
+  var p = callServer('apiNotices');
+  (btn ? busy(btn, p) : p).then(function (d) { NT.d = d; ntDraw(); }, function (e) { authFail(e); if (!btn && $('ntBox')) $('ntBox').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+}
+function ntDraw() {
+  var d = NT.d, P = d.push, h = '';
+  h += '<div class="note" style="margin-bottom:14px">নোটিশ প্রার্থীর "আমার আবেদন" পাতার ওপরে আলাদা করে দেখায়। যাঁরা ফোনে নোটিফিকেশন চালু করেছেন, তাঁদের কাছে পুশও যায় — এখন ' +
+    (P.ready ? '<b>' + N(P.devices) + 'টি ডিভাইসে</b> চালু।' : '<b>পুশ সার্ভার এখনো বসানো হয়নি</b> (পাতায় নোটিশ তবু দেখাবে)।') +
+    ' লিখিত পরীক্ষা বা প্রশিক্ষণের তারিখ-সময়-স্থান বদলালে নোটিশ নিজেই তৈরি হয়ে যায়।</div>';
+  h += '<div class="card"><h3>' + icon('plus') + 'নতুন নোটিশ</h3>' +
+    '<div class="fld"><label>শিরোনাম</label><input class="in" id="ntT" maxlength="120" placeholder="যেমন: লিখিত পরীক্ষার কেন্দ্রে প্রবেশের নিয়ম"></div>' +
+    '<div class="fld"><label>বিস্তারিত</label><textarea class="in" id="ntB" rows="4" maxlength="1500"></textarea></div>' +
+    '<div class="grid g2"><div class="fld"><label>কারা দেখবেন</label><select class="sel" id="ntA">' + Object.keys(d.aud).map(function (k) { return '<option value="' + k + '"' + (k === 'approved' ? ' selected' : '') + '>' + esc(d.aud[k]) + '</option>'; }).join('') + '</select></div>' +
+    '<div class="fld" style="display:flex;flex-direction:column;gap:8px;justify-content:flex-end">' + sw('ntI', true, ' জরুরি (সোনালি করে আলাদা দেখাবে)') + sw('ntP', P.ready, ' পুশ নোটিফিকেশনও পাঠান') + '</div></div>' +
+    '<button class="btn pri" onclick="ntAdd(this)">' + icon('send') + 'নোটিশ দিন</button></div>';
+  h += '<div class="card"><h3>' + icon('log') + 'দেওয়া নোটিশ <span class="chip">' + N(d.list.length) + '</span></h3>' + (d.list.length ? '<div class="list">' + d.list.map(function (n) {
+    var p = n.push;
+    return '<div class="row" style="cursor:default;align-items:flex-start"><div class="nm"><b style="white-space:normal">' + (n.imp ? '⚠️ ' : '') + esc(n.title) + '</b>' +
+      '<small>' + dtx(n.at) + ' · ' + esc(d.aud[n.aud] || n.aud) + (n.auto ? ' · নিজে তৈরি' : '') + (p ? ' · পুশ: ' + (p.off ? 'সার্ভার বসানো নেই' : N(p.sent) + '/' + N(p.devices) + ' ডিভাইস') : '') + '</small>' +
+      (n.body ? '<div class="tiny" style="white-space:pre-line;margin-top:4px">' + esc(n.body) + '</div>' : '') + '</div>' +
+      '<div class="btns" style="flex:none">' + (P.ready ? '<button class="btn sm" onclick="ntRePush(this,\'' + n.id + '\')">পুশ আবার</button>' : '') + '<button class="btn sm ghost" onclick="ntDel(this,\'' + n.id + '\')">' + icon('trash') + '</button></div></div>';
+  }).join('') + '</div>' : '<div class="empty">এখনো কোনো নোটিশ নেই।</div>') + '</div>';
+  $('ntBox').innerHTML = h;
+}
+function ntAdd(btn) {
+  var o = { title: $('ntT').value.trim(), body: $('ntB').value.trim(), aud: $('ntA').value, imp: $('ntI').checked, push: $('ntP').checked };
+  if (!o.title) return toast('শিরোনাম দিন।');
+  confirmBox('নোটিশ দেবেন?', esc(NT.d.aud[o.aud]) + ' "আমার আবেদন" পাতায় দেখবেন' + (o.push ? ', আর যাঁরা চালু করেছেন তাঁদের ফোনে পুশ যাবে' : '') + '।', 'নোটিশ দিন').then(function (ok) {
+    if (ok) busy(btn, callServer('apiNoticeAdd', [o])).then(function (d) { NT.d = d; ntDraw(); var p = d.list[0] && d.list[0].push; toast('নোটিশ দেওয়া হয়েছে' + (p && !p.off ? ' · পুশ ' + N(p.sent) + 'টি ডিভাইসে' : '')); });
+  });
+}
+function ntDel(btn, id) {
+  confirmBox('নোটিশ মুছবেন?', 'প্রার্থীদের পাতা থেকে সরে যাবে (যাঁদের ফোনে পুশ চলে গেছে, সেটা ফেরানো যায় না)।', 'মুছুন').then(function (ok) {
+    if (ok) busy(btn, callServer('apiNoticeDel', [id])).then(function (d) { NT.d = d; ntDraw(); toast('মোছা হয়েছে'); });
+  });
+}
+function ntRePush(btn, id) { busy(btn, callServer('apiNoticePush', [id])).then(function (d) { NT.d = d; ntDraw(); toast('পুশ পাঠানো হয়েছে'); }); }
 </script>
 </body>
 </html>

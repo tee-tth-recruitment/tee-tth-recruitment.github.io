@@ -164,6 +164,17 @@
 .pbox small{display:block;font-size:13px;font-weight:700;color:#7a5a12;margin-bottom:6px}
 .pbox dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:15px}.pbox dt{color:#7a5a12}.pbox dd{margin:0;font-weight:700;color:#14203f}
 .box .go.alt{background:#13265a;color:#fff}.box .go.ghost{background:#f1f4fa;color:#13265a}
+.pnots{margin:0 0 14px}.pnt{font-size:12px;font-weight:700;letter-spacing:.3px;color:#8a94ad;margin-bottom:6px}
+.pnot{border:1px solid #dde3f0;border-left:4px solid #5b7bd6;border-radius:12px;padding:10px 12px;margin-bottom:8px;background:#f8f9fc}
+.pnot.imp{border-color:#f0d58a;border-left-color:#c39a45;background:#fffaf0;box-shadow:0 4px 14px rgba(195,154,69,.18)}
+.pnh{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}.pnh b{font-size:15px;color:#13265a;line-height:1.5}
+.pnew{flex:none;background:#c39a45;color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;margin-top:2px}
+.pnot p{margin:4px 0 2px;font-size:14px;line-height:1.7;color:#3d4866}.pnot small{color:#8a94ad;font-size:12px}
+.pmore summary{cursor:pointer;color:#13265a;font-weight:600;font-size:13.5px;margin:2px 0 8px}
+.pchg{display:inline-block;background:#c39a45;color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px;margin-left:4px;vertical-align:middle}
+.ppush{margin-top:12px;border:1px dashed #b9c1d6;border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.6;color:#3d4866;text-align:center}
+.ppush.on{border-style:solid;border-color:#cfe9dc;background:#f2fbf6;color:#1f6b46}.ppush a{color:#6b7591;margin-left:6px;font-size:13px}
+.ppush .go{margin-top:10px}.perr{color:#b4532a;font-size:13px;margin-top:6px}
 .pnote{margin-top:8px;padding-top:8px;border-top:1px dashed #f0d58a;font-size:12.5px;line-height:1.6;color:#7a5a12}
 .pout{text-align:center;margin-top:16px}.pout a{color:#6b7591;font-size:14px;font-weight:600;text-decoration:none;border-bottom:1px dashed #b9c1d6}
 .hide{display:none!important}
@@ -291,7 +302,68 @@ function msgBox(title, body) {
 }
 var TOK = '', SAVE_KEY = 'rc_my_app', INSTALL = null;
 function saved(v) { try { if (v === undefined) return localStorage.getItem(SAVE_KEY) || ''; if (v) localStorage.setItem(SAVE_KEY, v); else localStorage.removeItem(SAVE_KEY); } catch (e) { return ''; } }
-function logout() { saved(''); location.hash = ''; }
+function logout() { pushOff(true); saved(''); location.hash = ''; }
+
+/* ---------- নোটিশ ---------- */
+function seenList() { try { return JSON.parse(localStorage.getItem('rc_my_seen') || '[]'); } catch (e) { return []; } }
+function noticesHtml(L) {
+  if (!L.length) return '';
+  var seen = seenList(), more = L.length > 3;
+  var one = function (n) {
+    var isNew = seen.indexOf(n.id) === -1;
+    return '<div class="pnot' + (n.imp ? ' imp' : '') + '"><div class="pnh"><b>' + (n.imp ? '⚠️ ' : '🔔 ') + esc(n.title) + '</b>' + (isNew ? '<span class="pnew">নতুন</span>' : '') + '</div>' +
+      (n.body ? '<p>' + esc(n.body).replace(/\n/g, '<br>') + '</p>' : '') + '<small>' + esc(n.at) + '</small></div>';
+  };
+  try { localStorage.setItem('rc_my_seen', JSON.stringify(seen.concat(L.map(function (n) { return n.id; }).filter(function (id) { return seen.indexOf(id) === -1; })).slice(-60))); } catch (e) {}
+  return '<div class="pnots"><div class="pnt">নোটিশ ও আপডেট</div>' + L.slice(0, 3).map(one).join('') +
+    (more ? '<details class="pmore"><summary>আরও ' + N(L.length - 3) + 'টি নোটিশ</summary>' + L.slice(3).map(one).join('') + '</details>' : '') + '</div>';
+}
+
+/* ---------- পুশ নোটিফিকেশন (প্রার্থী অনুমতি দিলে) ---------- */
+var FB = 'https://www.gstatic.com/firebasejs/10.12.2/';
+function canPush() { return !!(window.isSecureContext && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window); }
+function iosNeedsInstall() { return /iPhone|iPad|iPod/i.test(navigator.userAgent) && !(window.matchMedia && matchMedia('(display-mode: standalone)').matches); }
+function pushTok(v) { try { if (v === undefined) return localStorage.getItem('rc_my_push') || ''; if (v) localStorage.setItem('rc_my_push', v); else localStorage.removeItem('rc_my_push'); } catch (e) { return ''; } }
+function pushIsOn() { return canPush() && Notification.permission === 'granted' && !!pushTok(); }
+function pushCard(d) {
+  if (d.stage < 0 || !d.roll) return '';
+  if (pushIsOn()) return '<div class="ppush on">🔔 আপডেটের নোটিফিকেশন চালু আছে <a href="#" onclick="pushOff();return false">বন্ধ করুন</a></div>';
+  if (iosNeedsInstall()) return '<div class="ppush">🔔 নতুন আপডেট এলে ফোনে নোটিফিকেশন পেতে: Share → <b>Add to Home Screen</b> দিয়ে অ্যাপটা ইনস্টল করুন, তারপর সেখান থেকে খুলে "নোটিফিকেশন চালু করুন" চাপুন।</div>';
+  if (!canPush()) return '';
+  if (Notification.permission === 'denied') return '<div class="ppush">🔕 এই ব্রাউজারে নোটিফিকেশন বন্ধ করা আছে — ঠিকানার পাশের 🔒 → Notifications → Allow দিন।</div>';
+  return '<div class="ppush"><div>🔔 পরীক্ষার সময়সূচি বদল বা নতুন কোনো আপডেট এলে ফোনে নোটিফিকেশন পেতে চালু করুন।</div><button class="go alt" id="pon" onclick="pushOn(this)">নোটিফিকেশন চালু করুন</button><div class="perr" id="perr"></div></div>';
+}
+function swReg() {
+  return navigator.serviceWorker.register('sw.js', { scope: './' }).then(function (reg) {
+    if (reg.active) return reg;
+    return new Promise(function (res) { var w = reg.installing || reg.waiting; if (!w) return res(reg); w.addEventListener('statechange', function () { if (w.state === 'activated') res(reg); }); setTimeout(function () { res(reg); }, 8000); });
+  });
+}
+function pushOn(btn) {
+  var e1 = document.getElementById('perr'); btn.disabled = true; btn.textContent = 'চালু হচ্ছে…'; if (e1) e1.textContent = '';
+  var web;
+  call('apiPortalPushCfg', []).then(function (c) {
+    if (!c.ready) throw new Error('নোটিফিকেশন এখনো চালু করা যাচ্ছে না — পরে আবার চেষ্টা করুন।');
+    web = c.web; return Notification.requestPermission();
+  }).then(function (perm) {
+    if (perm !== 'granted') throw new Error(perm === 'denied' ? 'নোটিফিকেশন ব্লক করা — ঠিকানার পাশের 🔒 → Notifications → Allow দিন।' : 'অনুমতি দেওয়া হয়নি।');
+    return Promise.all([swReg(), import(FB + 'firebase-app.js'), import(FB + 'firebase-messaging.js')]);
+  }).then(function (m) {
+    var app = m[1].getApps().filter(function (a) { return a.name === 'recruit'; })[0] || m[1].initializeApp(web, 'recruit');
+    return m[2].getToken(m[2].getMessaging(app), { serviceWorkerRegistration: m[0] });
+  }).then(function (tok) {
+    if (!tok) throw new Error('নোটিফিকেশন চালু করা যায়নি — আবার চেষ্টা করুন।');
+    return call('apiPortalPushSub', [TOK, tok, navigator.userAgent.slice(0, 60)]).then(function () { pushTok(tok); });
+  }).then(function () { load(); }).catch(function (e) {
+    btn.disabled = false; btn.textContent = 'নোটিফিকেশন চালু করুন'; if (e1) e1.textContent = (e && e.message) || 'হয়নি — আবার চেষ্টা করুন।';
+  });
+}
+function pushOff(quiet) {
+  var t = pushTok(); if (!t) return;
+  pushTok(''); call('apiPortalPushOff', [t]).catch(function () {});
+  if (canPush()) navigator.serviceWorker.getRegistration('./').then(function (r) { return r && r.pushManager.getSubscription().then(function (s) { return s && s.unsubscribe(); }); }).catch(function () {});
+  if (!quiet) load();
+}
 // ফোনে "ইনস্টল" — ব্রাউজার সুযোগ দিলে বোতাম দেখায়
 window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); INSTALL = e; document.querySelectorAll('.pinst').forEach(function (b) { b.classList.remove('hide'); }); });
 function installBtn() { return '<button class="go alt pinst' + (INSTALL ? '' : ' hide') + '" onclick="doInstall()">📲 ওয়েব অ্যাপ হিসেবে ইনস্টল করুন</button>'; }
@@ -327,13 +399,13 @@ function showPortal(d) {
     var cls = i < d.stage || (d.done && i === d.stage) ? 'done' : i === d.stage ? (d.stop ? 'stop' : 'now') : (d.stop ? 'off' : 'next');
     return '<div class="' + cls + '"><i>' + (cls === 'done' ? '✓' : cls === 'stop' ? '✕' : N(i + 1)) + '</i><span>' + esc(t) + '</span></div>';
   }).join('') + '</div>';
-  var box = d.box ? '<div class="pbox"><small>' + esc(d.box.icon + ' ' + d.box.title) + '</small><dl>' + d.box.rows.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>' + (d.box.note ? '<div class="pnote">ⓘ ' + esc(d.box.note) + '</div>' : '') + '</div>' : '';
+  var box = d.box ? '<div class="pbox"><small>' + esc(d.box.icon + ' ' + d.box.title) + '</small><dl>' + d.box.rows.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + (r[2] ? ' <span class="pchg">পরিবর্তিত</span>' : '') + '</dd>'; }).join('') + '</dl>' + (d.box.note ? '<div class="pnote">ⓘ ' + esc(d.box.note) + '</div>' : '') + '</div>' : '';
   var adm = d.admit ? '<button class="go' + (d.admitMain ? '' : ' alt') + '" onclick="location.hash=TOK+\'/admit\'">🎫 প্রবেশপত্র ডাউনলোড করুন</button>' +
     (d.admitMain ? '' : '<div class="phint">প্রশিক্ষণ ও ডেমো ক্লাসেও প্রবেশপত্রের QR দিয়ে উপস্থিতি নেওয়া হয় — প্রিন্ট কপি সঙ্গে রাখুন।</div>') : '';
   root.innerHTML = hero('আমার আবেদন') + '<div class="box card2 scr">' +
-    '<div class="pwho"><b>' + esc(d.name) + '</b><span>' + (d.roll ? 'রোল ' + esc(d.roll) + ' · ' : '') + esc(d.cs) + '</span></div>' + tl +
+    '<div class="pwho"><b>' + esc(d.name) + '</b><span>' + (d.roll ? 'রোল ' + esc(d.roll) + ' · ' : '') + esc(d.cs) + '</span></div>' + noticesHtml(d.notices || []) + tl +
     '<div class="pnews t-' + esc(d.tone) + '"><small>বর্তমান অবস্থা</small><b>' + esc(d.title) + '</b><p>' + esc(d.msg).replace(/\n/g, '<br>') + '</p></div>' + box + adm + linksRow(d) +
-    installBtn() + '<div class="pout"><a href="#" onclick="logout();return false">লগআউট</a></div></div>';
+    pushCard(d) + installBtn() + '<div class="pout"><a href="#" onclick="logout();return false">লগআউট</a></div></div>';
 }
 function load() {
   var h = (location.hash || '').replace(/^#/, '').trim(), parts = h.split('/');
