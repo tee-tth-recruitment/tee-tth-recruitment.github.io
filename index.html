@@ -801,7 +801,11 @@ var PAGES = [
 var BNAV_PREF = ['home', 'applicants', 'result', 'attend', 'report', 'links', 'demo', 'marks'];
 function allowed(p) { return !p[3] || (p[3] === 'owner' ? S.boot.me.owner : can(p[3])); }
 function pageOf(id) { return PAGES.filter(function (p) { return p[0] === id; })[0]; }
-function go(p) { S.page = p; render(); window.scrollTo(0, 0); try { history.replaceState(null, '', '#' + p); } catch (e) {} }
+function go(p) {
+  // বন্ধ দলের পাতায় গেলে দলটা খুলে দাও (তীর চাপলে আবার বন্ধ করা যায়)
+  var pg = pageOf(p), g = pg && pg[4];
+  if (g && NAVC[g]) { NAVC[g] = false; try { localStorage.setItem('rc_navc', JSON.stringify(NAVC)); } catch (e) {} }
+  S.page = p; render(); window.scrollTo(0, 0); try { history.replaceState(null, '', '#' + p); } catch (e) {} }
 
 // ভাঁজ করা দলগুলো (এই ব্রাউজারে মনে থাকে)
 var NAVC = (function () { try { return JSON.parse(localStorage.getItem('rc_navc') || '{}'); } catch (e) { return {}; } })();
@@ -816,7 +820,7 @@ function drawNav() {
   $('nav').innerHTML = groups.map(function (g) {
     var items = by[g].map(function (p) { return navItem(p, prob); }).join('');
     if (!g) return '<div class="ngrp">' + items + '</div>';
-    var hasOn = by[g].some(function (p) { return p[0] === S.page; }), closed = NAVC[g] && !hasOn;
+    var hasOn = by[g].some(function (p) { return p[0] === S.page; }), closed = !!NAVC[g];   // তীর সবসময় কাজ করে — খোলা পাতার দলও বন্ধ করা যায়
     return '<div class="ngrp' + (closed ? ' shut' : '') + '"><button class="nhead" onclick="navToggle(\'' + g + '\')"><span>' + g + '</span>' + icon('down') + '</button><div class="nitems">' + items + '</div></div>';
   }).join('');
 }
