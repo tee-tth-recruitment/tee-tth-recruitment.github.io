@@ -30,7 +30,8 @@ html,body{margin:0;background:#e9ecf2;font-family:'Noto Sans Bengali',sans-serif
 .b-pass{background:linear-gradient(135deg,#13265a,#24408f);color:#fff;box-shadow:0 0 0 3px #e6c77d inset}
 .b-pass b{color:#e6c77d}
 .b-wait{background:#fff8e1;color:#7a5a12;border:1px solid #f0d58a}
-.b-fail,.b-absent,.b-cancelled,.b-notyet{background:#f1f4fa;color:#3d4866;border:1px solid #dde3f0}
+.b-hired{background:linear-gradient(135deg,#0f3d2e,#13265a);color:#fff;box-shadow:0 0 0 3px #e6c77d inset}.b-hired b{color:#e6c77d}
+.b-fail,.b-absent,.b-cancelled,.b-notyet,.b-dropped{background:#f1f4fa;color:#3d4866;border:1px solid #dde3f0}
 .b-before{background:#13265a;color:#fff}
 .b-before b{color:#e6c77d;font-size:26px}
 .who{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:15px;margin-bottom:14px}
@@ -104,11 +105,13 @@ function show(d) {
       '<button class="go ghost" onclick="form()">ফিরে যান</button>';
     return;
   }
-  var lab = d.state === 'pass' ? '🎉 উত্তীর্ণ' : d.state === 'cancelled' ? 'আবেদন বাতিল' : d.state === 'notyet' ? 'এখনো প্রকাশ হয়নি' : d.label;
+  var lab = d.state === 'hired' ? '🎉 চূড়ান্ত নিয়োগ' : d.state === 'pass' ? '🎉 উত্তীর্ণ' : d.state === 'cancelled' ? 'আবেদন বাতিল' : d.state === 'notyet' ? 'এখনো প্রকাশ হয়নি' : d.label;
   root.innerHTML = '<div class="badge b-' + esc(d.state) + '"><small>আপনার ফল</small><b>' + esc(lab) + '</b></div>' +
     '<dl class="who"><dt>নাম</dt><dd>' + esc(d.name) + '</dd><dt>রোল</dt><dd>' + esc(d.roll) + '</dd><dt>শ্রেণি-বিষয়</dt><dd>' + esc(d.cs) + '</dd></dl>' +
     '<div class="msg">' + esc(d.msg).replace(/\n/g, '<br>') + '</div>' +
-    (d.train ? '<div class="train"><small>📅 প্রশিক্ষণ ও ডেমো ক্লাস</small><dl><dt>দিন</dt><dd>' + esc(d.train.date) + '</dd><dt>সময়</dt><dd>' + esc(d.train.time) + '</dd><dt>স্থান</dt><dd>' + esc(d.train.venue) + '</dd></dl></div>' : '') + linksHtml(d) +
+    (d.hire ? '<div class="train"><small>🏫 আপনার নিয়োগ</small><dl><dt>যোগদান</dt><dd>' + esc(d.hire.join) + '</dd><dt>শাখা</dt><dd>' + esc(d.hire.branch) + '</dd><dt>ব্যাচ</dt><dd>' + esc(d.hire.batch) + '</dd></dl></div>' : '') +
+    (d.demo ? '<div class="train"><small>👩‍🏫 ছাত্রছাত্রীদের সাথে ডেমো ক্লাস</small><dl><dt>তারিখ</dt><dd>' + esc(d.demo.date) + '</dd>' + (d.demo.time ? '<dt>সময়</dt><dd>' + esc(d.demo.time) + '</dd>' : '') + '<dt>শাখা</dt><dd>' + esc(d.demo.branch) + '</dd><dt>ব্যাচ</dt><dd>' + esc(d.demo.batch) + '</dd></dl></div>' : '') +
+    (d.train && !d.demo ? '<div class="train"><small>📅 প্রশিক্ষণ ও ডেমো ক্লাস</small><dl><dt>দিন</dt><dd>' + esc(d.train.date) + '</dd><dt>সময়</dt><dd>' + esc(d.train.time) + '</dd><dt>স্থান</dt><dd>' + esc(d.train.venue) + '</dd></dl></div>' : '') + linksHtml(d) +
     '<button class="go ghost" onclick="location.hash=\'\';form()">অন্য রোল দেখুন</button>';
 }
 function load() {

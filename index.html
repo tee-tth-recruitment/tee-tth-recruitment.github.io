@@ -280,6 +280,13 @@ table.rm td{vertical-align:middle}
 .trchips{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}.trchips .chip{cursor:grab;white-space:normal}
 .pnp{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--card2)}
 .pnsubs{display:flex;flex-wrap:wrap;gap:6px}.pnsubs .chip{white-space:normal}
+
+.dmsubs{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.dmsubs button{text-align:left;border:1px solid var(--line);background:var(--card2);color:inherit;border-radius:12px;padding:10px 12px;cursor:pointer}
+.dmsubs button.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.dmsubs b{display:block}.dmsubs small{color:var(--tx3);font-size:12.5px}
+.dmnext{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.dmnext>div{flex:1;min-width:200px}.dmnext small{display:block;color:var(--tx3)}.dmnext b{display:block;font-size:20px}.dmnext span{color:var(--tx2);font-size:13.5px}
 </style>
 </head>
 <body>
@@ -453,9 +460,10 @@ var PAGES = [
   ['seat', 'আসন বিন্যাস', 'grid', 'seat'],
   ['attend', 'উপস্থিতি', 'check', 'attend'],
   ['marks', 'নম্বর তোলা', 'num', 'marks'],
-  ['result', 'ফলাফল', 'award', 'result'],
+  ['result', 'ফলাফল', 'check', 'result'],
   ['training', 'প্রশিক্ষণ', 'cal', 'training'],
   ['panel', 'প্যানেলের নম্বর', 'clip', 'panel'],
+  ['demo', 'ডেমো ক্লাস ও নিয়োগ', 'award', 'demo'],
   ['settings', 'সেটিংস', 'set', 'settings'],
   ['sms', 'SMS', 'sms', 'sms'],
   ['users', 'ব্যবহারকারী', 'key', 'owner'],
@@ -1620,7 +1628,7 @@ function rsDraw() {
     '<div class="tiny" style="margin-bottom:10px">ঘর: {নাম} {রোল} {শ্রেণি} {বিষয়} {প্রশিক্ষণের তারিখ}। ফলাফলের পাতায় প্রার্থী এই লেখা দেখবেন।</div><div class="grid g2">' +
     fld('rtPass', 'উত্তীর্ণ — পাতার লেখা', T.pass, true) + fld('rtWait', 'অপেক্ষমাণ — পাতার লেখা', T.wait, true) +
     fld('rtFail', 'অনুত্তীর্ণ — পাতার লেখা', T.fail, true) + fld('rtAbsent', 'অনুপস্থিত — পাতার লেখা', T.absent, true) +
-    fld('rtNotyet', 'শ্রেণি-বিষয়ের ফল চূড়ান্ত না হলে', T.notyet, true) + fld('rtPassDay', 'উত্তীর্ণ — প্রশিক্ষণের দিন ঠিক হওয়ার পর (নিচে দিন, সময়, স্থান আলাদা বাক্সে দেখায়)', T.passDay, true) + '</div>' +
+    fld('rtNotyet', 'শ্রেণি-বিষয়ের ফল চূড়ান্ত না হলে', T.notyet, true) + fld('rtHired', 'চূড়ান্ত নিয়োগ হলে (নিচে যোগদানের তথ্য আলাদা বাক্সে)', T.hired, true) + fld('rtDropped', 'ডেমো ক্লাসের পর বাদ পড়লে', T.dropped, true) + fld('rtPassDay', 'উত্তীর্ণ — প্রশিক্ষণের দিন ঠিক হওয়ার পর (নিচে দিন, সময়, স্থান আলাদা বাক্সে দেখায়)', T.passDay, true) + '</div>' +
     '<div style="margin:14px 0 8px">' + sw('rmOn', M.on, ' ফলের ইমেইল — উত্তীর্ণ ও অপেক্ষমাণদের (প্রকাশের পর নিজে যায়)') + '</div>' +
     '<div class="tiny" style="margin-bottom:10px">অনুত্তীর্ণ ও অনুপস্থিতরা ইমেইল পান না — তাঁরা পাতা ও ফেসবুক থেকে জানবেন। Gmail-এ দিনে প্রায় ১০০টা যায়; বেশি হলে বাকিগুলো পরদিন নিজে যায়। ' +
     (d.published ? 'এখন বাকি: <b>' + N(d.mailTodo) + 'টি</b> · আজকের সীমায় বাকি: ' + N(d.mailLeft) : 'আজকের সীমায় বাকি: ' + N(d.mailLeft)) + '</div><div class="grid g2">' +
@@ -1633,7 +1641,7 @@ function rsDraw() {
 }
 function rsSaveShort(btn) { busy(btn, callServer('apiSaveSettings', [{ resultShort: $('rsShort').value.trim() }])).then(function (r) { RS.st.short = r.settings.resultShort; S.boot.settings = r.settings; rsDraw(); toast('সেভ হয়েছে — QR ও কপি এখন এই লিংকের'); }); }
 function rsSaveText(btn) {
-  var text = { pass: $('rtPass').value, wait: $('rtWait').value, fail: $('rtFail').value, absent: $('rtAbsent').value, notyet: $('rtNotyet').value, passDay: $('rtPassDay').value };
+  var text = { pass: $('rtPass').value, wait: $('rtWait').value, fail: $('rtFail').value, absent: $('rtAbsent').value, notyet: $('rtNotyet').value, passDay: $('rtPassDay').value, hired: $('rtHired').value, dropped: $('rtDropped').value };
   var mail = { on: $('rmOn').checked, passSubject: $('rmPassS').value, pass: $('rmPass').value, waitSubject: $('rmWaitS').value, wait: $('rmWait').value };
   busy(btn, callServer('apiSaveSettings', [{ resultText: text, resultMail: mail }])).then(function (r) { S.boot.settings = r.settings; RS.st.text = text; RS.st.mail = mail; toast('সেভ হয়েছে'); });
 }
@@ -2097,6 +2105,187 @@ function pnCsv() {
   b.groups.forEach(function (g) { g.people.forEach(function (p) { rows.push([g.cls, g.subject, g.panel, p.rank || '', p.roll, p.name, b.days[p.day] || '', g.members.map(function (m, i) { return m + ': ' + (p.tots[i] == null ? '—' : p.tots[i]); }).join(' | '), p.avg == null ? '' : p.avg]); }); });
   var csv = rows.map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
   var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); a.download = 'panel-medhakrom.csv'; a.click();
+}
+
+/* ═════════════ ডেমো ক্লাস ও নিয়োগ — সারি, ডেমো দেওয়া, ফল, শিক্ষক-ভান্ডার, শাখা ও ইমেইল ═════════════ */
+var DM = { st: null, tab: 'queue', sub: '', pool: null, pf: { q: '', branch: '', view: 'hired' } };
+try { DM.sub = localStorage.getItem('rc_dm_sub') || ''; } catch (e) {}
+var DM_ST = { wait: ['অপেক্ষায়', ''], scheduled: ['ডেমো ঠিক হয়েছে', 'info'], hired: ['নিয়োগ হয়েছে', 'ok'], dropped: ['বাদ', 'bad'] };
+var DM_RES = { scheduled: 'ঠিক হয়েছে', success: 'সফল', again: 'আরেকবার সুযোগ', reject: 'বাদ', cancelled: 'বাতিল' };
+
+function page_demo() {
+  return '<div class="ph"><h2>ডেমো ক্লাস ও নিয়োগ</h2><span class="sp"></span><button class="btn sm" onclick="dmLoad(this)">' + icon('renew') + 'হালনাগাদ</button></div>' +
+    '<div class="tabs" id="dmTabs"></div><div id="dmBox"><div class="loading"><span class="spin"></span></div></div>';
+}
+function after_demo() { dmTabs(); if (DM.st) dmDraw(); dmLoad(); }
+function dmTabs() {
+  $('dmTabs').innerHTML = [['queue', 'ক্লাসের সারি'], ['pool', 'শিক্ষক-ভান্ডার'], ['set', 'শাখা ও ইমেইল']].map(function (t) {
+    return '<button class="' + (DM.tab === t[0] ? 'on' : '') + '" onclick="DM.tab=\'' + t[0] + '\';dmTabs();dmDraw()">' + t[1] + '</button>'; }).join('');
+}
+function dmLoad(btn) {
+  var p = Promise.all([callServer('apiDemoState'), DM.tab === 'pool' ? callServer('apiPool') : Promise.resolve(DM.pool)]);
+  (btn ? busy(btn, p) : p).then(function (r) { DM.st = r[0]; DM.pool = r[1]; dmDraw(); }, function (e) { authFail(e); if (!btn && $('dmBox')) $('dmBox').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+}
+function dmDraw() {
+  if (!DM.st || !$('dmBox')) return;
+  if (DM.tab === 'pool') { if (!DM.pool) { $('dmBox').innerHTML = '<div class="loading"><span class="spin"></span></div>'; callServer('apiPool').then(function (p) { DM.pool = p; dmDraw(); }); return; } return dmPool(); }
+  if (DM.tab === 'set') return dmSet();
+  dmQueue();
+}
+function dmAvg(p) { return p.avg == null ? '—' : N(p.avg); }
+
+/* ---------- সারি ---------- */
+function dmQueue() {
+  var subs = DM.st.subs, h = '';
+  if (!subs.length) { $('dmBox').innerHTML = '<div class="empty">এখনো কোনো উত্তীর্ণ প্রার্থী নেই — আগে লিখিত ফল ও প্রশিক্ষণ শেষ করুন।</div>'; return; }
+  if (!subs.some(function (g) { return g.id === DM.sub; })) DM.sub = subs[0].id;
+  h += '<div class="card"><div class="dmsubs">' + subs.map(function (g) {
+    return '<button class="' + (g.id === DM.sub ? 'on' : '') + '" onclick="DM.sub=\'' + g.id + '\';try{localStorage.setItem(\'rc_dm_sub\',\'' + g.id + '\')}catch(e){};dmDraw()"><b>' + esc(g.cls + ' — ' + g.subject) + '</b>' +
+      '<small>নিয়োগ ' + N(g.c.hired) + ' · ডেমো ঠিক ' + N(g.c.scheduled) + ' · অপেক্ষায় ' + N(g.c.wait) + '</small></button>';
+  }).join('') + '</div></div>';
+  var g = subs.filter(function (x) { return x.id === DM.sub; })[0], next = g.queue.filter(function (p) { return p.roll === g.next; })[0];
+  // পরের জন
+  h += '<div class="card"><h3>' + icon('users') + 'শিক্ষক চাই — ' + esc(g.cls + ' — ' + g.subject) + '</h3>' + (next ?
+    '<div class="dmnext"><div><small>সারির পরের জন</small><b>' + esc(next.name) + '</b><span>রোল ' + N(next.roll) + ' · মেধাক্রম ' + (next.rank ? N(next.rank) : '—') + ' · প্যানেলের গড় ' + dmAvg(next) + (next.demos.length ? ' · আগের ডেমো ' + N(next.demos.length) + 'টি' : '') + '</span></div>' +
+    '<button class="btn ok" onclick="dmAssign(\'' + next.roll + '\',false)">' + icon('send') + 'ডেমো ক্লাস দিন</button></div>' :
+    '<div class="empty" style="padding:16px">এই শ্রেণি-বিষয়ে অপেক্ষায় আর কেউ নেই।</div>') + '</div>';
+  // পুরো সারি
+  h += '<div class="card"><h3>' + icon('grid') + 'পুরো সারি <span class="chip">' + N(g.queue.length) + '</span></h3><div class="tw"><table class="t"><tr><th>ক্রম</th><th>রোল</th><th>নাম</th><th class="r">গড়</th><th>অবস্থা</th><th></th></tr>' +
+    g.queue.map(function (p) {
+      var st = DM_ST[p.state] || ['', ''], open = p.demos.filter(function (d) { return d.id === p.open; })[0], act = '';
+      if (p.state === 'scheduled') act = '<button class="btn sm ok" onclick="dmOutcome(\'' + p.open + '\',\'' + p.roll + '\')">ফল দিন</button><button class="btn sm ghost" onclick="dmCancel(this,\'' + p.open + '\')">বাতিল</button>';
+      else if (p.state === 'wait' && p.roll !== g.next) act = '<button class="btn sm" onclick="dmAssign(\'' + p.roll + '\',true)">ডেমো দিন</button>';
+      else if (p.state === 'wait') act = '<button class="btn sm ok" onclick="dmAssign(\'' + p.roll + '\',false)">ডেমো দিন</button>';
+      else if (p.state === 'hired') act = '<button class="btn sm" onclick="dmHireEdit(\'' + p.roll + '\')">তথ্য বদল</button>';
+      else if (p.state === 'dropped') act = '<button class="btn sm ghost" onclick="dmUndoDrop(this,\'' + p.roll + '\')">আবার সারিতে</button>';
+      var sub = open ? N(ymdBn(open.date)) + (open.time ? ' ' + trHm(open.time) : '') + ' · ' + esc(open.branch) + ' / ' + esc(open.batch) + (open.emailed ? ' · ইমেইল গেছে' : '') :
+        p.state === 'hired' ? 'যোগদান ' + N(ymdBn(p.joinDate)) + ' · ' + esc(p.hireBranch) + ' / ' + esc(p.hireBatch) : p.state === 'dropped' ? esc(p.dropReason) : '';
+      var hist = p.demos.filter(function (d) { return d.status !== 'scheduled'; }).map(function (d) {
+        return N(ymdBn(d.date)) + ' · ' + esc(d.branch) + ' — ' + esc(DM_RES[d.status] || d.status) + (d.marks !== '' && d.marks != null ? ' (নম্বর ' + N(d.marks) + ')' : '') + (d.comment ? ' · ' + esc(d.comment) : '') + (d.skip ? ' · সারি ডিঙানো: ' + esc(d.skip) : ''); }).join('<br>');
+      return '<tr' + (p.roll === g.next ? ' style="background:var(--card2)"' : '') + '><td>' + (p.rank ? N(p.rank) : '') + '</td><td style="font-weight:800;color:var(--acc)">' + N(p.roll) + '</td><td>' + esc(p.name) +
+        (sub ? '<div class="tiny">' + sub + '</div>' : '') + (hist ? '<div class="tiny" style="opacity:.8">' + hist + '</div>' : '') + '</td><td class="r">' + dmAvg(p) + '</td><td><span class="chip ' + st[1] + '">' + st[0] + '</span></td><td style="white-space:nowrap">' + act + '</td></tr>';
+    }).join('') + '</table></div><div class="tiny" style="margin-top:8px">ক্রম = প্রশিক্ষণ ও ডেমো ক্লাসে প্যানেলের গড় নম্বরের মেধাক্রম। "আরেকবার সুযোগ" পেলে প্রার্থী নিজের জায়গায় আবার অপেক্ষায় থাকেন।</div></div>';
+  $('dmBox').innerHTML = h;
+}
+function dmPerson(roll) { var x = null; DM.st.subs.forEach(function (g) { g.queue.forEach(function (p) { if (p.roll === roll) x = p; }); }); return x; }
+function dmBranchOpts(sel) { return DM.st.branches.map(function (b) { return '<option' + (b === sel ? ' selected' : '') + '>' + esc(b) + '</option>'; }).join(''); }
+function dmAssign(roll, skip) {
+  var p = dmPerson(roll), today = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
+  modal('<div class="md"><h3 style="margin:0 0 4px">ডেমো ক্লাস দিন</h3><div class="muted">' + esc(p.name) + ' · রোল ' + N(p.roll) + '</div>' +
+    '<div class="grid g2" style="margin-top:10px"><div class="fld"><label>তারিখ</label><input class="in" type="date" id="daDate" value="' + today + '"></div><div class="fld"><label>সময়</label><input class="in" type="time" id="daTime" value="16:00"></div>' +
+    '<div class="fld"><label>শাখা</label><select class="sel" id="daBranch">' + dmBranchOpts('') + '</select></div><div class="fld"><label>ব্যাচ</label><input class="in" id="daBatch" placeholder="যেমন: ৯ম গণিত, বিকাল ৪টা"></div></div>' +
+    '<div class="fld"><label>নোট (ঐচ্ছিক)</label><input class="in" id="daNote"></div>' +
+    (skip ? '<div class="fld"><label>সারির আগের জনকে বাদ দিয়ে কেন? (জরুরি)</label><input class="in" id="daSkip" placeholder="যেমন: আগের জন এই সময়ে পারবেন না"></div>' : '') +
+    '<div class="tiny">' + (DM.st.mail.on ? 'সেভ করলে প্রার্থীর কাছে ইমেইল যাবে, আর ফলাফলের পাতায় দেখাবে।' : 'ডেমোর ইমেইল বন্ধ — শুধু ফলাফলের পাতায় দেখাবে।') + '</div>' +
+    '<div class="btns" style="justify-content:flex-end;margin-top:14px"><button class="btn" onclick="closeLayer()">ফিরে যান</button><button class="btn pri" id="daGo">সেভ</button></div></div>');
+  $('daGo').onclick = function () {
+    var o = { date: $('daDate').value, time: $('daTime').value, branch: $('daBranch').value, batch: $('daBatch').value, note: $('daNote').value, skipReason: skip ? $('daSkip').value : '' };
+    busy(this, callServer('apiDemoAssign', [roll, o])).then(function (st) { DM.st = st; DM.pool = null; closeLayer(); dmDraw(); toast('ডেমো ক্লাস ঠিক হয়েছে'); });
+  };
+}
+function dmOutcome(id, roll) {
+  var p = dmPerson(roll), d = p.demos.filter(function (x) { return x.id === id; })[0];
+  modal('<div class="md"><h3 style="margin:0 0 4px">ডেমো ক্লাসের ফল</h3><div class="muted">' + esc(p.name) + ' · ' + N(ymdBn(d.date)) + ' · ' + esc(d.branch) + ' / ' + esc(d.batch) + '</div>' +
+    '<div class="tabs" style="margin-top:12px" id="doRes">' + [['success', 'সফল — নিয়োগ'], ['again', 'আরেকবার সুযোগ'], ['reject', 'বাদ']].map(function (r) { return '<button data-r="' + r[0] + '">' + r[1] + '</button>'; }).join('') + '</div>' +
+    '<div id="doHire" class="hide"><div class="grid g2"><div class="fld"><label>যোগদানের তারিখ (বেতন শুরু)</label><input class="in" type="date" id="doJoin"></div><div class="fld"><label>শাখা</label><select class="sel" id="doBranch">' + dmBranchOpts(d.branch) + '</select></div></div>' +
+    '<div class="grid g2"><div class="fld"><label>ব্যাচ</label><input class="in" id="doBatch" value="' + esc(d.batch) + '"></div><div class="fld"><label>নিয়োগের নোট (ঐচ্ছিক)</label><input class="in" id="doHNote"></div></div></div>' +
+    '<div id="doRej" class="hide"><div class="fld"><label>বাদের কারণ (প্রার্থী দেখবেন না)</label><input class="in" id="doWhy"></div></div>' +
+    '<div class="grid g2"><div class="fld"><label>নম্বর (ঐচ্ছিক)</label><input class="in" id="doMarks" inputmode="decimal"></div><div class="fld"><label>মন্তব্য (ঐচ্ছিক)</label><input class="in" id="doCom"></div></div>' +
+    '<div class="tiny">নম্বর শুধু রেকর্ডের জন্য — ক্রম বা সিদ্ধান্ত এতে নিজে বদলায় না।</div>' +
+    '<div class="btns" style="justify-content:flex-end;margin-top:14px"><button class="btn" onclick="closeLayer()">ফিরে যান</button><button class="btn pri" id="doGo">সেভ</button></div></div>');
+  var R = '';
+  $('doRes').querySelectorAll('button').forEach(function (b) { b.onclick = function () { R = b.getAttribute('data-r'); $('doRes').querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); }); $('doHire').classList.toggle('hide', R !== 'success'); $('doRej').classList.toggle('hide', R !== 'reject'); }; });
+  $('doGo').onclick = function () {
+    if (!R) return toast('ফল বাছুন।');
+    var o = { result: R, marks: enNum($('doMarks').value), comment: $('doCom').value, joinDate: $('doJoin').value, branch: $('doBranch').value, batch: $('doBatch').value, hireNote: $('doHNote').value, reason: $('doWhy').value };
+    busy(this, callServer('apiDemoOutcome', [id, o])).then(function (st) { DM.st = st; DM.pool = null; closeLayer(); dmDraw(); toast(R === 'success' ? 'চূড়ান্ত নিয়োগ হয়েছে' : 'সেভ হয়েছে'); });
+  };
+}
+function dmCancel(btn, id) {
+  confirmBox('এই ডেমো বাতিল?', 'ভুল করে ঠিক করা হলে বাতিল করুন — প্রার্থী আবার অপেক্ষায় যাবেন। (ইমেইল আগে চলে গেলে প্রার্থীকে ফোনে জানাবেন।)', 'বাতিল করুন').then(function (ok) {
+    if (ok) busy(btn, callServer('apiDemoCancel', [id])).then(function (st) { DM.st = st; dmDraw(); toast('বাতিল হয়েছে'); });
+  });
+}
+function dmHireEdit(roll) {
+  var p = dmPerson(roll);
+  modal('<div class="md"><h3 style="margin:0 0 4px">নিয়োগের তথ্য</h3><div class="muted">' + esc(p.name) + ' · রোল ' + N(p.roll) + '</div>' +
+    '<div class="grid g2" style="margin-top:10px"><div class="fld"><label>যোগদানের তারিখ</label><input class="in" type="date" id="heJoin" value="' + esc(p.joinDate) + '"></div><div class="fld"><label>শাখা</label><select class="sel" id="heBranch">' + dmBranchOpts(p.hireBranch) + '</select></div></div>' +
+    '<div class="fld"><label>ব্যাচ</label><input class="in" id="heBatch" value="' + esc(p.hireBatch) + '"></div><div class="fld"><label>নোট</label><input class="in" id="heNote"></div>' +
+    '<div class="btns" style="justify-content:flex-end;margin-top:14px"><button class="btn" onclick="closeLayer()">ফিরে যান</button><button class="btn pri" id="heGo">সেভ</button></div></div>');
+  $('heGo').onclick = function () {
+    busy(this, callServer('apiHireEdit', [roll, { joinDate: $('heJoin').value, branch: $('heBranch').value, batch: $('heBatch').value, note: $('heNote').value }])).then(function (st) { DM.st = st; DM.pool = null; closeLayer(); dmDraw(); toast('সেভ হয়েছে'); });
+  };
+}
+function dmUndoDrop(btn, roll) {
+  confirmBox('আবার সারিতে?', 'প্রার্থী নিজের মেধাক্রমের জায়গায় আবার অপেক্ষায় যাবেন।', 'হ্যাঁ').then(function (ok) {
+    if (ok) busy(btn, callServer('apiHireEdit', [roll, { undoDrop: true }])).then(function (st) { DM.st = st; dmDraw(); toast('আবার সারিতে'); });
+  });
+}
+
+/* ---------- শিক্ষক-ভান্ডার ---------- */
+function dmPoolRows() {
+  var f = DM.pf, q = enNum(f.q).toLowerCase(), L = f.view === 'hired' ? DM.pool.hired : DM.pool.reserve;
+  return L.filter(function (p) {
+    if (f.branch && p.branch !== f.branch) return false;
+    if (q && (p.roll + ' ' + p.name + ' ' + p.mobile + ' ' + p.cls + ' ' + p.subject + ' ' + (p.batch || '')).toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  });
+}
+function dmPool() {
+  var P = DM.pool, f = DM.pf;
+  var h = '<div class="card"><div class="tabs">' + [['hired', 'নিয়োগপ্রাপ্ত শিক্ষক', P.hired.length], ['reserve', 'রিজার্ভ (সারিতে বাকি)', P.reserve.length]].map(function (t) {
+    return '<button class="' + (f.view === t[0] ? 'on' : '') + '" onclick="DM.pf.view=\'' + t[0] + '\';dmPool()">' + t[1] + '<span>' + N(t[2]) + '</span></button>'; }).join('') + '</div>' +
+    '<div class="bar"><input class="in" id="poQ" placeholder="নাম, রোল, মোবাইল, শ্রেণি, বিষয়, ব্যাচ…" value="' + esc(f.q) + '">' +
+    (f.view === 'hired' ? '<select class="sel" id="poB"><option value="">সব শাখা</option>' + P.branches.map(function (b) { return '<option' + (f.branch === b ? ' selected' : '') + '>' + esc(b) + '</option>'; }).join('') + '</select>' : '') +
+    '<button class="btn sm" onclick="dmPoolPrint()">' + icon('dl') + 'ছাপা</button><button class="btn sm" onclick="dmPoolCsv()">' + icon('dl') + 'এক্সেল</button></div><div id="poList"></div></div>';
+  $('dmBox').innerHTML = h;
+  $('poQ').oninput = function () { DM.pf.q = this.value; dmPoolList(); };
+  if ($('poB')) $('poB').onchange = function () { DM.pf.branch = this.value; dmPoolList(); };
+  dmPoolList();
+}
+function dmPoolList() {
+  var L = dmPoolRows(), hired = DM.pf.view === 'hired';
+  $('poList').innerHTML = L.length ? '<div class="tw"><table class="t"><tr><th>রোল</th><th>নাম</th><th>শ্রেণি-বিষয়</th><th>মোবাইল</th>' + (hired ? '<th>শাখা / ব্যাচ</th><th>যোগদান</th>' : '<th>মেধাক্রম</th><th>অবস্থা</th>') + '</tr>' +
+    L.map(function (p) {
+      return '<tr><td style="font-weight:800;color:var(--acc)">' + N(p.roll) + '</td><td>' + esc(p.name) + '</td><td>' + esc(p.cls + ' — ' + p.subject) + '</td><td>' + N(p.mobile) + '</td>' +
+        (hired ? '<td>' + esc(p.branch) + '<div class="tiny">' + esc(p.batch) + '</div></td><td>' + N(ymdBn(p.joinDate)) + '</td>' : '<td>' + (p.rank ? N(p.rank) : '—') + '</td><td><span class="chip ' + (DM_ST[p.state] || ['', ''])[1] + '">' + (DM_ST[p.state] || [''])[0] + '</span></td>') + '</tr>';
+    }).join('') + '</table></div>' : '<div class="empty">কেউ নেই।</div>';
+}
+function dmPoolPrint() {
+  var L = dmPoolRows(), hired = DM.pf.view === 'hired', w = window.open('', '_blank'); if (!w) return toast('পপ-আপ চালু করুন');
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>শিক্ষক-ভান্ডার</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;800&display=swap" rel="stylesheet"><style>' + SE_CSS + '</style></head><body><div class="pg">' +
+    '<div class="hd"><div><h1>শিক্ষক-ভান্ডার — ' + (hired ? 'নিয়োগপ্রাপ্ত শিক্ষক' : 'রিজার্ভ') + '</h1><h2>' + esc(DM.pool.orgNames) + (DM.pf.branch ? ' · ' + esc(DM.pf.branch) : '') + '</h2></div><div class="big">' + N(L.length) + ' জন</div></div>' +
+    '<table><tr><th style="width:10mm">ক্রম</th><th style="width:20mm">রোল</th><th>নাম</th><th>শ্রেণি-বিষয়</th><th style="width:28mm">মোবাইল</th>' + (hired ? '<th>শাখা / ব্যাচ</th><th style="width:24mm">যোগদান</th>' : '<th style="width:18mm">মেধাক্রম</th>') + '</tr>' +
+    L.map(function (p, i) { return '<tr><td>' + N(i + 1) + '</td><td><b>' + N(p.roll) + '</b></td><td>' + esc(p.name) + '</td><td>' + esc(p.cls + ' — ' + p.subject) + '</td><td>' + N(p.mobile) + '</td>' + (hired ? '<td>' + esc(p.branch) + ' / ' + esc(p.batch) + '</td><td>' + N(ymdBn(p.joinDate)) + '</td>' : '<td>' + (p.rank ? N(p.rank) : '—') + '</td>') + '</tr>'; }).join('') +
+    '</table><div class="ft"><span>তৈরি: ' + dtx(Date.now()) + '</span><span>' + esc(DM.pool.title) + '</span></div></div><script>(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.print()},300)})<\/script></body></html>');
+  w.document.close();
+}
+function dmPoolCsv() {
+  var L = dmPoolRows(), hired = DM.pf.view === 'hired';
+  var rows = [['রোল', 'নাম', 'শ্রেণি', 'বিষয়', 'মোবাইল', 'ইমেইল'].concat(hired ? ['শাখা', 'ব্যাচ', 'যোগদানের তারিখ'] : ['মেধাক্রম', 'প্যানেলের গড়', 'অবস্থা'])].concat(L.map(function (p) {
+    return [p.roll, p.name, p.cls, p.subject, p.mobile, p.email].concat(hired ? [p.branch, p.batch, p.joinDate] : [p.rank || '', p.avg == null ? '' : p.avg, (DM_ST[p.state] || [''])[0]]); }));
+  var csv = rows.map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
+  var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); a.download = hired ? 'shikkhok-vandar.csv' : 'reserve.csv'; a.click();
+}
+
+/* ---------- শাখা ও ইমেইল ---------- */
+function dmSet() {
+  var st = DM.st, M = st.mail;
+  $('dmBox').innerHTML = '<div class="card"><h3>' + icon('grid') + 'শাখার তালিকা</h3>' + fld('dsBr', 'প্রতি লাইনে একটা শাখা', st.branches.join('\n'), true) +
+    '<button class="btn pri" onclick="dmSaveBr(this)">সেভ</button></div>' +
+    '<div class="card"><h3>' + icon('sms') + 'ইমেইল</h3><div class="tiny" style="margin-bottom:10px">ঘর: {নাম} {রোল} {শ্রেণি} {বিষয়} {ডেমোর তারিখ} {ডেমোর সময়} {শাখা} {ব্যাচ} {যোগদানের তারিখ}। পাঠানো বাকি: ' + N(st.pending) + 'টি · আজকের সীমায় বাকি: ' + N(st.mailLeft) + '</div>' +
+    '<div style="margin-bottom:8px">' + sw('dsOn', M.on, ' ডেমো ক্লাস ঠিক হলে প্রার্থীকে ইমেইল') + '</div>' + fld('dsS', 'বিষয়', M.subject) + fld('dsB', 'ইমেইল', M.body, true) +
+    '<div style="margin:12px 0 8px">' + sw('dsHOn', M.hireOn, ' চূড়ান্ত নিয়োগ হলে অভিনন্দনের ইমেইল') + '</div>' + fld('dsHS', 'বিষয়', M.hireSubject) + fld('dsH', 'ইমেইল', M.hire, true) +
+    '<button class="btn pri" style="margin-top:10px" onclick="dmSaveMail(this)">সেভ</button></div>';
+}
+function dmSaveBr(btn) {
+  var b = $('dsBr').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
+  if (!b.length) return toast('অন্তত একটা শাখা দিন।');
+  busy(btn, callServer('apiSaveSettings', [{ branches: b }])).then(function (r) { S.boot.settings = r.settings; DM.st.branches = b; toast('সেভ হয়েছে'); });
+}
+function dmSaveMail(btn) {
+  var m = { on: $('dsOn').checked, subject: $('dsS').value, body: $('dsB').value, hireOn: $('dsHOn').checked, hireSubject: $('dsHS').value, hire: $('dsH').value };
+  busy(btn, callServer('apiSaveSettings', [{ demoMail: m }])).then(function (r) { S.boot.settings = r.settings; DM.st.mail = m; toast('সেভ হয়েছে'); });
 }
 </script>
 </body>
