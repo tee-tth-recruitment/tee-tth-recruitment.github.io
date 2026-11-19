@@ -197,6 +197,8 @@ textarea.in{min-height:90px;resize:vertical;line-height:1.55}
 table.t{width:100%;border-collapse:collapse;font-size:14px}
 table.t th,table.t td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 table.t th{color:var(--tx2);font-weight:600;font-size:13px}
+table.t th.r,table.t td.r{text-align:right}
+#mkBox table.t td{vertical-align:middle;padding:5px 10px}#mkBox input.mk{padding:7px 8px;font-size:16px}#rsGrp table.t td{vertical-align:middle;padding:6px 10px}
 .tw{overflow:auto}
 
 /* শ্রেণি-বিষয় */
@@ -343,6 +345,7 @@ var ICONS = {
   alert: 'M12 9v4|M12 17h.01|M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
   edit: 'M4 20h4L19 9l-4-4L4 16z|m13.5 6.5 4 4', send: 'M22 2 11 13|M22 2 15 22l-4-9-9-4z', out: 'M15 4h4v16h-4|M10 8l-4 4 4 4|M6 12h10',
   menu: 'M4 6h16|M4 12h16|M4 18h16', grid: 'M4 4h7v7H4z|M13 4h7v7h-7z|M4 13h7v7H4z|M13 13h7v7h-7z', share: 'M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|m8.6 13.5 6.8 4|m15.4 6.5-6.8 4',
+  num: 'M4 9h16|M4 15h16|M10 3 8 21|M16 3l-2 18', award: 'M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12z|M8.2 13.9 7 22l5-3 5 3-1.2-8.1',
   id: 'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z|M9 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z|M6 16c.5-1.5 1.7-2 3-2s2.5.5 3 2|M14 10h4|M14 14h4'
 };
 function icon(n) { return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || '').split('|').map(function (d) { return '<path d="' + d + '"/>'; }).join('') + '</svg>'; }
@@ -439,6 +442,8 @@ var PAGES = [
   ['qedit', 'ফর্মের প্রশ্ন', 'edit', 'form'],
   ['seat', 'আসন বিন্যাস', 'grid', 'seat'],
   ['attend', 'উপস্থিতি', 'check', 'attend'],
+  ['marks', 'নম্বর তোলা', 'num', 'marks'],
+  ['result', 'ফলাফল', 'award', 'result'],
   ['settings', 'সেটিংস', 'set', 'settings'],
   ['sms', 'SMS', 'sms', 'sms'],
   ['users', 'ব্যবহারকারী', 'key', 'owner'],
@@ -1418,6 +1423,348 @@ function atCsv() {
   var csv = [head].concat(L.map(function (p) { return [p.roll, p.name, p.room, p.cs, p.present ? 'উপস্থিত' : 'অনুপস্থিত', p.present ? dtx(p.at) : '', p.by, p.how, p.wrong ? 'হ্যাঁ' : '']; }))
     .map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
   var x = document.createElement('a'); x.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); x.download = 'upasthiti-' + AT.ev + '.csv'; x.click();
+}
+
+/* ═════════════ নম্বর তোলা — শ্রেণি-বিষয় ধরে, Enter চাপলে সেভ হয়ে পরের রোলে ═════════════ */
+var MK = { sub: '', data: null, chain: Promise.resolve(), pend: 0 };
+try { MK.sub = localStorage.getItem('rc_mk_sub') || ''; } catch (e) {}
+window.addEventListener('beforeunload', function (e) { if (MK.pend > 0) { e.preventDefault(); e.returnValue = ''; } });
+
+function mkSubs() { var c = S.boot.counts.bySubject || {}; return S.boot.subjects.filter(function (s) { return c[s.cls + '|' + s.subject]; }); }
+function enNum(x) { return String(x == null ? '' : x).trim().replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); }); }
+
+function page_marks() {
+  var subs = mkSubs();
+  if (!subs.some(function (s) { return s.id === MK.sub; })) MK.sub = subs[0] ? subs[0].id : '';
+  var h = '<div class="ph"><h2>নম্বর তোলা</h2><span class="sp"></span><button class="btn sm" onclick="mkLoad(this)">' + icon('renew') + 'হালনাগাদ</button></div>';
+  if (!subs.length) return h + '<div class="empty">কোনো শ্রেণি-বিষয়ে আবেদন নেই।</div>';
+  h += '<div class="card"><div class="grid g2" style="align-items:end"><div class="fld"><label>শ্রেণি ও বিষয়</label><select class="sel" id="mkSub" onchange="mkPick(this.value)">' +
+    subs.map(function (s) { return '<option value="' + s.id + '"' + (s.id === MK.sub ? ' selected' : '') + '>' + esc(s.cls + ' — ' + s.subject) + '</option>'; }).join('') + '</select></div>' +
+    '<div class="fld"><label>রোল দিয়ে সরাসরি যান</label><input class="in" id="mkGo" inputmode="numeric" placeholder="রোল লিখে Enter"></div></div></div>' +
+    '<div id="mkBox"><div class="loading"><span class="spin"></span></div></div>';
+  return h;
+}
+function after_marks() {
+  if (!MK.sub) return;
+  if (MK.data && MK.data.sub.id === MK.sub) mkDraw();
+  mkLoad();
+  $('mkGo').onkeydown = function (e) {
+    if (e.key !== 'Enter') return;
+    var r = enNum(this.value).replace(/\D/g, ''), inp = document.querySelector('input.mk[data-roll="' + r + '"]');
+    if (!inp) return toast('রোল ' + N(r) + ' এই শ্রেণি-বিষয়ে নেই।');
+    this.value = ''; inp.scrollIntoView({ block: 'center' }); inp.focus(); inp.select();
+  };
+}
+function mkPick(id) {
+  if (MK.pend > 0) { toast('আগের নম্বরগুলো সেভ হচ্ছে — একটু পরে বদলান।'); $('mkSub').value = MK.sub; return; }
+  MK.sub = id; MK.data = null; try { localStorage.setItem('rc_mk_sub', id); } catch (e) {}
+  $('mkBox').innerHTML = '<div class="loading"><span class="spin"></span></div>'; mkLoad();
+}
+function mkLoad(btn) {
+  if (!MK.sub) return;
+  var want = MK.sub, p = callServer('apiMarksList', [want]);
+  (btn ? busy(btn, p) : p).then(function (d) { if (MK.sub !== want) return; MK.data = d; mkDraw(); },
+    function (e) { authFail(e); if (!btn && $('mkBox')) $('mkBox').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+}
+function mkFind(roll) { return MK.data.people.filter(function (p) { return p.roll === roll; })[0]; }
+function mkDraw() {
+  var d = MK.data, L = d.people, pres = L.filter(function (p) { return p.present; }), abs = L.filter(function (p) { return !p.present; });
+  var h = '<div class="card"><h3>' + icon('edit') + esc(d.sub.cls + ' — ' + d.sub.subject) + '<span class="sp"></span>' +
+    (d.final ? '<span class="chip ok">ফল চূড়ান্ত — বদল বন্ধ</span>' : '<span class="chip info" id="mkCnt"></span>') + '</h3>' +
+    '<div class="tiny">মোট নম্বর <b>' + N(d.sub.total) + '</b>। নম্বর লিখে Enter চাপুন — সেভ হয়ে পরের রোলে যাবে। ভুল হলে আবার লিখে Enter; আগের নম্বর নম্বর-খাতায় থেকে যায়। ০.৫-এর মতো ভগ্নাংশও দেওয়া যায়।' +
+    (d.final ? '<br>এই শ্রেণি-বিষয়ের ফল চূড়ান্ত, তাই নম্বর বদলানো যাবে না। বদলাতে হলে "ফলাফল" পাতা থেকে আগে খুলতে হবে।' : '') + '</div>' +
+    '<div class="pbar" style="margin:10px 0"><i id="mkBar"></i></div>' +
+    '<div class="btns"><button class="btn sm" onclick="mkPrint()">' + icon('dl') + 'যাচাই-তালিকা ছাপা</button><span class="tiny" id="mkPend"></span></div></div>';
+  h += '<div class="card"><h3>' + icon('check') + 'উপস্থিত <span class="chip">' + N(pres.length) + '</span></h3>' + mkTable(pres, d.final) + '</div>';
+  if (abs.length) h += '<div class="card"><h3>' + icon('alert') + 'অনুপস্থিত (স্ক্যান হয়নি) <span class="chip">' + N(abs.length) + '</span></h3>' +
+    '<div class="tiny" style="margin-bottom:8px">কেউ আসলে পরীক্ষা দিয়ে থাকলে (স্ক্যান বাদ পড়েছে) এখানেই নম্বর দিন — নম্বর দিলে তাঁকে উপস্থিত ধরা হবে।</div>' + mkTable(abs, d.final) + '</div>';
+  $('mkBox').innerHTML = h;
+  document.querySelectorAll('input.mk').forEach(function (inp) {
+    inp.onkeydown = function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); mkSave(this, true); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); mkMove(this, 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); mkMove(this, -1); }
+    };
+    inp.onchange = function () { mkSave(this, false); };
+  });
+  mkCount();
+}
+function mkTable(L, fin) {
+  if (!L.length) return '<div class="empty">কেউ নেই।</div>';
+  return '<div class="tw"><table class="t"><tr><th>রোল</th><th>নাম</th><th style="width:130px">নম্বর</th><th style="width:36px"></th></tr>' + L.map(function (p) {
+    return '<tr><td style="font-weight:800;color:var(--acc)">' + N(p.roll) + '</td><td>' + esc(p.name) + '</td>' +
+      '<td><input class="in mk" data-roll="' + p.roll + '" inputmode="decimal" autocomplete="off" value="' + (p.mk === null ? '' : p.mk) + '"' + (fin ? ' disabled' : '') + ' style="text-align:center;font-weight:700"></td>' +
+      '<td id="ms' + p.roll + '" title="' + esc(p.by ? 'তুলেছেন: ' + p.by : '') + '">' + (p.mk !== null ? '<span style="color:var(--ok)">✓</span>' : '') + '</td></tr>';
+  }).join('') + '</table></div>';
+}
+function mkMove(inp, k) {
+  var all = Array.prototype.slice.call(document.querySelectorAll('input.mk:not([disabled])')), i = all.indexOf(inp), nx = all[i + k];
+  if (nx) { nx.focus(); nx.select(); }
+}
+function mkMark(roll, st, msg) {
+  var c = $('ms' + roll); if (!c) return;
+  c.title = msg || '';
+  c.innerHTML = st === 'ok' ? '<span style="color:var(--ok)">✓</span>' : st === 'wait' ? '<span class="spin" style="width:14px;height:14px"></span>' : st === 'bad' ? '<span style="color:var(--bad);font-weight:800" title="' + esc(msg || '') + '">✗</span>' : '';
+}
+function mkSave(inp, next) {
+  var roll = inp.getAttribute('data-roll'), raw = enNum(inp.value), p = mkFind(roll), total = MK.data.sub.total;
+  if (!p) return;
+  var val = raw === '' ? null : Number(raw);
+  if (raw !== '' && (!isFinite(val) || val < 0 || val > total)) { mkMark(roll, 'bad', 'মোট ' + total + '-এর মধ্যে দিন'); toast('রোল ' + N(roll) + ': নম্বর ০ থেকে ' + N(total) + '-এর মধ্যে দিন।'); return; }
+  if (val === p.mk) { if (val !== null && !MK.pend) mkMark(roll, 'ok'); if (next) mkMove(inp, 1); return; }
+  var old = p.mk, sub = MK.data.sub.id;
+  p.mk = val; p.present = true;
+  mkMark(roll, 'wait'); MK.pend++; mkCount();
+  if (next) mkMove(inp, 1);   // আগে মান বসে, তারপর ঘর সরে — নইলে ঘর ছাড়ার সময় দুবার সেভ
+  MK.chain = MK.chain.then(function () {
+    return callServer('apiMarkSet', [sub, roll, raw]).then(function (r) { p.by = r.by || p.by; mkMark(roll, r.mk === null ? '' : 'ok'); },
+      function (e) { authFail(e); if (MK.data && MK.data.sub.id === sub) { p.mk = old; mkMark(roll, 'bad', e.message); } toast('রোল ' + N(roll) + ': ' + e.message, 6000); });
+  }).then(function () { MK.pend--; mkCount(); });
+}
+function mkCount() {
+  if (!MK.data || !$('mkPend')) return;
+  var pres = MK.data.people.filter(function (p) { return p.present; }), done = pres.filter(function (p) { return p.mk !== null; }).length;
+  if ($('mkCnt')) $('mkCnt').textContent = 'নম্বর তোলা ' + N(done) + ' / ' + N(pres.length);
+  if ($('mkBar')) $('mkBar').style.width = (pres.length ? Math.round(done / pres.length * 100) : 0) + '%';
+  $('mkPend').textContent = MK.pend > 0 ? 'সেভ হচ্ছে: ' + N(MK.pend) + 'টি…' : (done ? 'সব সেভ হয়েছে' : '');
+}
+// কাগজে মেলানোর তালিকা: রোল ধরে, তোলা নম্বর + খাতার নম্বরের খালি ঘর
+function mkPrint() {
+  var d = MK.data, w = window.open('', '_blank'); if (!w) return toast('পপ-আপ চালু করুন');
+  var L = d.people.filter(function (p) { return p.present; }).slice().sort(function (a, b) { return a.roll < b.roll ? -1 : 1; });
+  var rows = L.map(function (p, i) { return '<tr><td>' + N(i + 1) + '</td><td><b>' + N(p.roll) + '</b></td><td>' + esc(p.name) + '</td><td style="text-align:center;font-weight:800">' + (p.mk === null ? '—' : N(p.mk)) + '</td><td></td><td></td></tr>'; }).join('');
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>নম্বর যাচাই-তালিকা</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;800&display=swap" rel="stylesheet"><style>' + SE_CSS + '</style></head><body><div class="pg">' +
+    '<div class="hd"><div><h1>' + esc(S.boot.settings.examTitle) + '</h1><h2>নম্বর যাচাই-তালিকা · ' + esc(d.sub.cls + ' — ' + d.sub.subject) + ' · মোট নম্বর ' + N(d.sub.total) + '</h2></div></div>' +
+    '<table><tr><th style="width:10mm">ক্রম</th><th style="width:22mm">রোল</th><th>নাম</th><th style="width:22mm">তোলা নম্বর</th><th style="width:24mm">খাতার নম্বর</th><th style="width:16mm">মিলেছে</th></tr>' + rows + '</table>' +
+    '<div class="ft"><span>যাচাইকারীর সই: ____________________</span><span>' + esc(S.boot.settings.orgNames) + '</span></div></div>' +
+    '<script>(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.print()},300)})<\/script></body></html>');
+  w.document.close();
+}
+
+/* ═════════════ ফলাফল — ফলাফল-শিট, নির্বাচন (কাটমার্ক / উপর থেকে কতজন / হাতে), চূড়ান্ত, প্রকাশ, বার্তা ═════════════ */
+var RS = { st: null, sub: '', grp: null, rule: null, sel: {} };
+var RES_NAME = { pass: ['উত্তীর্ণ', 'ok'], wait: ['অপেক্ষমাণ', 'warn'], fail: ['অনুত্তীর্ণ', ''], absent: ['অনুপস্থিত', ''], missing: ['নম্বর বাকি', 'bad'], '': ['নিয়ম দেওয়া হয়নি', ''] };
+function resChip(r) { var x = RES_NAME[r] || RES_NAME['']; return '<span class="chip ' + x[1] + '">' + x[0] + '</span>'; }
+
+function page_result() {
+  return '<div class="ph"><h2>ফলাফল</h2><span class="sp"></span><button class="btn sm" onclick="rsLoad(this)">' + icon('renew') + 'হালনাগাদ</button></div><div id="rsBox"><div class="loading"><span class="spin"></span></div></div><div id="rsGrp"></div><div id="rsMsg"></div>';
+}
+function after_result() {
+  if (RS.st) rsDraw();
+  rsLoad();
+  if (RS.sub && RS.grp) rsGrpDraw();
+}
+function rsLoad(btn) {
+  var p = callServer('apiResultState');
+  (btn ? busy(btn, p) : p).then(function (d) { RS.st = d; rsDraw(); }, function (e) { authFail(e); if (!btn && $('rsBox')) $('rsBox').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+}
+function resLong() { return (RS.st && RS.st.site || S.boot.site) + '/r/'; }
+function resUrl() { var u = String((RS.st && RS.st.short) || '').trim(); return u ? (/^https?:\/\//.test(u) ? u : 'https://' + u) : resLong(); }
+function dtLocal(s) { return String(s || '').slice(0, 16); }
+
+function rsDraw() {
+  var d = RS.st, h = '', notFinal = d.subs.filter(function (x) { return !x.final; }).length;
+  // ১) প্রকাশ
+  h += '<div class="card"><h3>' + icon('send') + 'প্রকাশ<span class="sp"></span>' +
+    (d.published ? '<span class="chip ok">প্রকাশিত</span>' : d.pub.on ? '<span class="chip warn">প্রকাশ হবে ' + esc(d.pubText) + '</span>' : '<span class="chip">সময় ঠিক হয়নি</span>') + '</h3>';
+  if (notFinal) h += '<div class="note warn" style="margin-bottom:10px">⚠️ ' + N(notFinal) + 'টি শ্রেণি-বিষয়ের ফল এখনো চূড়ান্ত নয় — প্রকাশের পরেও সেগুলোর প্রার্থীরা "এখনো প্রকাশ হয়নি" দেখবেন।</div>';
+  if (d.owner) {
+    h += '<div class="grid g3" style="align-items:end"><div class="fld"><label>প্রকাশের দিন ও সময়</label><input class="in" type="datetime-local" id="rsAt" value="' + esc(dtLocal(d.pub.at) || (d.resultDate ? d.resultDate + 'T15:00' : '')) + '"></div>' +
+      '<div class="fld"><button class="btn pri" style="width:100%" onclick="rsPub(this,\'at\')">এই সময়ে প্রকাশ</button></div>' +
+      '<div class="fld">' + (d.pub.on ? '<button class="btn" style="width:100%" onclick="rsPub(this,\'off\')">প্রকাশ বন্ধ / বাতিল</button>' : '<button class="btn ok" style="width:100%" onclick="rsPub(this,\'now\')">এখনই প্রকাশ</button>') + '</div></div>' +
+      '<div class="tiny">ঠিক করা সময়ের আগে ফলাফলের পাতা শুধু "ফল প্রকাশ হবে …" দেখায়। প্রকাশের চাবি শুধু মালিকের হাতে।</div>';
+  } else h += '<div class="tiny">প্রকাশের দিন-সময় ঠিক করা ও প্রকাশ শুধু মালিক পারেন।</div>';
+  h += '</div>';
+  // ২) প্রার্থীর ফলাফলের পাতা
+  h += '<div class="card"><h3>' + icon('share') + 'প্রার্থীর ফলাফলের পাতা</h3><div class="qrbox"><div class="qr" id="rsQr"></div><div style="flex:1;min-width:220px">' +
+    '<div style="margin:0 0 8px;word-break:break-all"><b>' + esc(resUrl()) + '</b></div>' +
+    '<div class="fld" style="margin-bottom:10px"><label>নিজের ছোট লিংক (ঐচ্ছিক)</label><div class="btns" style="flex-wrap:nowrap"><input class="in" id="rsShort" placeholder="যেমন https://tee.com.bd/result" value="' + esc(d.short) + '"><button class="btn sm" onclick="rsSaveShort(this)">সেভ</button></div>' +
+    '<div class="hint">শর্টনারে নাম দিন / ছাড়া (যেমন result), লক্ষ্য ' + esc(resLong()) + ' — QR ও কপি এটাই দেখাবে।</div></div>' +
+    '<div class="btns"><button class="btn sm" onclick="copyText(resUrl())">' + icon('copy') + 'লিংক কপি</button><a class="btn sm" href="' + esc(resLong()) + '" target="_blank">' + icon('ext') + 'খুলে দেখুন</a></div>' +
+    '<div class="tiny" style="margin-top:8px">প্রার্থী রোল ও আবেদনের মোবাইল নম্বর দিয়ে শুধু নিজের ফল দেখবেন (নম্বর নয়)। ফেসবুক পেজে এই লিংক দিন।</div></div></div></div>';
+  // ৩) শ্রেণি-বিষয়ের তালিকা
+  h += '<div class="card"><h3>' + icon('book') + 'শ্রেণি-বিষয় ধরে<span class="sp"></span><button class="btn sm" onclick="rsPrint(this)">' + icon('dl') + 'ফলাফল-শিট ছাপা</button>' +
+    '<button class="btn sm" onclick="rsCsv(this)">' + icon('dl') + 'এক্সেল</button><button class="btn sm" onclick="rsPdf(this)">' + icon('dl') + 'PDF ড্রাইভে</button></h3>' +
+    (d.subs.length ? '<div class="tw"><table class="t"><tr><th>শ্রেণি-বিষয়</th><th class="r">প্রার্থী</th><th class="r">উপস্থিত</th><th class="r">নম্বর তোলা</th><th class="r">উত্তীর্ণ</th><th class="r">অপেক্ষমাণ</th><th></th></tr>' +
+    d.subs.map(function (x) {
+      var c = x.c, chip = x.final ? '<span class="chip ok">চূড়ান্ত</span>' : c.missing ? '<span class="chip bad">নম্বর বাকি ' + N(c.missing) + '</span>' : x.rule && x.rule.mode ? '<span class="chip warn">খসড়া</span>' : '<span class="chip">নিয়ম দেওয়া হয়নি</span>';
+      return '<tr style="cursor:pointer' + (RS.sub === x.id ? ';background:var(--card2)' : '') + '" onclick="rsOpen(\'' + x.id + '\')"><td><b>' + esc(x.cls) + '</b> — ' + esc(x.subject) + '</td><td class="r">' + N(c.n) + '</td><td class="r">' + N(c.present) + '</td><td class="r">' + N(c.marked) + '</td>' +
+        '<td class="r"><b>' + (x.rule && x.rule.mode ? N(c.pass) : '—') + '</b></td><td class="r">' + (x.rule && x.rule.mode ? N(c.wait) : '—') + '</td><td>' + chip + '</td></tr>';
+    }).join('') + '</table></div><div class="tiny" style="margin-top:6px">সারিতে চাপলে নিচে সেই শ্রেণি-বিষয়ের মেধাক্রম ও নির্বাচন খুলবে।</div>' : '<div class="empty">কোনো অনুমোদিত প্রার্থী নেই।</div>') + '</div>';
+  // ৪) বার্তা
+  var T = d.text, M = d.mail;
+  $('rsBox').innerHTML = h; h = '';
+  h += '<details class="card"><summary style="cursor:pointer;font-weight:700;font-size:16px">' + icon('sms') + ' ফলের বার্তা — পাতা ও ইমেইলের লেখা' + (M.on ? ' <span class="chip ok">ইমেইল চালু</span>' : ' <span class="chip">ইমেইল বন্ধ</span>') + '</summary><div style="margin-top:12px">' +
+    '<div class="tiny" style="margin-bottom:10px">ঘর: {নাম} {রোল} {শ্রেণি} {বিষয়} {প্রশিক্ষণের তারিখ}। ফলাফলের পাতায় প্রার্থী এই লেখা দেখবেন।</div><div class="grid g2">' +
+    fld('rtPass', 'উত্তীর্ণ — পাতার লেখা', T.pass, true) + fld('rtWait', 'অপেক্ষমাণ — পাতার লেখা', T.wait, true) +
+    fld('rtFail', 'অনুত্তীর্ণ — পাতার লেখা', T.fail, true) + fld('rtAbsent', 'অনুপস্থিত — পাতার লেখা', T.absent, true) +
+    fld('rtNotyet', 'শ্রেণি-বিষয়ের ফল চূড়ান্ত না হলে', T.notyet, true) + '</div>' +
+    '<div style="margin:14px 0 8px">' + sw('rmOn', M.on, ' ফলের ইমেইল — উত্তীর্ণ ও অপেক্ষমাণদের (প্রকাশের পর নিজে যায়)') + '</div>' +
+    '<div class="tiny" style="margin-bottom:10px">অনুত্তীর্ণ ও অনুপস্থিতরা ইমেইল পান না — তাঁরা পাতা ও ফেসবুক থেকে জানবেন। Gmail-এ দিনে প্রায় ১০০টা যায়; বেশি হলে বাকিগুলো পরদিন নিজে যায়। ' +
+    (d.published ? 'এখন বাকি: <b>' + N(d.mailTodo) + 'টি</b> · আজকের সীমায় বাকি: ' + N(d.mailLeft) : 'আজকের সীমায় বাকি: ' + N(d.mailLeft)) + '</div><div class="grid g2">' +
+    fld('rmPassS', 'উত্তীর্ণ — ইমেইলের বিষয়', M.passSubject) + fld('rmWaitS', 'অপেক্ষমাণ — ইমেইলের বিষয়', M.waitSubject) +
+    fld('rmPass', 'উত্তীর্ণ — ইমেইল', M.pass, true) + fld('rmWait', 'অপেক্ষমাণ — ইমেইল', M.wait, true) + '</div>' +
+    '<div class="tiny">ইমেইলের নিচে "ফলাফল দেখুন" বোতাম থাকে — চাপলে রোল-মোবাইল ছাড়াই নিজের ফলের পাতা খোলে।</div>' +
+    '<button class="btn pri" style="margin-top:10px" onclick="rsSaveText(this)">সেভ</button></div></details>';
+  $('rsMsg').innerHTML = h;
+  var q = qrcode(0, 'M'); q.addData(resUrl()); q.make(); $('rsQr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+}
+function rsSaveShort(btn) { busy(btn, callServer('apiSaveSettings', [{ resultShort: $('rsShort').value.trim() }])).then(function (r) { RS.st.short = r.settings.resultShort; S.boot.settings = r.settings; rsDraw(); toast('সেভ হয়েছে — QR ও কপি এখন এই লিংকের'); }); }
+function rsSaveText(btn) {
+  var text = { pass: $('rtPass').value, wait: $('rtWait').value, fail: $('rtFail').value, absent: $('rtAbsent').value, notyet: $('rtNotyet').value };
+  var mail = { on: $('rmOn').checked, passSubject: $('rmPassS').value, pass: $('rmPass').value, waitSubject: $('rmWaitS').value, wait: $('rmWait').value };
+  busy(btn, callServer('apiSaveSettings', [{ resultText: text, resultMail: mail }])).then(function (r) { S.boot.settings = r.settings; RS.st.text = text; RS.st.mail = mail; toast('সেভ হয়েছে'); });
+}
+function rsPub(btn, how) {
+  var opt = how === 'now' ? { now: true } : how === 'off' ? { off: true } : { at: $('rsAt').value };
+  if (how === 'at' && !opt.at) return toast('দিন ও সময় দিন।');
+  var msg = how === 'now' ? 'এখনই সবাই ফলাফলের পাতায় নিজের ফল দেখতে পাবেন' + (RS.st.mail.on ? ', আর উত্তীর্ণ ও অপেক্ষমাণদের ইমেইল যাওয়া শুরু হবে' : '') + '।' :
+    how === 'off' ? 'ফলাফলের পাতা আবার শুধু "ফল প্রকাশ হবে …" দেখাবে।' : 'ঠিক করা সময়ে ফল নিজে প্রকাশ হবে।';
+  confirmBox(how === 'off' ? 'প্রকাশ বন্ধ?' : 'ফল প্রকাশ?', msg, how === 'off' ? 'বন্ধ করুন' : 'হ্যাঁ').then(function (ok) {
+    if (ok) busy(btn, callServer('apiResultPublish', [opt])).then(function (d) { RS.st = d; rsDraw(); toast(how === 'off' ? 'প্রকাশ বন্ধ' : d.published ? 'ফল প্রকাশিত' : 'প্রকাশের সময় ঠিক হয়েছে'); });
+  });
+}
+
+/* ---------- একটা শ্রেণি-বিষয়: নিয়ম, মেধাক্রম, চূড়ান্ত ---------- */
+function rsOpen(id) {
+  RS.sub = id; RS.grp = null; RS.sel = {};
+  if (RS.st) rsDraw();
+  $('rsGrp').innerHTML = '<div class="loading"><span class="spin"></span></div>';
+  callServer('apiResultGroup', [id]).then(function (g) { if (RS.sub !== id) return; rsSetGrp(g); $('rsGrp').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
+    function (e) { authFail(e); $('rsGrp').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+}
+function rsSetGrp(g) {
+  RS.grp = g;
+  var r = g.rule || {};
+  RS.rule = { mode: r.mode || '', pass: r.pass || '', wait: r.wait || '', over: JSON.parse(JSON.stringify(r.over || {})) };
+  rsGrpDraw();
+}
+// সার্ভারের computeGroup_-এর মতোই (তাৎক্ষণিক প্রিভিউ)
+function rsCompute(people, rule) {
+  var over = rule.over || {}, L = people.map(function (p) { return Object.assign({}, p); });
+  var ranked = L.filter(function (p) { return p.mk !== null; }).sort(function (a, b) { return b.mk - a.mk || (a.roll < b.roll ? -1 : 1); }), rank = 0;
+  ranked.forEach(function (p, i) { if (i === 0 || p.mk !== ranked[i - 1].mk) rank = i + 1; p.rank = rank; });
+  var P = +rule.pass || 0, W = +rule.wait || 0;
+  L.forEach(function (p) {
+    var r = '';
+    if (p.mk === null) r = p.present ? 'missing' : 'absent';
+    else if (rule.mode === 'cut') r = p.mk >= P ? 'pass' : (W > 0 && W < P && p.mk >= W ? 'wait' : 'fail');
+    else if (rule.mode === 'top') r = p.rank <= P ? 'pass' : (p.rank <= P + W ? 'wait' : 'fail');
+    else if (rule.mode === 'manual') r = 'fail';
+    p.auto = r;
+    if (p.mk !== null && rule.mode && /^(pass|wait|fail)$/.test(over[p.roll] || '')) r = over[p.roll];
+    p.calc = r;
+  });
+  L.sort(function (a, b) { var ka = a.mk !== null ? 0 : a.present ? 1 : 2, kb = b.mk !== null ? 0 : b.present ? 1 : 2; return ka - kb || (a.rank || 0) - (b.rank || 0) || (a.roll < b.roll ? -1 : 1); });
+  return L;
+}
+function rsGrpDraw() {
+  var g = RS.grp, fin = g.final, R = RS.rule, sub = g.sub;
+  var L = fin ? g.people.map(function (p) { p.calc = p.result || p.calc; return p; }) : rsCompute(g.people, R);
+  var c = { pass: 0, wait: 0, fail: 0, absent: 0, missing: 0 }; L.forEach(function (p) { if (c[p.calc] !== undefined) c[p.calc]++; });
+  var h = '<div class="card" id="rsCard"><h3>' + icon('grid') + esc(sub.cls + ' — ' + sub.subject) + '<span class="sp"></span>' +
+    (fin ? '<span class="chip ok">চূড়ান্ত · ' + dtx(fin.at) + '</span>' : '<span class="chip warn">খসড়া</span>') + '</h3>';
+  if (!fin) {
+    h += '<div class="tabs">' + [['cut', 'কাটমার্ক'], ['top', 'উপর থেকে কতজন'], ['manual', 'হাতে বাছাই']].map(function (m) {
+      return '<button class="' + (R.mode === m[0] ? 'on' : '') + '" onclick="RS.rule.mode=\'' + m[0] + '\';rsGrpDraw()">' + m[1] + '</button>'; }).join('') + '</div>';
+    if (R.mode === 'cut') h += '<div class="grid g2"><div class="fld"><label>উত্তীর্ণ: অন্তত কত নম্বর (মোট ' + N(sub.total) + ')</label><input class="in" id="rsP" inputmode="decimal" value="' + esc(R.pass) + '"></div>' +
+      '<div class="fld"><label>অপেক্ষমাণ: অন্তত কত নম্বর (উত্তীর্ণের চেয়ে কম; না চাইলে খালি)</label><input class="in" id="rsW" inputmode="decimal" value="' + esc(R.wait) + '"></div></div>';
+    else if (R.mode === 'top') h += '<div class="grid g2"><div class="fld"><label>উত্তীর্ণ: উপর থেকে কতজন</label><input class="in" id="rsP" inputmode="numeric" value="' + esc(R.pass) + '"></div>' +
+      '<div class="fld"><label>অপেক্ষমাণ: তার পরের কতজন (না চাইলে খালি)</label><input class="in" id="rsW" inputmode="numeric" value="' + esc(R.wait) + '"></div></div><div class="tiny">সীমানায় সমান নম্বর পেলে সবাই একসাথে নেওয়া হয়।</div>';
+    else if (R.mode === 'manual') h += '<div class="tiny">সবাই প্রথমে "অনুত্তীর্ণ"। নিচের তালিকায় প্রত্যেকের ফল বেছে দিন।</div>';
+    else h += '<div class="tiny">উপরে নির্বাচনের ধরন বাছুন।</div>';
+    h += '<div class="tiny" style="margin-top:6px">নিয়মের পরেও তালিকায় কারও ফল হাতে বদলানো যায় (বদলানোগুলো ✎ চিহ্নে দেখায়)।</div>';
+  }
+  h += '<div class="stats" style="margin-top:12px"><div class="stat ok"><small>উত্তীর্ণ</small><b>' + N(c.pass) + '</b></div><div class="stat warn"><small>অপেক্ষমাণ</small><b>' + N(c.wait) + '</b></div>' +
+    '<div class="stat"><small>অনুত্তীর্ণ</small><b>' + N(c.fail) + '</b></div><div class="stat"><small>অনুপস্থিত</small><b>' + N(c.absent) + '</b></div>' + (c.missing ? '<div class="stat bad"><small>নম্বর বাকি</small><b>' + N(c.missing) + '</b></div>' : '') + '</div>';
+  h += '<div class="btns" style="margin-bottom:12px">' + (fin ? '<button class="btn" onclick="rsFinal(this,false)">' + icon('lock') + 'চূড়ান্ত খুলুন</button>' :
+    '<button class="btn" onclick="rsSaveRule(this)">সেভ (খসড়া)</button><button class="btn ok" onclick="rsFinal(this,true)">' + icon('check') + 'চূড়ান্ত করুন</button>') + '</div>';
+  h += '<div class="tw"><table class="t"><tr>' + (fin ? '<th style="width:30px"></th>' : '') + '<th>মেধাক্রম</th><th>রোল</th><th>নাম</th><th class="r">নম্বর</th><th>ফল</th></tr>' + L.map(function (p) {
+    var cell;
+    if (fin || p.mk === null) cell = resChip(p.calc);
+    else cell = '<select class="sel" style="width:auto;padding:4px 8px" onchange="rsOver(\'' + p.roll + '\',this.value)">' + ['pass', 'wait', 'fail'].map(function (k) {
+      return '<option value="' + k + '"' + (p.calc === k ? ' selected' : '') + '>' + RES_NAME[k][0] + '</option>'; }).join('') + (p.calc === '' ? '<option selected value="">—</option>' : '') + '</select>' + (p.calc !== p.auto && p.auto ? ' ✎' : '');
+    return '<tr>' + (fin ? '<td>' + (p.calc === 'wait' ? '<input type="checkbox"' + (RS.sel[p.roll] ? ' checked' : '') + ' onchange="RS.sel[\'' + p.roll + '\']=this.checked;rsBulk()">' : '') + '</td>' : '') +
+      '<td>' + (p.rank ? N(p.rank) : '') + '</td><td style="font-weight:800;color:var(--acc)">' + N(p.roll) + '</td><td>' + esc(p.name) + '</td><td class="r"><b>' + (p.mk === null ? '—' : N(p.mk)) + '</b></td><td>' + cell + '</td></tr>';
+  }).join('') + '</table></div><div class="bulk hide" id="rsBulk"></div>' +
+    (fin ? '<div class="tiny" style="margin-top:8px">অপেক্ষমাণদের টিক দিয়ে "উত্তীর্ণ করুন" চাপলে তাঁদের পাতা ও ইমেইল (চালু থাকলে) নিজে বদলায়।</div>' : '') + '</div>';
+  $('rsGrp').innerHTML = h;
+  ['rsP', 'rsW'].forEach(function (id) { var el = $(id); if (el) el.oninput = function () { RS.rule[id === 'rsP' ? 'pass' : 'wait'] = enNum(this.value); rsGrpSoft(); }; });
+  rsBulk();
+}
+// সংখ্যা লেখার সময় ঘর না হারিয়ে শুধু হিসাব হালনাগাদ
+var rsSoftT = 0;
+function rsGrpSoft() {
+  clearTimeout(rsSoftT);
+  rsSoftT = setTimeout(function () {
+    var a = document.activeElement, id = a && a.id, pos = a && a.selectionStart;
+    rsGrpDraw();
+    if (id && $(id)) { $(id).focus(); try { $(id).setSelectionRange(pos, pos); } catch (e) {} }
+  }, 350);
+}
+function rsOver(roll, v) {
+  if (!RS.rule.mode) RS.rule.mode = 'manual';
+  var me = rsCompute(RS.grp.people, Object.assign({}, RS.rule, { over: {} })).filter(function (x) { return x.roll === roll; })[0];
+  if (me && v === me.auto) delete RS.rule.over[roll]; else RS.rule.over[roll] = v;
+  rsGrpDraw();
+}
+function rsSaveRule(btn) {
+  if (!RS.rule.mode) return toast('আগে নির্বাচনের ধরন বাছুন।');
+  return busy(btn, callServer('apiResultSaveRule', [RS.sub, RS.rule])).then(function (g) { rsSetGrp(g); toast('খসড়া সেভ হয়েছে'); rsLoad(); return g; });
+}
+function rsFinal(btn, on) {
+  var c = RS.grp && RS.grp.c;
+  var txt = on ? 'চূড়ান্ত করলে প্রার্থীর তালিকায় ফল বসবে আর এই শ্রেণি-বিষয়ের নম্বর তোলা বন্ধ হবে। প্রকাশের সময় এলে প্রার্থীরা নিজের ফল দেখবেন।' :
+    'খুললে এই শ্রেণি-বিষয়ের ফল আবার খসড়া হবে, নম্বর বদলানো যাবে।' + (RS.st && RS.st.published ? ' <b>ফল প্রকাশ হয়ে গেছে — খোলা থাকা অবস্থায় প্রার্থীরা "এখনো প্রকাশ হয়নি" দেখবেন।</b>' : '');
+  confirmBox(on ? 'ফল চূড়ান্ত?' : 'চূড়ান্ত খুলবেন?', txt, on ? 'চূড়ান্ত করুন' : 'খুলুন').then(function (ok) {
+    if (!ok) return;
+    var go = function () { return busy(btn, callServer('apiResultFinal', [RS.sub, on])).then(function (g) { rsSetGrp(g); rsLoad(); toast(on ? 'চূড়ান্ত হয়েছে' : 'খোলা হয়েছে'); }); };
+    if (on) callServer('apiResultSaveRule', [RS.sub, RS.rule]).then(go, function (e) { toast(e.message, 5000); }); else go();
+  });
+}
+function rsBulk() {
+  var keys = Object.keys(RS.sel).filter(function (k) { return RS.sel[k]; }), b = $('rsBulk'); if (!b) return;
+  if (!keys.length) { b.classList.add('hide'); return; }
+  b.classList.remove('hide');
+  b.innerHTML = '<b>' + N(keys.length) + 'জন অপেক্ষমাণ</b><button class="btn sm ok" onclick="rsPromote(this)">উত্তীর্ণ করুন</button><button class="btn sm ghost" onclick="RS.sel={};rsGrpDraw()">বাছাই মুছুন</button>';
+}
+function rsPromote(btn) {
+  var keys = Object.keys(RS.sel).filter(function (k) { return RS.sel[k]; });
+  confirmBox('উত্তীর্ণ করবেন?', N(keys.length) + 'জন অপেক্ষমাণ প্রার্থী উত্তীর্ণ হবেন। তাঁদের ফলাফলের পাতা বদলাবে' + (RS.st && RS.st.mail.on ? ', আর উত্তীর্ণের ইমেইল যাবে' : '') + '।', 'উত্তীর্ণ করুন').then(function (ok) {
+    if (ok) busy(btn, callServer('apiResultPromote', [RS.sub, keys])).then(function (g) { RS.sel = {}; rsSetGrp(g); rsLoad(); toast('উত্তীর্ণ করা হলো'); });
+  });
+}
+
+/* ---------- ছাপা / এক্সেল / PDF ---------- */
+function rsPrint(btn) {
+  var w = window.open('', '_blank'); if (!w) return toast('পপ-আপ চালু করুন');
+  w.document.write('<p style="font-family:sans-serif;padding:20px">তৈরি হচ্ছে…</p>');
+  busy(btn, callServer('apiResultSheet')).then(function (d) {
+    var body = d.groups.map(function (g) {
+      return '<div class="pg"><div class="hd"><div><h1>' + esc(d.title) + ' — ফলাফল-শিট</h1><h2>' + esc(g.cls + ' — ' + g.subject) + ' · মোট নম্বর ' + N(g.total) + (g.final ? '' : ' · খসড়া') + '</h2></div>' +
+        '<div style="text-align:right;font-size:10pt">উত্তীর্ণ ' + N(g.c.pass) + ' · অপেক্ষমাণ ' + N(g.c.wait) + '<br>অনুত্তীর্ণ ' + N(g.c.fail) + ' · অনুপস্থিত ' + N(g.c.absent) + '</div></div>' +
+        '<table><tr><th style="width:16mm">মেধাক্রম</th><th style="width:22mm">রোল</th><th>নাম</th><th style="width:20mm">নম্বর</th><th style="width:26mm">ফল</th></tr>' + g.people.map(function (p) {
+          return '<tr><td>' + N(p.rank) + '</td><td><b>' + N(p.roll) + '</b></td><td>' + esc(p.name) + '</td><td style="text-align:center"><b>' + (p.mk === null ? '—' : N(p.mk)) + '</b></td><td>' + esc((RES_NAME[p.res] || RES_NAME[''])[0]) + '</td></tr>'; }).join('') + '</table>' +
+        '<div class="ft"><span>তৈরি: ' + dtx(Date.now()) + '</span><span>' + esc(d.orgNames) + '</span></div></div>';
+    }).join('');
+    w.document.open();
+    w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>ফলাফল-শিট</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;800&display=swap" rel="stylesheet"><style>' + SE_CSS + '</style></head><body>' +
+      (body || '<p>কিছু নেই।</p>') + '<script>(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.print()},300)})<\/script></body></html>');
+    w.document.close();
+  }, function () { w.close(); });
+}
+function rsCsv(btn) {
+  busy(btn, callServer('apiResultSheet')).then(function (d) {
+    var head = ['শ্রেণি', 'বিষয়', 'মেধাক্রম', 'রোল', 'নাম', 'নম্বর', 'মোট নম্বর', 'ফল', 'অবস্থা'], rows = [];
+    d.groups.forEach(function (g) { g.people.forEach(function (p) { rows.push([g.cls, g.subject, p.rank, p.roll, p.name, p.mk === null ? '' : p.mk, g.total, (RES_NAME[p.res] || RES_NAME[''])[0], g.final ? 'চূড়ান্ত' : 'খসড়া']); }); });
+    var csv = [head].concat(rows).map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
+    var x = document.createElement('a'); x.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); x.download = 'falafol-sheet.csv'; x.click();
+  });
+}
+function rsPdf(btn) {
+  busy(btn, callServer('apiResultPdf')).then(function (r) {
+    toast('ড্রাইভে রাখা হয়েছে: ' + r.name, 7000, ['খুলুন', function () { window.open(r.url, '_blank'); }]);
+  });
 }
 </script>
 </body>
