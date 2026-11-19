@@ -515,7 +515,7 @@ $('gSend').onclick = function () {
   gmsg('');
   busy($('gSend'), callServer('apiSendCode', [e])).then(function () {
     $('gStep1').classList.add('hide'); $('gStep2').classList.remove('hide'); $('gCode').focus();
-    gmsg('ইমেইলটা তালিকায় থাকলে ১ মিনিটের মধ্যে কোড যাবে। স্প্যাম ফোল্ডারও দেখুন।', true);
+    gmsg('আপনার ইমেইলে ৬ অঙ্কের কোড পাঠানো হয়েছে — ১ মিনিটের মধ্যে আসবে। ইনবক্সে না পেলে স্প্যাম ফোল্ডার দেখুন।', true);
   }, function (err) { gmsg(err.message); });
 };
 $('gEmail').onkeydown = function (e) { if (e.key === 'Enter') $('gSend').click(); };
