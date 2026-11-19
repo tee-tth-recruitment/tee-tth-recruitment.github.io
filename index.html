@@ -265,6 +265,10 @@ table.t th{color:var(--tx2);font-weight:600;font-size:13px}
 /* আসন বিন্যাস */
 table.rm .in{padding:7px 9px;min-width:70px}
 table.rm td{vertical-align:middle}
+
+/* উপস্থিতি */
+.pbar{height:10px;border-radius:6px;background:var(--bg2);overflow:hidden;border:1px solid var(--line)}
+.pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),#6ee7b7)}
 </style>
 </head>
 <body>
@@ -434,6 +438,7 @@ var PAGES = [
   ['form', 'আবেদন ফর্ম', 'form', 'form'],
   ['qedit', 'ফর্মের প্রশ্ন', 'edit', 'form'],
   ['seat', 'আসন বিন্যাস', 'grid', 'seat'],
+  ['attend', 'উপস্থিতি', 'check', 'attend'],
   ['settings', 'সেটিংস', 'set', 'settings'],
   ['sms', 'SMS', 'sms', 'sms'],
   ['users', 'ব্যবহারকারী', 'key', 'owner'],
@@ -1291,6 +1296,125 @@ function sePrint(btn, kind) {
       '<script>(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.print()},300)})<\/script></body></html>');
     w.document.close();
   }, function () { try { w.close(); } catch (e) {} });
+}
+
+/* ═════════════ উপস্থিতি — নিয়ন্ত্রণ কক্ষ: স্ক্যানের চাবি, ডিউটি-কোড, সরাসরি গণনা, হাতে উপস্থিতি ═════════════ */
+var AT = { adm: null, data: null, ev: 'written', f: { q: '', room: '', show: 'absent' }, sel: {}, timer: 0 };
+
+function page_attend() {
+  return '<div class="ph"><h2>উপস্থিতি</h2><span class="sp"></span><button class="btn sm" onclick="atLoad(this)">' + icon('renew') + 'হালনাগাদ</button></div><div id="atBox"><div class="loading"><span class="spin"></span></div></div>';
+}
+function after_attend() {
+  if (AT.adm) atDraw();
+  atLoad();
+  clearInterval(AT.timer);
+  AT.timer = setInterval(function () { if (S.page !== 'attend') return clearInterval(AT.timer); if (AT.adm && AT.adm.scan.on) atLoad(null, true); }, 20000);
+}
+function atLoad(btn, quiet) {
+  var p = Promise.all([callServer('apiScanAdmin'), callServer('apiAttendance', [AT.ev])]);
+  (btn ? busy(btn, p) : p).then(function (r) { AT.adm = r[0]; AT.data = r[1]; atDraw(); }, function (e) { authFail(e); if (!quiet && $('atBox')) $('atBox').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; });
+}
+function hm(iso) { if (!iso) return ''; var d = new Date(iso), h = d.getHours(); return N((h % 12 || 12) + ':' + ('0' + d.getMinutes()).slice(-2)) + (h < 12 ? ' AM' : ' PM'); }
+function dutyUrl() { return (AT.adm && AT.adm.site || S.boot.site) + '/scan/'; }
+function atDraw() {
+  var a = AT.adm, d = AT.data, sc = a.scan, h = '';
+  // ১) স্ক্যানের চাবি
+  h += '<div class="card"><h3>' + icon('lock') + 'স্ক্যান<span class="sp"></span>' + (sc.on ? '<span class="chip ok">চালু · ' + esc(sc.eventName) + ' · ' + hm(sc.until) + ' পর্যন্ত</span>' : '<span class="chip bad">বন্ধ</span>') + '</h3>';
+  if (!a.seatLocked) h += '<div class="note warn" style="margin-bottom:10px">⚠️ আসন বিন্যাস এখনো চূড়ান্ত নয় — ভুল কক্ষের সতর্কবার্তা ঠিকমতো কাজ করবে না।</div>';
+  h += '<div class="grid g3" style="align-items:end"><div class="fld"><label>কীসের জন্য</label><select class="sel" id="atEv">' + Object.keys(a.events).map(function (k) { return '<option value="' + k + '"' + (sc.event === k ? ' selected' : '') + '>' + esc(a.events[k]) + '</option>'; }).join('') + '</select></div>' +
+    '<div class="fld"><label>কতক্ষণ চালু থাকবে (মিনিট)</label><input class="in" type="number" id="atMin" value="150" min="10" max="600"></div><div class="fld">' +
+    (sc.on ? '<button class="btn bad" style="width:100%" onclick="atSwitch(this,false)">স্ক্যান বন্ধ করুন</button>' : '<button class="btn ok" style="width:100%" onclick="atSwitch(this,true)">স্ক্যান চালু করুন</button>') + '</div></div>' +
+    '<div class="tiny">চালু না থাকলে ডিউটি-পাতায় "স্ক্যান এখনো চালু হয়নি" দেখায়, কোনো স্ক্যান গোনা হয় না। সময় শেষ হলে নিজে বন্ধ হয়। "মহড়া"-র স্ক্যান আলাদা থাকে, আসল উপস্থিতিতে আসে না — আগের দিন ডিউটির শিক্ষকদের হাতে-কলমে দেখিয়ে নিন।</div></div>';
+  // ২) ডিউটি-পাতা ও কোড
+  h += '<div class="card"><h3>' + icon('key') + 'ডিউটির শিক্ষকদের জন্য</h3><div class="qrbox"><div class="qr" id="atQr"></div><div style="flex:1;min-width:220px">' +
+    '<div class="tiny">আজকের ডিউটি-কোড</div><div style="font-size:34px;font-weight:800;letter-spacing:6px;color:var(--acc)">' + (a.dutyCode ? N(a.dutyCode) : '—') + '</div>' +
+    '<div style="margin:6px 0 10px;word-break:break-all"><b>' + esc(dutyUrl()) + '</b></div>' +
+    '<div class="btns"><button class="btn sm" onclick="copyText(dutyMsg())">' + icon('copy') + 'শিক্ষকদের বার্তা কপি</button><button class="btn sm" onclick="atNewCode(this)">' + icon('renew') + 'নতুন কোড</button></div>' +
+    '<div class="tiny" style="margin-top:8px">শিক্ষকরা ফোনে এই লিংক বা QR খুলে কোড ও নিজের নাম দিয়ে ঢুকবেন, কক্ষ বাছবেন। নতুন কোড দিলে পুরনো কোডে ঢোকা সবাই বের হয়ে যাবেন।</div></div></div></div>';
+  // ৩) সরাসরি গণনা
+  var tp = 0, tt = 0; (d.rooms || []).forEach(function (r) { tp += r.present; tt += r.total; });
+  h += '<div class="card"><h3>' + icon('users') + 'কক্ষ ধরে উপস্থিতি<span class="sp"></span><div class="tabs" style="margin:0">' + Object.keys(a.events).map(function (k) {
+    return '<button class="' + (AT.ev === k ? 'on' : '') + '" onclick="AT.ev=\'' + k + '\';atLoad()">' + esc(a.events[k]) + '</button>'; }).join('') + '</div></h3>' +
+    '<div class="stats"><div class="stat ok"><small>উপস্থিত</small><b>' + N(tp) + '</b></div><div class="stat warn"><small>অনুপস্থিত</small><b>' + N(tt - tp) + '</b></div><div class="stat"><small>মোট</small><b>' + N(tt) + '</b></div></div>' +
+    '<div class="tw"><table class="t"><tr><th>কক্ষ</th><th style="text-align:right">উপস্থিত</th><th style="width:45%"></th></tr>' + (d.rooms || []).map(function (r) {
+      var p = r.total ? Math.round(r.present / r.total * 100) : 0;
+      return '<tr><td>' + esc(N(r.name)) + '</td><td style="text-align:right;white-space:nowrap"><b>' + N(r.present) + '</b> / ' + N(r.total) + '</td><td><div class="pbar"><i style="width:' + p + '%"></i></div></td></tr>';
+    }).join('') + '</table></div>' + (sc.on ? '<div class="tiny" style="margin-top:6px">২০ সেকেন্ড পরপর নিজে হালনাগাদ হয়।</div>' : '') + '</div>';
+  // ৪) প্রার্থীর তালিকা — হাতে উপস্থিতি
+  h += '<div class="card"><h3>' + icon('check') + 'প্রার্থী<span class="sp"></span><button class="btn sm" onclick="atCsv()">' + icon('dl') + 'এক্সেল</button></h3>' +
+    '<div class="tabs">' + [['absent', 'অনুপস্থিত'], ['present', 'উপস্থিত'], ['all', 'সব']].map(function (t) { return '<button class="' + (AT.f.show === t[0] ? 'on' : '') + '" onclick="AT.f.show=\'' + t[0] + '\';AT.sel={};atDraw()">' + t[1] + '</button>'; }).join('') + '</div>' +
+    '<div class="bar"><input class="in" id="atQ" placeholder="রোল বা নাম…" value="' + esc(AT.f.q) + '"><select class="sel" id="atRoom"><option value="">সব কক্ষ</option>' + (d.rooms || []).map(function (r) { return '<option' + (AT.f.room === r.name ? ' selected' : '') + '>' + esc(r.name) + '</option>'; }).join('') + '</select></div>' +
+    '<div id="atList"></div><div class="bulk hide" id="atBulk"></div>' +
+    '<div class="tiny" style="margin-top:8px">কাগজের হাজিরা খাতা দেখে টিক দিয়ে "হাতে উপস্থিত" করা যায়। ভুল স্ক্যান হলে "উপস্থিতি বাতিল"।</div></div>';
+  // ৫) ডিউটির তালিকা
+  h += '<div class="card"><h3>' + icon('id') + 'ডিউটির তালিকা (কক্ষ পরিদর্শক)<span class="sp"></span><button class="btn sm" onclick="atDutyPrint()">' + icon('dl') + 'ছাপা</button></h3>' +
+    '<div class="tw"><table class="t">' + (a.rooms || []).map(function (r) {
+      return '<tr><td style="white-space:nowrap">' + esc(N((r.floor ? r.floor + ' তলা, ' : '') + 'কক্ষ ' + r.name)) + '</td><td><input class="in" data-room="' + r.id + '" value="' + esc((a.dutyNames || {})[r.id] || '') + '" placeholder="পরিদর্শকের নাম (একাধিক হলে কমা দিয়ে)"></td></tr>';
+    }).join('') + '</table></div><button class="btn pri" style="margin-top:10px" onclick="atSaveDuty(this)">সেভ</button></div>';
+  $('atBox').innerHTML = h;
+  var q = qrcode(0, 'M'); q.addData(dutyUrl()); q.make(); $('atQr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+  $('atQ').oninput = function () { AT.f.q = this.value; atList(); };
+  $('atRoom').onchange = function () { AT.f.room = this.value; atList(); };
+  atList();
+}
+function atRows() {
+  var f = AT.f, q = f.q.trim().toLowerCase().replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); });
+  return (AT.data.people || []).filter(function (p) {
+    if (f.show === 'absent' && p.present) return false;
+    if (f.show === 'present' && !p.present) return false;
+    if (f.room && p.room !== f.room) return false;
+    if (q && (p.roll + ' ' + p.name).toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  });
+}
+function atList() {
+  var L = atRows();
+  $('atList').innerHTML = L.length ? '<div class="list">' + L.slice(0, 400).map(function (p) {
+    return '<div class="row' + (AT.sel[p.roll] ? ' picked' : '') + '" style="cursor:default"><label class="ck"><input type="checkbox"' + (AT.sel[p.roll] ? ' checked' : '') + ' onchange="AT.sel[\'' + p.roll + '\']=this.checked;atBulk()"></label>' +
+      '<span class="rl">' + N(p.roll) + '</span><div class="nm"><b>' + esc(p.name) + '</b><small>' + esc(N(p.room)) + ' · ' + esc(p.cs) + (p.present ? ' · ' + dtx(p.at) + ' · ' + esc(p.by) + (p.how ? ' (' + esc(p.how) + ')' : '') : '') + '</small></div>' +
+      (p.wrong ? '<span class="chip warn">ভুল কক্ষে</span>' : '') + '<span class="chip ' + (p.present ? 'ok' : 'bad') + '">' + (p.present ? 'উপস্থিত' : 'অনুপস্থিত') + '</span></div>';
+  }).join('') + '</div>' : '<div class="empty">কেউ নেই।</div>';
+  atBulk();
+}
+function atBulk() {
+  var keys = Object.keys(AT.sel).filter(function (k) { return AT.sel[k]; }), b = $('atBulk'); if (!b) return;
+  if (!keys.length) { b.classList.add('hide'); return; }
+  b.classList.remove('hide');
+  b.innerHTML = '<b>' + N(keys.length) + 'জন</b><button class="btn sm ok" onclick="atMark(this,true)">হাতে উপস্থিত</button><button class="btn sm bad" onclick="atMark(this,false)">উপস্থিতি বাতিল</button><button class="btn sm ghost" onclick="AT.sel={};atList()">বাছাই মুছুন</button>';
+}
+function atMark(btn, on) {
+  var keys = Object.keys(AT.sel).filter(function (k) { return AT.sel[k]; });
+  busy(btn, callServer('apiAttendMark', [AT.ev, keys, on])).then(function (d) { AT.data = d; AT.sel = {}; atDraw(); toast(on ? 'উপস্থিত করা হলো' : 'উপস্থিতি বাতিল হলো'); });
+}
+function atSwitch(btn, on) {
+  var ev = $('atEv').value, min = +$('atMin').value || 150;
+  busy(btn, callServer('apiScanSet', [{ on: on, event: ev, minutes: min }])).then(function (a) { AT.adm = a; AT.ev = on ? ev : AT.ev; atLoad(); toast(on ? 'স্ক্যান চালু — ' + a.scan.eventName : 'স্ক্যান বন্ধ'); });
+}
+function atNewCode(btn) {
+  confirmBox('নতুন ডিউটি-কোড?', 'পুরনো কোডে যাঁরা ঢুকে আছেন, সবাই বের হয়ে যাবেন — নতুন কোড দিয়ে আবার ঢুকতে হবে। (ফোনে জমে থাকা স্ক্যান হারাবে না।)', 'নতুন কোড').then(function (ok) {
+    if (ok) busy(btn, callServer('apiScanSet', [{ newCode: true }])).then(function (a) { AT.adm = a; atDraw(); toast('নতুন কোড: ' + N(a.dutyCode)); });
+  });
+}
+function dutyMsg() { return 'শিক্ষক নিয়োগ পরীক্ষা — উপস্থিতি স্ক্যান\n' + dutyUrl() + '\nডিউটি-কোড: ' + (AT.adm.dutyCode || '') + '\n\nলিংক খুলে কোড ও আপনার নাম দিন → আপনার কক্ষ বাছুন → প্রার্থীর প্রবেশপত্রের QR (ছবির নিচের বড়টা) ক্যামেরার সামনে ধরুন। সবুজ ✔ = উপস্থিত। QR নষ্ট হলে রোল লিখে "উপস্থিত"।'; }
+function atSaveDuty(btn) {
+  var m = {}; document.querySelectorAll('[data-room]').forEach(function (i) { m[i.getAttribute('data-room')] = i.value.trim(); });
+  busy(btn, callServer('apiSaveDuty', [m])).then(function (r) { AT.adm.dutyNames = r; toast('সেভ হয়েছে'); });
+}
+function atDutyPrint() {
+  var a = AT.adm, w = window.open('', '_blank'); if (!w) return toast('পপ-আপ চালু করুন');
+  var rows = (a.rooms || []).map(function (r, i) { return '<tr style="height:12mm"><td>' + N(i + 1) + '</td><td><b>' + esc(N((r.floor ? r.floor + ' তলা, ' : '') + 'কক্ষ ' + r.name)) + '</b></td><td>' + esc((a.dutyNames || {})[r.id] || '') + '</td><td>' + N(r.cap) + '</td><td></td></tr>'; }).join('');
+  w.document.write('<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>ডিউটির তালিকা</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;800&display=swap" rel="stylesheet"><style>' + SE_CSS + '</style></head><body><div class="pg">' +
+    '<div class="hd"><div><h1>' + esc(S.boot.settings.examTitle) + '</h1><h2>ডিউটির তালিকা (কক্ষ পরিদর্শক) · ডিউটি-কোড: ' + N(a.dutyCode || '—') + '</h2></div></div>' +
+    '<table><tr><th style="width:10mm">ক্রম</th><th>কক্ষ</th><th>পরিদর্শক</th><th style="width:18mm">আসন</th><th style="width:40mm">সই</th></tr>' + rows + '</table>' +
+    '<div class="ft"><span>স্ক্যানের লিংক: ' + esc(dutyUrl()) + '</span><span>' + esc(S.boot.settings.orgNames) + '</span></div></div>' +
+    '<script>(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.print()},300)})<\/script></body></html>');
+  w.document.close();
+}
+function atCsv() {
+  var L = atRows(), head = ['রোল', 'নাম', 'কক্ষ', 'শ্রেণি-বিষয়', 'অবস্থা', 'সময়', 'কে', 'কীভাবে', 'ভুল কক্ষ'];
+  var csv = [head].concat(L.map(function (p) { return [p.roll, p.name, p.room, p.cs, p.present ? 'উপস্থিত' : 'অনুপস্থিত', p.present ? dtx(p.at) : '', p.by, p.how, p.wrong ? 'হ্যাঁ' : '']; }))
+    .map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
+  var x = document.createElement('a'); x.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); x.download = 'upasthiti-' + AT.ev + '.csv'; x.click();
 }
 </script>
 </body>
