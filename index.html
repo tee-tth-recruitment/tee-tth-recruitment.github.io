@@ -394,6 +394,12 @@ table.rm td{vertical-align:middle}
 .rt .rd{font-size:12.5px;color:var(--tx2);line-height:1.5}
 .rt .rp{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
 .rt .rp em{font-style:normal;font-size:11px;padding:1px 7px;border-radius:999px;background:var(--infob);color:var(--info)}
+
+/* সংবেদনশীল নিয়ন্ত্রণ */
+.lockc{border-style:dashed;opacity:.92}
+.lockc h3{color:var(--tx2)}
+.perm label.secp{grid-column:1/-1;border-color:var(--acc);background:linear-gradient(90deg,rgba(230,199,125,.12),transparent)}
+.perm label.secp span{color:var(--acc)}
 </style>
 </head>
 <body>
@@ -514,6 +520,12 @@ function confirmBox(title, text, okText, extra) {
 var S = { boot: null, page: 'home', af: { tab: 'all', q: '', cls: '', subj: '' }, subEdit: null, logs: null, sms: null, users: null, sec: null };
 var ST = { approved: ['অনুমোদিত', 'ok'], problem: ['সমস্যা', 'bad'], pending: ['অপেক্ষায়', 'warn'], cancelled: ['বাতিল', ''] };
 function can(p) { var me = S.boot && S.boot.me; return !!me && (me.owner || me.perms.indexOf(p) !== -1); }
+// সংবেদনশীল নিয়ন্ত্রণ (লিংক-QR, কোড, চালু/বন্ধ, গেটওয়ে, ফর্ম, তারিখ, লেখা, নোটিশ) — সার্ভারও একই নিয়ম মানে (canSecure_)
+function canSec() { var me = S.boot && S.boot.me; return !!me && (me.owner || (me.perms.indexOf('secure') !== -1 && !me.scope)); }
+function lockCard(title, extra) {
+  return '<div class="card lockc"><h3>' + icon('lock') + esc(title) + '<span class="sp"></span><span class="chip">🔒 সংরক্ষিত</span></h3>' + (extra || '') +
+    '<div class="tiny">এই অংশ শুধু ' + esc((S.boot.roleNames || {}).owner || 'প্রধান পরীক্ষা নিয়ন্ত্রক') + ' (বা যাঁকে "সংবেদনশীল নিয়ন্ত্রণ" দেওয়া হয়েছে) দেখতে ও বদলাতে পারেন। দরকার হলে তাঁকে বলুন।</div></div>';
+}
 
 /* ---------- লগইন ---------- */
 function showGate() { $('app').classList.add('hide'); $('gate').classList.remove('hide'); closeLayer(); }
@@ -564,7 +576,7 @@ var PAGES = [
   ['applicants', 'প্রার্থী', 'users', 'applicants', 'আবেদন'],
   ['subjects', 'শ্রেণি ও বিষয়', 'book', 'subjects', 'আবেদন'],
   ['form', 'আবেদন ফর্ম', 'form', 'form', 'আবেদন'],
-  ['qedit', 'ফর্মের প্রশ্ন', 'edit', 'form', 'আবেদন'],
+  ['qedit', 'ফর্মের প্রশ্ন', 'edit', 'secure', 'আবেদন'],
   ['seat', 'আসন বিন্যাস', 'grid', 'seat', 'লিখিত পরীক্ষা'],
   ['attend', 'উপস্থিতি', 'check', 'attend', 'লিখিত পরীক্ষা'],
   ['marks', 'নম্বর তোলা', 'num', 'marks', 'লিখিত পরীক্ষা'],
@@ -573,7 +585,7 @@ var PAGES = [
   ['panel', 'প্যানেলের নম্বর', 'clip', 'panel', 'প্রশিক্ষণ ও নিয়োগ'],
   ['demo', 'ডেমো ক্লাস ও নিয়োগ', 'id', 'demo', 'প্রশিক্ষণ ও নিয়োগ'],
   ['notice', 'প্রার্থীদের নোটিশ', 'bell', 'settings', 'যোগাযোগ'],
-  ['links', 'লিংক ও QR', 'share', null, 'যোগাযোগ'],
+  ['links', 'লিংক ও QR', 'share', 'secure', 'যোগাযোগ'],
   ['sms', 'SMS ও ইমেইল', 'sms', 'sms', 'যোগাযোগ'],
   ['settings', 'সেটিংস', 'set', 'settings', 'ব্যবস্থাপনা'],
   ['users', 'ব্যবহারকারী', 'key', 'owner', 'ব্যবস্থাপনা'],
@@ -908,7 +920,8 @@ function after_subjects() {
     var L = S.subEdit.filter(function (s) { return s.subject; });
     busy(this, callServer('apiSaveSubjects', [L])).then(function (r) {
       S.boot.subjects = r.subjects; S.subEdit = null; render(); toast('সেভ হয়েছে');
-      if (S.boot.form.id && can('form')) confirmBox('ফর্মে পাঠাবেন?', 'গুগল ফর্মের শ্রেণি-বিষয় এখনই হালনাগাদ করবেন?', 'ফর্মে পাঠাও').then(function (ok) {
+      if (S.boot.form.id && !canSec()) toast('সেভ হয়েছে — গুগল ফর্মে পাঠাতে ' + ((S.boot.roleNames || {}).owner || 'প্রধান পরীক্ষা নিয়ন্ত্রক') + '-কে বলুন ("আবেদন ফর্ম" → "ফর্ম হালনাগাদ")।', 7000);
+      else if (S.boot.form.id) confirmBox('ফর্মে পাঠাবেন?', 'গুগল ফর্মের শ্রেণি-বিষয় এখনই হালনাগাদ করবেন?', 'ফর্মে পাঠাও').then(function (ok) {
         if (ok) busy(null, callServer('apiSyncForm')).then(function (f) { S.boot.form = f.form; toast('ফর্ম হালনাগাদ হয়েছে'); });
       });
     });
@@ -942,6 +955,8 @@ function moveClass(gi, d) {
 function applyUrl() { var u = String((S.boot.settings || {}).shareUrl || '').trim(); return u ? (/^https?:\/\//.test(u) ? u : 'https://' + u) : S.boot.site + '/apply/'; }
 function page_form() {
   var f = S.boot.form, s = S.boot.settings, h = '<div class="ph"><h2>আবেদন ফর্ম</h2></div>';
+  if (!canSec()) return h + '<div class="card"><h3>' + icon('form') + 'অবস্থা<span class="sp"></span>' + (f.id ? '<span class="chip ' + (f.open ? 'ok' : 'bad') + '">' + (f.open ? 'আবেদন চালু' : 'আবেদন বন্ধ') + '</span>' : '<span class="chip">তৈরি হয়নি</span>') + '</h3>' +
+    '<div class="tiny">শেষ তারিখ ' + ymdBn(s.deadline) + '।</div></div>' + lockCard('ফর্ম চালু/বন্ধ, তৈরি, হালনাগাদ, লিংক-QR ও ফর্মের লেখা');
   if (!f.id) {
     return h + '<div class="card"><h3>' + icon('form') + 'গুগল ফর্ম তৈরি</h3><p class="muted" style="line-height:1.7">এক চাপে ফর্ম তৈরি হবে: বিজ্ঞপ্তি, জরুরি কথা, শ্রেণি অনুযায়ী আলাদা বিষয়ের পাতা, ব্যক্তিগত ও শিক্ষাগত তথ্য, পড়ানোর সময় আর ঘোষণা। ' +
       'মোবাইল নম্বর ভুল দিলে ফর্মই আটকাবে। একজন একবারই জমা দিতে পারবেন।</p><button class="btn gold" onclick="createForm(this)">' + icon('plus') + 'ফর্ম তৈরি করুন</button></div>';
@@ -1017,6 +1032,7 @@ var SET_F = [
   ['resultDate', 'ফলাফলের তারিখ', 'date'], ['trainingFrom', 'প্রশিক্ষণ ও ডেমো ক্লাস — শুরু', 'date'], ['trainingTo', 'প্রশিক্ষণ ও ডেমো ক্লাস — শেষ', 'date']
 ];
 function page_settings() {
+  if (!canSec()) return '<div class="ph"><h2>সেটিংস</h2></div>' + lockCard('তারিখ, সময়, কেন্দ্র, প্রবেশপত্র ও নিয়মাবলি') + (S.boot.me.scope ? '' : driveCard());
   var s = S.boot.settings, h = '<div class="ph"><h2>সেটিংস</h2><span class="sp"></span><button class="btn pri" id="setSave">সেভ</button></div>';
   h += '<div class="card"><h3>' + icon('log') + 'তারিখ ও সময়</h3><div class="grid g2">' + SET_F.map(function (f) {
     return '<div class="fld"><label>' + f[1] + '</label><input class="in" type="' + f[2] + '" id="s_' + f[0] + '" value="' + esc(s[f[0]]) + '"></div>';
@@ -1034,10 +1050,9 @@ function page_settings() {
   return h;
 }
 function after_settings() {
-  S.rules = (S.boot.settings.rules || []).slice();
-  drawRules();
+  if ($('rules')) { S.rules = (S.boot.settings.rules || []).slice(); drawRules(); }
   if ($('drv')) callServer('apiDriveState').then(drawDrive, function (e) { authFail(e); $('drv').textContent = e.message; });
-  $('setSave').onclick = saveSettings;
+  if ($('setSave')) $('setSave').onclick = saveSettings;
 }
 /* ---------- গুগল ড্রাইভ ফোল্ডার (ছবি গোছানো) ---------- */
 function driveCard() {
@@ -1095,6 +1110,7 @@ function sampleFill(t) {
 function page_sms() {
   var s = S.boot.settings, h = '<div class="ph"><h2>SMS</h2></div>';
   h += queueCard();
+  if (!canSec()) return h + lockCard('SMS ও ইমেইলের লেখা, গেটওয়ে, পাঠানোর ধরন ও পরীক্ষা SMS') + smsLogCard();
   h += '<div class="card"><h3>' + icon('sms') + 'বার্তার লেখা</h3><div class="tiny" style="margin-bottom:10px">ঘর: {রোল} {নাম} {লিংক} {তারিখ} {সময়} {শ্রেণি} {বিষয়} — বাংলা SMS-এ ৭০ অক্ষরে এক ভাগ; ভাগ যত কম, খরচ তত কম।</div>' +
     ['approve', 'problem', 'update'].map(function (k) {
       return '<div class="fld"><label>' + SMS_KIND[k] + (k !== 'update' ? ' &nbsp;' + sw('on_' + k, (s.smsOn || {})[k]) : '') + '</label><textarea class="in" id="tp_' + k + '" rows="3" oninput="partsOf(\'' + k + '\')">' + esc((s.smsTpl || {})[k]) + '</textarea><div class="parts" id="pp_' + k + '"></div></div>';
@@ -1111,23 +1127,26 @@ function page_sms() {
   h += '<div class="card"><h3>' + icon('key') + 'গেটওয়ে<span class="sp"></span><span class="chip ' + (S.boot.smsReady ? 'ok' : 'bad') + '">' + (S.boot.smsReady ? 'বসানো আছে' : 'বসানো নেই') + '</span></h3><div id="gw"><div class="loading"><span class="spin"></span></div></div></div>';
   h += '<div class="card"><h3>' + icon('send') + 'পরীক্ষা SMS</h3><div class="grid g2"><div class="fld"><label>মোবাইল</label><input class="in" id="tMob" placeholder="01XXXXXXXXX"></div><div class="fld"><label>লেখা (খালি থাকলে নমুনা)</label><input class="in" id="tTxt"></div></div>' +
     '<button class="btn" onclick="smsTest(this)">' + icon('send') + 'পাঠান</button><pre id="tOut" class="tiny" style="white-space:pre-wrap;margin:10px 0 0"></pre></div>';
-  h += '<div class="card"><h3>' + icon('log') + 'SMS-খাতা (সাম্প্রতিক)<span class="sp"></span><button class="btn sm" onclick="loadSmsLog(this)">' + icon('renew') + '</button></h3><div id="slog"><div class="loading"><span class="spin"></span></div></div></div>';
+  h += smsLogCard();
   return h;
+}
+function smsLogCard() {
+  return '<div class="card"><h3>' + icon('log') + 'SMS-খাতা (সাম্প্রতিক)<span class="sp"></span><button class="btn sm" onclick="loadSmsLog(this)">' + icon('renew') + '</button></h3><div id="slog"><div class="loading"><span class="spin"></span></div></div></div>';
 }
 var QK = { approve: 'অনুমোদন (রোল + প্রবেশপত্র)', problem: 'আবেদনে সমস্যা', update: 'প্রবেশপত্র বদল' };
 function queueCard() {
   var s = S.boot.settings, q = S.boot.smsQueue || { total: 0 }, auto = s.smsMode === 'auto';
   return '<div class="card" id="qcard"><h3>' + icon('send') + 'বাকি SMS<span class="sp"></span><span class="chip ' + (q.total ? 'warn' : 'ok') + '">' + (q.total ? N(q.total) + 'টি বাকি' : 'কিছু বাকি নেই') + '</span></h3>' +
     '<div class="tabs" style="margin-bottom:10px">' + ['approve', 'problem', 'update'].map(function (k) { return '<button style="cursor:default">' + QK[k] + '<span>' + N(q[k] || 0) + '</span></button>'; }).join('') + '</div>' +
-    '<div class="btns" style="margin-bottom:12px"><button class="btn gold" id="qSend"' + (q.total ? '' : ' disabled') + '>' + icon('send') + 'সব বাকি SMS পাঠাও</button><button class="btn" onclick="checkIp(this)">MiMSMS আমাকে কোন IP হিসেবে দেখছে?</button></div>' +
+    '<div class="btns" style="margin-bottom:12px"><button class="btn gold" id="qSend"' + (q.total ? '' : ' disabled') + '>' + icon('send') + 'সব বাকি SMS পাঠাও</button>' + (canSec() ? '<button class="btn" onclick="checkIp(this)">MiMSMS আমাকে কোন IP হিসেবে দেখছে?</button>' : '') + '</div>' +
     '<div id="qOut" class="tiny" style="white-space:pre-wrap;margin-bottom:10px"></div>' +
-    '<div class="fld">' + sw('smsAuto', auto, 'জমা হলেই SMS নিজে যাবে (স্বয়ংক্রিয়)') + '<div class="hint">' +
-    (auto ? 'চালু: কিন্তু MiMSMS শুধু তালিকার IP মানে — স্বয়ংক্রিয় SMS গুগলের বদলাতে-থাকা IP থেকে যায়, তাই আটকে যেতে পারে।' : 'বন্ধ (এখন যেভাবে চলছে): আবেদন এলে রোল ও প্রবেশপত্র সঙ্গে সঙ্গে তৈরি হয়, SMS এখানে জমা থাকে — অফিস থেকে "সব বাকি SMS পাঠাও" চাপলে যায় (SSC26-এর মেনুর মতো)। দিনে কয়েকবার চাপুন।') + '</div></div></div>';
+    (canSec() ? '<div class="fld">' + sw('smsAuto', auto, 'জমা হলেই SMS নিজে যাবে (স্বয়ংক্রিয়)') + '<div class="hint">' +
+    (auto ? 'চালু: কিন্তু MiMSMS শুধু তালিকার IP মানে — স্বয়ংক্রিয় SMS গুগলের বদলাতে-থাকা IP থেকে যায়, তাই আটকে যেতে পারে।' : 'বন্ধ (এখন যেভাবে চলছে): আবেদন এলে রোল ও প্রবেশপত্র সঙ্গে সঙ্গে তৈরি হয়, SMS এখানে জমা থাকে — অফিস থেকে "সব বাকি SMS পাঠাও" চাপলে যায় (SSC26-এর মেনুর মতো)। দিনে কয়েকবার চাপুন।') + '</div></div>' : '') + '</div>';
 }
 function after_queue() {
   if (!$('qSend')) return;
   $('qSend').onclick = function () { sendQueue(this); };
-  $('smsAuto').onchange = function () {
+  if ($('smsAuto')) $('smsAuto').onchange = function () {
     var on = this.checked;
     busy(null, callServer('apiSaveSettings', [{ smsMode: on ? 'auto' : 'manual' }])).then(function (r) { S.boot.settings = r.settings; render(); toast(on ? 'স্বয়ংক্রিয় চালু' : 'হাতে চেপে পাঠানো চালু'); });
   };
@@ -1169,6 +1188,7 @@ function partsOf(k) {
 }
 function after_sms() {
   after_queue();
+  if (!canSec()) return loadSmsLog();
   ['approve', 'problem', 'update'].forEach(partsOf);
   callServer('apiSmsConfig').then(function (c) {
     $('gw').innerHTML = '<div class="tiny" style="margin-bottom:10px">SSC26-এর একই গেটওয়ে। ওই শিটের মেনু → ইমেইল ও SMS → "SMS Settings"-এ যা আছে, হুবহু এখানে দিন।</div>' +
@@ -1262,7 +1282,7 @@ function editUser(i) {
     '<div class="grid g2"><div class="fld"><label>ইমেইল</label><input class="in" id="u_e" value="' + esc(x.email) + '"' + (i == null ? '' : ' disabled') + '></div><div class="fld"><label>নাম</label><input class="in" id="u_n" value="' + esc(x.name) + '"></div></div>' +
     '<div class="fld"><label>ভূমিকা — কে কী করবেন</label><input type="hidden" id="u_r" value="' + esc(x.role) + '"><div class="rolepick" id="u_rp">' + Object.keys(u.presets).map(function (r) { return roleTile(r, x.role === r); }).join('') + '</div>' +
     '<div class="hint">একটা ভূমিকা বাছলে নিচের টিক সেই ভূমিকার মতো হয়ে যাবে — তারপর দরকারমতো এক-একটা টিক বদলাতে পারেন।</div></div>' +
-    '<div class="perm" id="u_p">' + Object.keys(u.perms).map(function (p) { return '<label><input type="checkbox" value="' + p + '"' + (x.perms.indexOf(p) !== -1 ? ' checked' : '') + '><span>' + esc(u.perms[p][0]) + '<small>' + esc(u.perms[p][1]) + '</small></span></label>'; }).join('') + '</div>' +
+    '<div class="perm" id="u_p">' + Object.keys(u.perms).map(function (p) { return '<label' + (p === 'secure' ? ' class="secp"' : '') + '><input type="checkbox" value="' + p + '"' + (x.perms.indexOf(p) !== -1 ? ' checked' : '') + '><span>' + esc(u.perms[p][0]) + '<small>' + esc(u.perms[p][1]) + '</small></span></label>'; }).join('') + '</div>' +
     '<div class="fld" style="margin-top:12px"><label>কোন বিভাগ দেখবেন</label><div class="pnsubs" id="u_s">' + u.sections.map(function (s) {
       var on = (x.secs || []).indexOf(s.id) !== -1;
       return '<label class="chip' + (on ? ' ok' : '') + '" style="cursor:pointer"><input type="checkbox" value="' + s.id + '" style="margin:0 4px 0 0"' + (on ? ' checked' : '') + ' onchange="this.parentNode.classList.toggle(\'ok\',this.checked);uSecHint()">' + esc(s.name) + '</label>'; }).join('') + '</div>' +
@@ -1603,6 +1623,7 @@ function atDraw() {
     '<div class="fld" style="margin-bottom:10px"><label>নিজের ছোট লিংক (ঐচ্ছিক)</label><div class="btns" style="flex-wrap:nowrap"><input class="in" id="atShort" placeholder="যেমন https://tee.com.bd/duty" value="' + esc(a.dutyShort || '') + '"><button class="btn sm" onclick="atSaveShort(this)">সেভ</button></div><div class="hint">শর্টনারে নাম দিন / ছাড়া (যেমন duty), লক্ষ্য ' + esc(dutyLong()) + ' — QR, বার্তা ও ডিউটির তালিকা এটাই দেখাবে।</div></div>' +
     '<div class="btns"><button class="btn sm" onclick="copyText(dutyMsg())">' + icon('copy') + 'শিক্ষকদের বার্তা কপি</button><button class="btn sm" onclick="atNewCode(this)">' + icon('renew') + 'নতুন কোড</button></div>' +
     '<div class="tiny" style="margin-top:8px">শিক্ষকরা ফোনে এই লিংক বা QR খুলে কোড ও নিজের নাম দিয়ে ঢুকবেন, কক্ষ বাছবেন। নতুন কোড দিলে পুরনো কোডে ঢোকা সবাই বের হয়ে যাবেন।</div></div></div></div>';
+  if (!lim && !canSec()) h = lockCard('স্ক্যান চালু/বন্ধ ও ডিউটি-কোড', '<div style="margin-bottom:8px">স্ক্যান এখন: ' + (sc.on ? '<span class="chip ok">চালু · ' + esc(sc.eventName) + ' · ' + hm(sc.until) + ' পর্যন্ত</span>' : '<span class="chip bad">বন্ধ</span>') + '</div>');
   if (lim) h = '<div class="note" style="margin-bottom:14px">আপনার বিভাগের প্রার্থীদের উপস্থিতি দেখাচ্ছে। স্ক্যান চালু/বন্ধ ও ডিউটির অংশ শুধু সব বিভাগের ব্যবহারকারীরা দেখেন।</div>';
   // ৩) সরাসরি গণনা
   var tp = 0, tt = 0; (d.rooms || []).forEach(function (r) { tp += r.present; tt += r.total; });
@@ -1626,7 +1647,7 @@ function atDraw() {
       return '<tr><td style="white-space:nowrap">' + esc(N((r.floor ? r.floor + ' তলা, ' : '') + 'কক্ষ ' + r.name)) + '</td><td><input class="in" data-room="' + r.id + '" value="' + esc((a.dutyNames || {})[r.id] || '') + '" placeholder="পরিদর্শকের নাম (একাধিক হলে কমা দিয়ে)"></td></tr>';
     }).join('') + '</table></div><button class="btn pri" style="margin-top:10px" onclick="atSaveDuty(this)">সেভ</button></div>';
   $('atBox').innerHTML = h;
-  if (lim) { $('atBox').innerHTML = hb; } else { var q = qrcode(0, 'M'); q.addData(dutyUrl()); q.make(); $('atQr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); }
+  if (lim) { $('atBox').innerHTML = hb; } else if (canSec()) { var q = qrcode(0, 'M'); q.addData(dutyUrl()); q.make(); $('atQr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); }
   $('atQ').oninput = function () { AT.f.q = this.value; atList(); };
   $('atRoom').onchange = function () { AT.f.room = this.value; atList(); };
   atList();
@@ -1851,8 +1872,9 @@ function rsDraw() {
       '<div class="tiny">ঠিক করা সময়ের আগে ফলাফলের পাতা শুধু "ফল প্রকাশ হবে …" দেখায়। প্রকাশের চাবি শুধু ' + esc(S.boot.roleNames.owner) + '-এর হাতে।</div>';
   } else h += '<div class="tiny">প্রকাশের দিন-সময় ঠিক করা ও প্রকাশ শুধু ' + esc(S.boot.roleNames.owner) + ' পারেন।</div>';
   h += '</div>';
-  // ২) প্রার্থীর ফলাফলের পাতা
-  h += '<div class="card"><h3>' + icon('share') + 'প্রার্থীর পাতা — আমার আবেদন</h3><div class="qrbox"><div class="qr" id="rsQr"></div><div style="flex:1;min-width:220px">' +
+  // ২) প্রার্থীর ফলাফলের পাতা (লিংক-QR সংবেদনশীল)
+  if (!canSec()) h += lockCard('প্রার্থীর পাতার লিংক ও QR');
+  else h += '<div class="card"><h3>' + icon('share') + 'প্রার্থীর পাতা — আমার আবেদন</h3><div class="qrbox"><div class="qr" id="rsQr"></div><div style="flex:1;min-width:220px">' +
     '<div style="margin:0 0 8px;word-break:break-all"><b>' + esc(resUrl()) + '</b></div>' +
     '<div class="tiny" style="margin-bottom:10px">ছোট লিংক বসানো ও পোস্টার নামানো: <a href="#" onclick="go(\'links\');return false">লিংক ও QR</a> পাতা থেকে।</div>' +
     '<div class="btns"><button class="btn sm" onclick="copyText(resUrl())">' + icon('copy') + 'লিংক কপি</button><a class="btn sm" href="' + esc(resLong()) + '" target="_blank">' + icon('ext') + 'খুলে দেখুন</a></div>' +
@@ -1881,7 +1903,8 @@ function rsDraw() {
     fld('rmPass', 'উত্তীর্ণ — ইমেইল', M.pass, true) + fld('rmWait', 'অপেক্ষমাণ — ইমেইল', M.wait, true) + '</div>' +
     '<div class="tiny">ইমেইলের নিচে "ফলাফল দেখুন" বোতাম থাকে — চাপলে রোল-মোবাইল ছাড়াই নিজের ফলের পাতা খোলে।</div>' +
     '<button class="btn pri" style="margin-top:10px" onclick="rsSaveText(this)">সেভ</button></div></details>';
-  $('rsMsg').innerHTML = S.boot.me.scope ? '' : h;
+  $('rsMsg').innerHTML = S.boot.me.scope ? '' : canSec() ? h : lockCard('ফলের বার্তা — পাতা ও ইমেইলের লেখা');
+  if (!canSec()) return;
   var q = qrcode(0, 'M'); q.addData(resUrl()); q.make(); $('rsQr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
 }
 function rsSaveShort(btn) { busy(btn, callServer('apiSaveSettings', [{ resultShort: $('rsShort').value.trim() }])).then(function (r) { RS.st.short = r.settings.resultShort; S.boot.settings = r.settings; rsDraw(); toast('সেভ হয়েছে — QR ও কপি এখন এই লিংকের'); }); }
@@ -2118,9 +2141,10 @@ function trDraw() {
       return '<tr><td style="font-weight:800;color:var(--acc)">' + N(w.roll) + '</td><td>' + esc(w.name) + '<div class="tiny">' + esc(w.cs) + '</div></td><td><select class="sel" style="width:auto" id="tw' + w.roll + '">' + TR.days.map(function (d) { return '<option value="' + d.id + '">' + esc(trBnDay(d)) + '</option>'; }).join('') + '</select></td>' +
         '<td><button class="btn sm ok" onclick="trSetDay(this,\'' + w.roll + '\')">বসান</button></td></tr>';
     }).join('') + '</table></div></div>';
-  // ৪) ইমেইল
+  // ৪) ইমেইল (লেখা সংবেদনশীল)
   var M = st.mail;
-  h += '<details class="card"><summary style="cursor:pointer;font-weight:700;font-size:16px">' + icon('sms') + ' প্রশিক্ষণের ইমেইল' + (M.on ? ' <span class="chip ok">চালু</span>' : ' <span class="chip">বন্ধ</span>') + '</summary><div style="margin-top:12px">' +
+  if (!canSec()) h += lockCard('প্রশিক্ষণের ইমেইলের লেখা');
+  else h += '<details class="card"><summary style="cursor:pointer;font-weight:700;font-size:16px">' + icon('sms') + ' প্রশিক্ষণের ইমেইল' + (M.on ? ' <span class="chip ok">চালু</span>' : ' <span class="chip">বন্ধ</span>') + '</summary><div style="margin-top:12px">' +
     '<div class="tiny" style="margin-bottom:10px">ঘর: {নাম} {রোল} {শ্রেণি} {বিষয়} {প্রশিক্ষণের দিন} {প্রশিক্ষণের সময়} {প্রশিক্ষণের স্থান}। ইমেইলের নিচে "আপনার দিন ও বিস্তারিত" বোতাম থাকে। ' +
     (fin ? 'দিনের ইমেইল বাকি: <b>' + N(st.mailTodo) + 'টি</b> · ' : '') + 'আজকের সীমায় বাকি: ' + N(st.mailLeft) + '</div>' +
     '<div style="margin-bottom:8px">' + sw('tmOn', M.on, ' চূড়ান্ত করলে প্রত্যেককে তাঁর দিনের ইমেইল (দিন বদলালে আবার)') + '</div>' +
@@ -2238,8 +2262,9 @@ function panMsg() { return 'প্রশিক্ষণ ও ডেমো ক্�
 function pnDraw() {
   var a = PN.adm, h = '';
   if (a.scoped) { $('pnBox').innerHTML = '<div class="note" style="margin-bottom:14px">আপনার বিভাগের শ্রেণি-বিষয় দেখাচ্ছে। প্যানেল, মানদণ্ড ও প্যানেল-কোড ঠিক করেন সব বিভাগের ব্যবহারকারীরা।</div>'; return; }
-  // ১) প্যানেলের পাতা
-  h += '<div class="card"><h3>' + icon('key') + 'প্যানেলের পাতা<span class="sp"></span>' + (a.on ? '<span class="chip ok">নম্বর দেওয়া চালু</span>' : '<span class="chip bad">বন্ধ</span>') + '</h3><div class="qrbox"><div class="qr" id="pnQr"></div><div style="flex:1;min-width:220px">' +
+  // ১) প্যানেলের পাতা (সংবেদনশীল: কোড, লিংক-QR, চালু/বন্ধ)
+  if (!a.secure) h += lockCard('প্যানেলের পাতা — কোড, লিংক ও চালু/বন্ধ', '<div style="margin-bottom:8px">নম্বর দেওয়া এখন: ' + (a.on ? '<span class="chip ok">চালু</span>' : '<span class="chip bad">বন্ধ</span>') + '</div>');
+  else h += '<div class="card"><h3>' + icon('key') + 'প্যানেলের পাতা<span class="sp"></span>' + (a.on ? '<span class="chip ok">নম্বর দেওয়া চালু</span>' : '<span class="chip bad">বন্ধ</span>') + '</h3><div class="qrbox"><div class="qr" id="pnQr"></div><div style="flex:1;min-width:220px">' +
     '<div class="tiny">প্যানেল-কোড</div><div style="font-size:34px;font-weight:800;letter-spacing:6px;color:var(--acc)">' + (a.code ? N(a.code) : '—') + '</div>' +
     '<div style="margin:6px 0 10px;word-break:break-all"><b>' + esc(panUrl()) + '</b></div>' +
     '<div class="fld" style="margin-bottom:10px"><label>নিজের ছোট লিংক (ঐচ্ছিক)</label><div class="btns" style="flex-wrap:nowrap"><input class="in" id="pnShort" placeholder="যেমন https://tee.com.bd/panel" value="' + esc(a.short) + '"><button class="btn sm" onclick="pnSaveShort(this)">সেভ</button></div>' +
@@ -2274,6 +2299,7 @@ function pnDraw() {
         '<td><button class="btn sm ghost" onclick="PN.crit.splice(' + i + ',1);pnDraw()">' + icon('x') + '</button></td></tr>';
     }).join('') + '</table></div><div class="btns" style="margin-top:10px"><button class="btn sm" onclick="PN.crit.push({id:\'\',name:\'\',max:2});pnDraw()">' + icon('plus') + 'মানদণ্ড যোগ</button><button class="btn sm pri" onclick="pnSaveCrit(this)">সেভ</button></div></div>';
   $('pnBox').innerHTML = h;
+  if (!a.secure) return;
   var q = qrcode(0, 'M'); q.addData(panUrl()); q.make(); $('pnQr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
 }
 function pnSub(i, id, on) {
@@ -2521,11 +2547,11 @@ function dmPoolCsv() {
 function dmSet() {
   var st = DM.st, M = st.mail;
   $('dmBox').innerHTML = '<div class="card"><h3>' + icon('grid') + 'শাখার তালিকা</h3>' + fld('dsBr', 'প্রতি লাইনে একটা শাখা', st.branches.join('\n'), true) +
-    '<button class="btn pri" onclick="dmSaveBr(this)">সেভ</button></div>' +
+    '<button class="btn pri" onclick="dmSaveBr(this)">সেভ</button></div>' + (!canSec() ? lockCard('ডেমো ক্লাস ও নিয়োগের ইমেইলের লেখা') :
     '<div class="card"><h3>' + icon('sms') + 'ইমেইল</h3><div class="tiny" style="margin-bottom:10px">ঘর: {নাম} {রোল} {শ্রেণি} {বিষয়} {ডেমোর তারিখ} {ডেমোর সময়} {শাখা} {ব্যাচ} {যোগদানের তারিখ}। পাঠানো বাকি: ' + N(st.pending) + 'টি · আজকের সীমায় বাকি: ' + N(st.mailLeft) + '</div>' +
     '<div style="margin-bottom:8px">' + sw('dsOn', M.on, ' ডেমো ক্লাস ঠিক হলে প্রার্থীকে ইমেইল') + '</div>' + fld('dsS', 'বিষয়', M.subject) + fld('dsB', 'ইমেইল', M.body, true) +
     '<div style="margin:12px 0 8px">' + sw('dsHOn', M.hireOn, ' চূড়ান্ত নিয়োগ হলে অভিনন্দনের ইমেইল') + '</div>' + fld('dsHS', 'বিষয়', M.hireSubject) + fld('dsH', 'ইমেইল', M.hire, true) +
-    '<button class="btn pri" style="margin-top:10px" onclick="dmSaveMail(this)">সেভ</button></div>';
+    '<button class="btn pri" style="margin-top:10px" onclick="dmSaveMail(this)">সেভ</button></div>');
 }
 function dmSaveBr(btn) {
   var b = $('dsBr').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
@@ -2757,7 +2783,9 @@ function ntDraw() {
   h += '<div class="note" style="margin-bottom:14px">নোটিশ প্রার্থীর "আমার আবেদন" পাতার ওপরে আলাদা করে দেখায়। যাঁরা ফোনে নোটিফিকেশন চালু করেছেন, তাঁদের কাছে পুশও যায় — এখন ' +
     (P.ready ? '<b>' + N(P.devices) + 'টি ডিভাইসে</b> চালু।' : '<b>পুশ সার্ভার এখনো বসানো হয়নি</b> (পাতায় নোটিশ তবু দেখাবে)।') +
     ' লিখিত পরীক্ষা বা প্রশিক্ষণের তারিখ-সময়-স্থান বদলালে নোটিশ নিজেই তৈরি হয়ে যায়।</div>';
-  h += '<div class="card"><h3>' + icon('plus') + 'নতুন নোটিশ</h3>' +
+  var sec = canSec();
+  if (!sec) h += lockCard('নোটিশ দেওয়া, মোছা ও পুশ');
+  else h += '<div class="card"><h3>' + icon('plus') + 'নতুন নোটিশ</h3>' +
     '<div class="fld"><label>শিরোনাম</label><input class="in" id="ntT" maxlength="120" placeholder="যেমন: লিখিত পরীক্ষার কেন্দ্রে প্রবেশের নিয়ম"></div>' +
     '<div class="fld"><label>বিস্তারিত</label><textarea class="in" id="ntB" rows="4" maxlength="1500"></textarea></div>' +
     '<div class="grid g2"><div class="fld"><label>কারা দেখবেন</label><select class="sel" id="ntA">' + Object.keys(d.aud).map(function (k) { return '<option value="' + k + '"' + (k === 'approved' ? ' selected' : '') + '>' + esc(d.aud[k]) + '</option>'; }).join('') + '</select></div>' +
@@ -2768,7 +2796,7 @@ function ntDraw() {
     return '<div class="row" style="cursor:default;align-items:flex-start"><div class="nm"><b style="white-space:normal">' + (n.imp ? '⚠️ ' : '') + esc(n.title) + '</b>' +
       '<small>' + dtx(n.at) + ' · ' + esc(d.aud[n.aud] || n.aud) + (n.auto ? ' · নিজে তৈরি' : '') + (p ? ' · পুশ: ' + (p.off ? 'সার্ভার বসানো নেই' : N(p.sent) + '/' + N(p.devices) + ' ডিভাইস') : '') + '</small>' +
       (n.body ? '<div class="tiny" style="white-space:pre-line;margin-top:4px">' + esc(n.body) + '</div>' : '') + '</div>' +
-      '<div class="btns" style="flex:none">' + (P.ready ? '<button class="btn sm" onclick="ntRePush(this,\'' + n.id + '\')">পুশ আবার</button>' : '') + '<button class="btn sm ghost" onclick="ntDel(this,\'' + n.id + '\')">' + icon('trash') + '</button></div></div>';
+      (!sec ? '' : '<div class="btns" style="flex:none">' + (P.ready ? '<button class="btn sm" onclick="ntRePush(this,\'' + n.id + '\')">পুশ আবার</button>' : '') + '<button class="btn sm ghost" onclick="ntDel(this,\'' + n.id + '\')">' + icon('trash') + '</button></div>') + '</div>';
   }).join('') + '</div>' : '<div class="empty">এখনো কোনো নোটিশ নেই।</div>') + '</div>';
   $('ntBox').innerHTML = h;
 }
