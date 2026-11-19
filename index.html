@@ -501,7 +501,7 @@ function render() {
   var me = S.boot.me, pages = PAGES.filter(allowed);
   if (!pages.some(function (p) { return p[0] === S.page; })) S.page = 'home';
   var prob = (S.boot.counts.problem || 0) + (S.boot.counts.pending || 0);
-  $('meBox').textContent = (me.owner ? '👑 ' : '') + me.name + ' · ' + (S.boot.roleNames[me.role] || '');
+  $('meBox').textContent = (me.owner ? '👑 ' : '') + me.name + ' · ' + (S.boot.roleNames[me.role] || '') + (me.scope && me.secNames && me.secNames.length ? ' (' + me.secNames.join(', ') + ')' : '');
   $('nav').innerHTML = pages.map(function (p) {
     return '<button class="' + (S.page === p[0] ? 'on' : '') + '" onclick="go(\'' + p[0] + '\')">' + icon(p[2]) + p[1] +
       (p[0] === 'applicants' && prob ? '<span class="cnt">' + N(prob) + '</span>' : '') + '</button>';
@@ -1065,11 +1065,31 @@ function appLink() { var u = String(S.boot.settings.appShort || '').trim(); retu
 function staffMsg() { return 'শিক্ষক নিয়োগ ২০২৭ — অফিসের অ্যাপ\n' + appLink() + '\n\nআপনার যে ইমেইল যোগ করা হয়েছে, সেটা দিয়ে "লগইন কোড পাঠান" চাপুন — ইমেইলে আসা ৬ অঙ্কের কোড দিয়ে ঢুকবেন। ফোনে খুলে "Add to Home screen" দিলে অ্যাপের মতো থাকবে।'; }
 function saveAppShort(btn) { busy(btn, callServer('apiSaveSettings', [{ appShort: $('appShort').value.trim() }])).then(function (r) { S.boot.settings = r.settings; toast('সেভ হয়েছে'); }); }
 function after_users() { callServer('apiUsers').then(function (u) { S.users = u; drawUsers(); }, function (e) { $('ulist').textContent = e.message; }); }
+// বিভাগ: নাম + কোন শ্রেণি (মালিক বদলান)
+var SECS = null;
+function drawSecs() {
+  var u = S.users;
+  if (!SECS) SECS = JSON.parse(JSON.stringify(u.sections));
+  return '<div class="card" style="margin-bottom:14px"><h3>' + icon('grid') + 'বিভাগ (শ্রেণির দল)</h3>' +
+    '<div class="tiny" style="margin-bottom:10px">বিভাগীয় প্রধান শুধু নিজের বিভাগের শ্রেণির প্রার্থী, নম্বর, ফল, প্যানেল, ডেমো ও প্রতিবেদন দেখেন। কোনো শ্রেণি কোনো বিভাগে না থাকলে সেটা শুধু "সব বিভাগ"-এর ব্যবহারকারীরা দেখেন।</div>' +
+    SECS.map(function (sec, i) {
+      return '<div class="pnp"><div class="btns" style="flex-wrap:nowrap;margin-bottom:8px"><input class="in" value="' + esc(sec.name) + '" placeholder="বিভাগের নাম" onchange="SECS[' + i + '].name=this.value">' +
+        (SECS.length > 1 ? '<button class="btn sm ghost" onclick="SECS.splice(' + i + ',1);drawUsers()">' + icon('trash') + '</button>' : '') + '</div><div class="pnsubs">' +
+        u.classes.map(function (c) {
+          var on = (sec.classes || []).indexOf(c) !== -1;
+          return '<label class="chip' + (on ? ' ok' : '') + '" style="cursor:pointer"><input type="checkbox" style="margin:0 4px 0 0"' + (on ? ' checked' : '') + ' onchange="secCls(' + i + ',\'' + esc(c) + '\',this.checked)">' + esc(c) + '</label>';
+        }).join('') + '</div></div>';
+    }).join('') +
+    '<div class="btns"><button class="btn sm" onclick="SECS.push({id:\'\',name:\'\',classes:[]});drawUsers()">' + icon('plus') + 'বিভাগ যোগ</button><button class="btn sm pri" onclick="saveSecs(this)">সেভ</button></div></div>';
+}
+function secCls(i, c, on) { var L = SECS[i].classes = (SECS[i].classes || []).filter(function (x) { return x !== c; }); if (on) L.push(c); drawUsers(); }
+function saveSecs(btn) { busy(btn, callServer('apiSaveSections', [SECS])).then(function (r) { S.users = r; SECS = null; drawUsers(); toast('বিভাগ সেভ হয়েছে'); }); }
+function secNamesOf(ids) { return (S.users.sections || []).filter(function (s) { return (ids || []).indexOf(s.id) !== -1; }).map(function (s) { return s.name; }); }
 function drawUsers() {
   var u = S.users;
-  $('ulist').innerHTML = '<div class="list"><div class="row" style="cursor:default"><span class="chip ok">মালিক</span><div class="nm"><b>' + esc(u.owner) + '</b><small>' + esc(u.aliases.join(', ')) + ' · সব ক্ষমতা</small></div></div>' +
+  $('ulist').innerHTML = drawSecs() + '<div class="list"><div class="row" style="cursor:default"><span class="chip ok">মালিক</span><div class="nm"><b>' + esc(u.owner) + '</b><small>' + esc(u.aliases.join(', ')) + ' · সব ক্ষমতা</small></div></div>' +
     u.users.map(function (x, i) {
-      return '<div class="row" onclick="editUser(' + i + ')"><span class="chip ' + (x.off ? 'bad' : 'info') + '">' + esc(x.off ? 'বন্ধ' : (u.roles[x.role] || x.role)) + '</span><div class="nm"><b>' + esc(x.name) + '</b><small>' + esc(x.email) + ' · ' + (x.perms.length ? x.perms.map(function (p) { return (u.perms[p] || [p])[0]; }).join(', ') : 'কোনো ক্ষমতা নেই') + '</small></div></div>';
+      return '<div class="row" onclick="editUser(' + i + ')"><span class="chip ' + (x.off ? 'bad' : 'info') + '">' + esc(x.off ? 'বন্ধ' : (u.roles[x.role] || x.role)) + '</span><div class="nm"><b>' + esc(x.name) + '</b><small>' + esc(x.email) + ' · ' + ((x.secs || []).length ? '<b>বিভাগ: ' + esc(secNamesOf(x.secs).join(', ')) + '</b> · ' : '') + (x.perms.length ? x.perms.map(function (p) { return (u.perms[p] || [p])[0]; }).join(', ') : 'কোনো ক্ষমতা নেই') + '</small></div></div>';
     }).join('') + '</div>';
 }
 function editUser(i) {
@@ -1078,13 +1098,20 @@ function editUser(i) {
     '<div class="grid g2"><div class="fld"><label>ইমেইল</label><input class="in" id="u_e" value="' + esc(x.email) + '"' + (i == null ? '' : ' disabled') + '></div><div class="fld"><label>নাম</label><input class="in" id="u_n" value="' + esc(x.name) + '"></div></div>' +
     '<div class="fld"><label>ভূমিকা</label><select class="sel" id="u_r">' + Object.keys(u.presets).map(function (r) { return '<option value="' + r + '"' + (x.role === r ? ' selected' : '') + '>' + esc(u.roles[r]) + '</option>'; }).join('') + '</select><div class="hint">ভূমিকা বদলালে নিচের টিক সেই ভূমিকার মতো হয়ে যাবে — তারপর ইচ্ছেমতো বদলান।</div></div>' +
     '<div class="perm" id="u_p">' + Object.keys(u.perms).map(function (p) { return '<label><input type="checkbox" value="' + p + '"' + (x.perms.indexOf(p) !== -1 ? ' checked' : '') + '><span>' + esc(u.perms[p][0]) + '<small>' + esc(u.perms[p][1]) + '</small></span></label>'; }).join('') + '</div>' +
+    '<div class="fld" style="margin-top:12px"><label>কোন বিভাগ দেখবেন</label><div class="pnsubs" id="u_s">' + u.sections.map(function (s) {
+      var on = (x.secs || []).indexOf(s.id) !== -1;
+      return '<label class="chip' + (on ? ' ok' : '') + '" style="cursor:pointer"><input type="checkbox" value="' + s.id + '" style="margin:0 4px 0 0"' + (on ? ' checked' : '') + ' onchange="this.parentNode.classList.toggle(\'ok\',this.checked);uSecHint()">' + esc(s.name) + '</label>'; }).join('') + '</div>' +
+    '<div class="hint" id="u_sh"></div></div>' +
     '<div class="fld" style="margin-top:12px">' + sw('u_off', x.off, 'সাময়িক বন্ধ (ঢুকতে পারবেন না)') + '</div>' +
     '<div class="btns" style="justify-content:flex-end">' + (i == null ? '' : '<button class="btn bad" id="u_del" style="margin-right:auto">সরান</button>') + '<button class="btn" onclick="closeLayer()">বাদ</button><button class="btn pri" id="u_save">সেভ</button></div></div>';
   modal(h);
-  $('u_r').onchange = function () { var pre = u.presets[this.value] || []; document.querySelectorAll('#u_p input').forEach(function (c) { c.checked = pre.indexOf(c.value) !== -1; }); };
+  $('u_r').onchange = function () { var pre = u.presets[this.value] || []; document.querySelectorAll('#u_p input').forEach(function (c) { c.checked = pre.indexOf(c.value) !== -1; }); uSecHint(); };
+  uSecHint();
   $('u_save').onclick = function () {
     var perms = [].filter.call(document.querySelectorAll('#u_p input'), function (c) { return c.checked; }).map(function (c) { return c.value; });
-    busy(this, callServer('apiSaveUser', [{ email: $('u_e').value, name: $('u_n').value, role: $('u_r').value, perms: perms, off: $('u_off').checked }])).then(function (r) { S.users = r; closeLayer(); drawUsers(); toast('সেভ হয়েছে'); });
+    var secs = [].filter.call(document.querySelectorAll('#u_s input'), function (c) { return c.checked; }).map(function (c) { return c.value; });
+    if ($('u_r').value === 'head' && !secs.length) return toast('বিভাগীয় প্রধানের জন্য অন্তত একটা বিভাগ বাছুন।');
+    busy(this, callServer('apiSaveUser', [{ email: $('u_e').value, name: $('u_n').value, role: $('u_r').value, perms: perms, secs: secs, off: $('u_off').checked }])).then(function (r) { S.users = r; closeLayer(); drawUsers(); toast('সেভ হয়েছে'); });
   };
   if ($('u_del')) $('u_del').onclick = function () {
     var btn = this;
@@ -1092,6 +1119,13 @@ function editUser(i) {
       if (ok) busy(btn, callServer('apiDeleteUser', [x.email])).then(function (r) { S.users = r; drawUsers(); toast('সরানো হলো'); });
     });
   };
+}
+
+function uSecHint() {
+  var u = S.users, any = [].some.call(document.querySelectorAll('#u_s input'), function (c) { return c.checked; });
+  var g = (u.globalPerms || []).map(function (p) { return (u.perms[p] || [p])[0]; }).join(', ');
+  $('u_sh').innerHTML = any ? 'শুধু বাছাই করা বিভাগের শ্রেণি দেখবেন। পুরো প্রতিষ্ঠানের কাজ (' + esc(g) + ') টিক থাকলেও এঁর জন্য বন্ধ থাকবে।' :
+    ($('u_r').value === 'head' ? '<span style="color:var(--warn)">বিভাগীয় প্রধানের জন্য বিভাগ বাছুন।</span>' : 'কিছু না বাছলে = সব বিভাগ।');
 }
 
 /* ---------- লগ ---------- */
@@ -1368,6 +1402,7 @@ function dutyUrl() { var u = String((AT.adm && AT.adm.dutyShort) || '').trim(); 
 function atSaveShort(btn) { busy(btn, callServer('apiSaveSettings', [{ dutyShort: $('atShort').value.trim() }])).then(function (r) { AT.adm.dutyShort = r.settings.dutyShort; S.boot.settings = r.settings; atDraw(); toast('সেভ হয়েছে — QR ও বার্তা এখন এই লিংকের'); }); }
 function atDraw() {
   var a = AT.adm, d = AT.data, sc = a.scan, h = '';
+  var lim = !!S.boot.me.scope;
   // ১) স্ক্যানের চাবি
   h += '<div class="card"><h3>' + icon('lock') + 'স্ক্যান<span class="sp"></span>' + (sc.on ? '<span class="chip ok">চালু · ' + esc(sc.eventName) + ' · ' + hm(sc.until) + ' পর্যন্ত</span>' : '<span class="chip bad">বন্ধ</span>') + '</h3>';
   if (!a.seatLocked && !/^T/.test(sc.event)) h += '<div class="note warn" style="margin-bottom:10px">⚠️ আসন বিন্যাস এখনো চূড়ান্ত নয় — ভুল কক্ষের সতর্কবার্তা ঠিকমতো কাজ করবে না।</div>';
@@ -1382,6 +1417,7 @@ function atDraw() {
     '<div class="fld" style="margin-bottom:10px"><label>নিজের ছোট লিংক (ঐচ্ছিক)</label><div class="btns" style="flex-wrap:nowrap"><input class="in" id="atShort" placeholder="যেমন https://tee.com.bd/duty" value="' + esc(a.dutyShort || '') + '"><button class="btn sm" onclick="atSaveShort(this)">সেভ</button></div><div class="hint">শর্টনারে নাম দিন / ছাড়া (যেমন duty), লক্ষ্য ' + esc(dutyLong()) + ' — QR, বার্তা ও ডিউটির তালিকা এটাই দেখাবে।</div></div>' +
     '<div class="btns"><button class="btn sm" onclick="copyText(dutyMsg())">' + icon('copy') + 'শিক্ষকদের বার্তা কপি</button><button class="btn sm" onclick="atNewCode(this)">' + icon('renew') + 'নতুন কোড</button></div>' +
     '<div class="tiny" style="margin-top:8px">শিক্ষকরা ফোনে এই লিংক বা QR খুলে কোড ও নিজের নাম দিয়ে ঢুকবেন, কক্ষ বাছবেন। নতুন কোড দিলে পুরনো কোডে ঢোকা সবাই বের হয়ে যাবেন।</div></div></div></div>';
+  if (lim) h = '<div class="note" style="margin-bottom:14px">আপনার বিভাগের প্রার্থীদের উপস্থিতি দেখাচ্ছে। স্ক্যান চালু/বন্ধ ও ডিউটির অংশ শুধু সব বিভাগের ব্যবহারকারীরা দেখেন।</div>';
   // ৩) সরাসরি গণনা
   var tp = 0, tt = 0; (d.rooms || []).forEach(function (r) { tp += r.present; tt += r.total; });
   h += '<div class="card"><h3>' + icon('users') + 'কক্ষ ধরে উপস্থিতি<span class="sp"></span><div class="tabs" style="margin:0">' + Object.keys(a.events).map(function (k) {
@@ -1397,13 +1433,14 @@ function atDraw() {
     '<div class="bar"><input class="in" id="atQ" placeholder="রোল বা নাম…" value="' + esc(AT.f.q) + '"><select class="sel" id="atRoom"><option value="">সব কক্ষ</option>' + (d.rooms || []).map(function (r) { return '<option' + (AT.f.room === r.name ? ' selected' : '') + '>' + esc(r.name) + '</option>'; }).join('') + '</select></div>' +
     '<div id="atList"></div><div class="bulk hide" id="atBulk"></div>' +
     '<div class="tiny" style="margin-top:8px">কাগজের হাজিরা খাতা দেখে টিক দিয়ে "হাতে উপস্থিত" করা যায়। ভুল স্ক্যান হলে "উপস্থিতি বাতিল"।</div></div>';
+  var hb = h;
   // ৫) ডিউটির তালিকা
   h += '<div class="card"><h3>' + icon('id') + 'ডিউটির তালিকা (কক্ষ পরিদর্শক)<span class="sp"></span><button class="btn sm" onclick="atDutyPrint()">' + icon('dl') + 'ছাপা</button></h3>' +
     '<div class="tw"><table class="t">' + (a.rooms || []).map(function (r) {
       return '<tr><td style="white-space:nowrap">' + esc(N((r.floor ? r.floor + ' তলা, ' : '') + 'কক্ষ ' + r.name)) + '</td><td><input class="in" data-room="' + r.id + '" value="' + esc((a.dutyNames || {})[r.id] || '') + '" placeholder="পরিদর্শকের নাম (একাধিক হলে কমা দিয়ে)"></td></tr>';
     }).join('') + '</table></div><button class="btn pri" style="margin-top:10px" onclick="atSaveDuty(this)">সেভ</button></div>';
   $('atBox').innerHTML = h;
-  var q = qrcode(0, 'M'); q.addData(dutyUrl()); q.make(); $('atQr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+  if (lim) { $('atBox').innerHTML = hb; } else { var q = qrcode(0, 'M'); q.addData(dutyUrl()); q.make(); $('atQr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); }
   $('atQ').oninput = function () { AT.f.q = this.value; atList(); };
   $('atRoom').onchange = function () { AT.f.room = this.value; atList(); };
   atList();
@@ -1631,8 +1668,8 @@ function rsDraw() {
   // ২) প্রার্থীর ফলাফলের পাতা
   h += '<div class="card"><h3>' + icon('share') + 'প্রার্থীর ফলাফলের পাতা</h3><div class="qrbox"><div class="qr" id="rsQr"></div><div style="flex:1;min-width:220px">' +
     '<div style="margin:0 0 8px;word-break:break-all"><b>' + esc(resUrl()) + '</b></div>' +
-    '<div class="fld" style="margin-bottom:10px"><label>নিজের ছোট লিংক (ঐচ্ছিক)</label><div class="btns" style="flex-wrap:nowrap"><input class="in" id="rsShort" placeholder="যেমন https://tee.com.bd/result" value="' + esc(d.short) + '"><button class="btn sm" onclick="rsSaveShort(this)">সেভ</button></div>' +
-    '<div class="hint">শর্টনারে নাম দিন / ছাড়া (যেমন result), লক্ষ্য ' + esc(resLong()) + ' — QR ও কপি এটাই দেখাবে।</div></div>' +
+    (S.boot.me.scope ? '' : '<div class="fld" style="margin-bottom:10px"><label>নিজের ছোট লিংক (ঐচ্ছিক)</label><div class="btns" style="flex-wrap:nowrap"><input class="in" id="rsShort" placeholder="যেমন https://tee.com.bd/result" value="' + esc(d.short) + '"><button class="btn sm" onclick="rsSaveShort(this)">সেভ</button></div>' +
+    '<div class="hint">শর্টনারে নাম দিন / ছাড়া (যেমন result), লক্ষ্য ' + esc(resLong()) + ' — QR ও কপি এটাই দেখাবে।</div></div>') +
     '<div class="btns"><button class="btn sm" onclick="copyText(resUrl())">' + icon('copy') + 'লিংক কপি</button><a class="btn sm" href="' + esc(resLong()) + '" target="_blank">' + icon('ext') + 'খুলে দেখুন</a></div>' +
     '<div class="tiny" style="margin-top:8px">প্রার্থী রোল ও আবেদনের মোবাইল নম্বর দিয়ে শুধু নিজের ফল দেখবেন (নম্বর নয়)। ফেসবুক পেজে এই লিংক দিন।</div></div></div></div>';
   // ৩) শ্রেণি-বিষয়ের তালিকা
@@ -1659,7 +1696,7 @@ function rsDraw() {
     fld('rmPass', 'উত্তীর্ণ — ইমেইল', M.pass, true) + fld('rmWait', 'অপেক্ষমাণ — ইমেইল', M.wait, true) + '</div>' +
     '<div class="tiny">ইমেইলের নিচে "ফলাফল দেখুন" বোতাম থাকে — চাপলে রোল-মোবাইল ছাড়াই নিজের ফলের পাতা খোলে।</div>' +
     '<button class="btn pri" style="margin-top:10px" onclick="rsSaveText(this)">সেভ</button></div></details>';
-  $('rsMsg').innerHTML = h;
+  $('rsMsg').innerHTML = S.boot.me.scope ? '' : h;
   var q = qrcode(0, 'M'); q.addData(resUrl()); q.make(); $('rsQr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
 }
 function rsSaveShort(btn) { busy(btn, callServer('apiSaveSettings', [{ resultShort: $('rsShort').value.trim() }])).then(function (r) { RS.st.short = r.settings.resultShort; S.boot.settings = r.settings; rsDraw(); toast('সেভ হয়েছে — QR ও কপি এখন এই লিংকের'); }); }
@@ -2015,6 +2052,7 @@ function panMsg() { return 'প্রশিক্ষণ ও ডেমো ক্�
 
 function pnDraw() {
   var a = PN.adm, h = '';
+  if (a.scoped) { $('pnBox').innerHTML = '<div class="note" style="margin-bottom:14px">আপনার বিভাগের শ্রেণি-বিষয় দেখাচ্ছে। প্যানেল, মানদণ্ড ও প্যানেল-কোড ঠিক করেন সব বিভাগের ব্যবহারকারীরা।</div>'; return; }
   // ১) প্যানেলের পাতা
   h += '<div class="card"><h3>' + icon('key') + 'প্যানেলের পাতা<span class="sp"></span>' + (a.on ? '<span class="chip ok">নম্বর দেওয়া চালু</span>' : '<span class="chip bad">বন্ধ</span>') + '</h3><div class="qrbox"><div class="qr" id="pnQr"></div><div style="flex:1;min-width:220px">' +
     '<div class="tiny">প্যানেল-কোড</div><div style="font-size:34px;font-weight:800;letter-spacing:6px;color:var(--acc)">' + (a.code ? N(a.code) : '—') + '</div>' +
@@ -2142,7 +2180,10 @@ function page_demo() {
 }
 function after_demo() { dmTabs(); if (DM.st) dmDraw(); dmLoad(); }
 function dmTabs() {
-  $('dmTabs').innerHTML = [['queue', 'ক্লাসের সারি'], ['pool', 'শিক্ষক-ভান্ডার'], ['set', 'শাখা ও ইমেইল']].map(function (t) {
+  var T = [['queue', 'ক্লাসের সারি'], ['pool', 'শিক্ষক-ভান্ডার']];
+  if (!S.boot.me.scope) T.push(['set', 'শাখা ও ইমেইল']);
+  else if (DM.tab === 'set') DM.tab = 'queue';
+  $('dmTabs').innerHTML = T.map(function (t) {
     return '<button class="' + (DM.tab === t[0] ? 'on' : '') + '" onclick="DM.tab=\'' + t[0] + '\';dmTabs();dmDraw()">' + t[1] + '</button>'; }).join('');
 }
 function dmLoad(btn) {
@@ -2324,6 +2365,7 @@ function rpLoad(btn) {
 }
 function rpDraw() {
   var d = RP.d, T = d.total, st = d.stage, h = '';
+  if (d.secNames && d.secNames.length) h += '<div class="note" style="margin-bottom:14px">শুধু আপনার বিভাগ: <b>' + esc(d.secNames.join(', ')) + '</b></div>';
   // ১) এখন কোথায়
   h += '<div class="card"><h3>' + icon('cal') + 'এখন যেখানে<span class="sp"></span><span class="chip ok">' + esc(st.now) + '</span></h3>' +
     (st.next ? '<div class="rpnext">সামনে: <b>' + esc(st.next.t) + '</b> — ' + N(ymdBn(st.next.d)) + (st.next.days === 0 ? ' (আজ)' : st.next.days === 1 ? ' (কাল)' : ' (' + N(st.next.days) + ' দিন পর)') + '</div>' : '') +
@@ -2405,13 +2447,13 @@ function lkUrl(x) { return lkFull(S.boot.settings[x.short]) || x.long; }
 function page_links() {
   var L = lkList(), h = '<div class="ph"><h2>লিংক ও QR</h2><span class="sp"></span><button class="btn sm" onclick="lkAllPdf(this)">' + icon('dl') + 'সব QR পোস্টার (PDF)</button><button class="btn sm" onclick="busy(this,reload())">' + icon('renew') + 'হালনাগাদ</button></div>';
   h += '<div class="lkgrid">' + L.map(function (x) {
-    var u = lkUrl(x), sh = S.boot.settings[x.short] || '', canEdit = x.owner ? S.boot.me.owner : true;
+    var u = lkUrl(x), sh = S.boot.settings[x.short] || '', canEdit = (x.owner ? S.boot.me.owner : true) && !S.boot.me.scope;
     return '<div class="card lkc" id="lk_' + x.key + '"><div class="lkhd"><div class="qr lkqr" id="lq_' + x.key + '"></div><div style="flex:1;min-width:0"><h3 style="margin:0 0 2px">' + esc(x.title) + '</h3><div class="tiny">' + esc(x.who) + '</div>' +
       '<div class="lku"><a href="' + esc(u) + '" target="_blank">' + esc(u.replace(/^https?:\/\//, '')) + '</a>' + (sh ? '<span class="chip ok">ছোট লিংক</span>' : '') + '</div>' +
       '<div class="btns"><button class="btn sm" onclick="copyText(\'' + esc(u) + '\')">' + icon('copy') + 'লিংক কপি</button><a class="btn sm" href="' + esc(u) + '" target="_blank">' + icon('ext') + 'খুলুন</a></div></div></div>' +
       (x.extra ? '<div class="tiny" style="margin:8px 0 0">' + esc(x.extra.label) + ': <a href="' + esc(x.extra.url) + '" target="_blank">খুলুন</a> · <a href="#" onclick="copyText(\'' + esc(x.extra.url) + '\');return false">কপি</a> (সাধারণত ওপরের লিংকটাই দিন)</div>' : '') +
       '<div class="fld" style="margin:12px 0 8px"><label>নিজের ছোট লিংক (ঐচ্ছিক)</label><div class="btns" style="flex-wrap:nowrap"><input class="in" id="ls_' + x.key + '" placeholder="যেমন https://tee.com.bd/' + x.key + '" value="' + esc(sh) + '"' + (canEdit ? '' : ' disabled') + '>' +
-      (canEdit ? '<button class="btn sm" onclick="lkSaveShort(this,\'' + x.key + '\')">সেভ</button>' : '') + '</div><div class="hint">শর্টনারে নাম দিন / ছাড়া, লক্ষ্য ' + esc(x.long) + (canEdit ? '' : ' — শুধু মালিক বদলাতে পারেন') + '</div></div>' +
+      (canEdit ? '<button class="btn sm" onclick="lkSaveShort(this,\'' + x.key + '\')">সেভ</button>' : '') + '</div><div class="hint">শর্টনারে নাম দিন / ছাড়া, লক্ষ্য ' + esc(x.long) + (canEdit ? '' : S.boot.me.scope ? ' — ছোট লিংক বসান সব বিভাগের ব্যবহারকারীরা' : ' — শুধু মালিক বদলাতে পারেন') + '</div></div>' +
       '<div class="fld"><label>শেয়ারের লেখা (দরকারমতো বদলে নিন)</label><textarea class="in" id="lt_' + x.key + '" rows="5">' + esc(x.text(u)) + '</textarea></div>' +
       '<div class="btns"><button class="btn sm pri" onclick="lkCopyText(\'' + x.key + '\')">' + icon('copy') + 'লেখা কপি</button>' +
       (navigator.share ? '<button class="btn sm" onclick="lkShare(\'' + x.key + '\')">' + icon('share') + 'শেয়ার</button>' : '') +
