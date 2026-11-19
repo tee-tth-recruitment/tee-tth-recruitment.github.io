@@ -836,8 +836,8 @@ function page_form() {
     fld('fTitle', 'ফর্মের শিরোনাম', s.formTitle) +
     fld('fNotice', 'বিজ্ঞপ্তি (ফর্মের ওপরে)', s.noticeBody, true, '{শেষ তারিখ} {পরীক্ষার তারিখ} {সময়} {ফলের তারিখ} {প্রশিক্ষণের তারিখ} — এগুলো সেটিংসের তারিখ থেকে নিজে বসবে।') +
     fld('fWarn', '⚠️ জরুরি কথা (বড় অক্ষরে দেখায়)', s.warning, true) +
-    fld('fConfirm', 'জমার পরের বার্তা', s.confirmMsg, true, '{প্রবেশপত্রের লিংক} — নিচের "প্রবেশপত্র খোঁজার ছোট লিংক" বসবে।') +
-    fld('fAdmShort', 'প্রবেশপত্র খোঁজার ছোট লিংক (ঐচ্ছিক)', s.admitShort, false, 'যেমন https://tee.com.bd/admit — ওয়েবসাইটের শর্টনারে লক্ষ্য দিন ' + S.boot.site + '/a/ । খালি থাকলে সাইটের লিংক দেখাবে।') +
+    fld('fConfirm', 'জমার পরের বার্তা', s.confirmMsg, true, '{আমার আবেদনের লিংক} — নিচের "আমার আবেদন"-এর ছোট লিংক বসবে (না থাকলে সাইটের /a/)।') +
+    fld('fAdmShort', '"আমার আবেদন"-এর ছোট লিংক (ঐচ্ছিক)', s.admitShort, false, 'যেমন https://tee.com.bd/myapp — ওয়েবসাইটের শর্টনারে লক্ষ্য দিন ' + S.boot.site + '/a/ । খালি থাকলে সাইটের লিংক দেখাবে।') +
     fld('fClosed', 'আবেদন বন্ধ থাকলে বার্তা', s.closedMsg, true) +
     '<div class="fld">' + sw('fManual', s.manualApprove, 'সব আবেদন হাতে দেখে অনুমোদন (চালু থাকলে কেউ নিজে রোল পাবেন না)') + '</div>' +
     '<div class="fld">' + sw('fTxtMan', s.formTextsManual, 'ফর্মের শিরোনাম ও বিজ্ঞপ্তি গুগল ফর্মে হাতে সাজিয়েছি — অ্যাপ যেন আর না বদলায়') + '<div class="hint">চালু করলে মোটা অক্ষর ইত্যাদি হাতের সাজ থাকবে, কিন্তু তারিখ বদলালে ফর্মের বিজ্ঞপ্তি নিজে বদলাবে না — হাতে বদলাতে হবে।</div></div>' +
@@ -949,10 +949,10 @@ function page_sms() {
     }).join('') + '<button class="btn pri" onclick="saveSmsTexts(this)">সেভ</button></div>';
   var et = s.emailTpl || {}, eo = s.emailOn || {};
   h += '<div class="card"><h3>' + icon('send') + 'ইমেইল<span class="sp"></span><span class="chip ok">নিজে নিজে যায়</span></h3>' +
-    '<div class="tiny" style="margin-bottom:10px">প্রার্থী ফর্মে যে গুগল ইমেইলে সাইন-ইন করেন, সেখানে যায় — IP-র কোনো বাধা নেই, তাই অনুমোদনের সঙ্গে সঙ্গে নিজে যায় (প্রবেশপত্রের বোতামসহ)। Gmail-এর সীমা দিনে প্রায় ১০০টা; বেশি হলে বাকিগুলো পরদিন নিজে যায়। ঘর: {নাম} {রোল} {শ্রেণি} {বিষয়} {তারিখ} {সময়} {কেন্দ্র}</div>' +
-    '<div class="fld">' + sw('em_ap', eo.approve, 'অনুমোদনের ইমেইল (রোল + প্রবেশপত্র)') + '</div>' + fld('em_aps', 'বিষয় (Subject)', et.approveSubject) + fld('em_apb', 'লেখা', et.approve, true) +
+    '<div class="tiny" style="margin-bottom:10px">প্রার্থী ফর্মে যে গুগল ইমেইলে সাইন-ইন করেন, সেখানে যায় — IP-র কোনো বাধা নেই, তাই অনুমোদনের সঙ্গে সঙ্গে নিজে যায় ("আমার আবেদন খুলুন" বোতামসহ — সেখান থেকে প্রবেশপত্র)। Gmail-এর সীমা দিনে প্রায় ১০০টা; বেশি হলে বাকিগুলো পরদিন নিজে যায়। ঘর: {নাম} {রোল} {শ্রেণি} {বিষয়} {তারিখ} {সময়} {কেন্দ্র} {আমার আবেদনের লিংক}</div>' +
+    '<div class="fld">' + sw('em_ap', eo.approve, 'অনুমোদনের ইমেইল (রোল + আমার আবেদন)') + '</div>' + fld('em_aps', 'বিষয় (Subject)', et.approveSubject) + fld('em_apb', 'লেখা', et.approve, true) +
     '<div class="fld">' + sw('em_pr', eo.problem, 'আবেদনে সমস্যার ইমেইল') + '</div>' + fld('em_prs', 'বিষয় (Subject)', et.problemSubject) + fld('em_prb', 'লেখা', et.problem, true) +
-    '<div class="fld">' + sw('em_rm', eo.remind, 'পরীক্ষার আগে মনে করানোর ইমেইল (প্রবেশপত্রের বোতামসহ)') + '</div>' +
+    '<div class="fld">' + sw('em_rm', eo.remind, 'পরীক্ষার আগে মনে করানোর ইমেইল (আমার আবেদনের বোতামসহ)') + '</div>' +
     '<div class="fld"><label>কত দিন আগে থেকে শুরু</label><input class="in" type="number" min="1" max="7" id="em_rd" value="' + esc(s.remindDays || 2) + '" style="max-width:120px"><div class="hint">Gmail দিনে প্রায় ১০০টা ইমেইল পাঠাতে দেয় — প্রার্থী বেশি হলে দিন বাড়ান (যেমন ৪০০ জন হলে ৫ দিন)।</div></div>' +
     fld('em_rms', 'বিষয় (Subject)', et.remindSubject) + fld('em_rmb', 'লেখা', et.remind, true) +
     '<button class="btn pri" onclick="saveMail(this)">সেভ</button></div>';
