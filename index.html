@@ -728,7 +728,7 @@ function confirmBox(title, text, okText, extra) {
 }
 
 /* ---------- অবস্থা ---------- */
-var S = { boot: null, page: 'home', af: { tab: 'all', q: '', cls: '', subj: '' }, subEdit: null, logs: null, sms: null, users: null, sec: null };
+var S = { boot: null, page: 'home', af: { tab: 'all', q: '', cls: '', subj: '', res: '', inst: '', instq: '' }, subEdit: null, logs: null, sms: null, users: null, sec: null };
 var ST = { approved: ['অনুমোদিত', 'ok'], problem: ['সমস্যা', 'bad'], pending: ['অপেক্ষায়', 'warn'], cancelled: ['বাতিল', ''] };
 function can(p) { var me = S.boot && S.boot.me; return !!me && (me.owner || me.perms.indexOf(p) !== -1); }
 // সংবেদনশীল নিয়ন্ত্রণ (লিংক-QR, কোড, চালু/বন্ধ, গেটওয়ে, ফর্ম, তারিখ, লেখা, নোটিশ) — সার্ভারও একই নিয়ম মানে (canSecure_)
@@ -928,21 +928,59 @@ function page_applicants() {
   h += '<div class="bar"><input class="in" id="aq" placeholder="রোল, নাম বা মোবাইল দিয়ে খুঁজুন…" value="' + esc(af.q) + '">' +
     '<select class="sel" id="acls"><option value="">সব শ্রেণি</option>' + classes.map(function (c) { return '<option' + (af.cls === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select>' +
     '<select class="sel" id="asub"><option value="">সব বিষয়</option>' + subs.map(function (s) { return '<option value="' + esc(s.subject) + '"' + (af.subj === s.subject ? ' selected' : '') + '>' + esc((af.cls ? '' : s.cls + ' · ') + s.subject) + '</option>'; }).join('') + '</select></div>';
-  h += '<div class="selrow"><label class="ck"><input type="checkbox" id="selAll"> <span id="selAllTx">সব বাছাই</span></label><span class="tiny" id="selCnt"></span></div>';
+  // ফলাফল ও প্রতিষ্ঠান (প্রতিষ্ঠানের নাম প্রার্থীরা নিজের মতো লেখেন — তালিকা থেকে বাছুন, অথবা নামের অংশ লিখে খুঁজুন)
+  var insts = instGroups(A);
+  h += '<div class="bar"><select class="sel" id="ares"><option value="">সব ফলাফল</option>' + [['pass', 'উত্তীর্ণ'], ['wait', 'অপেক্ষমাণ'], ['fail', 'অনুত্তীর্ণ'], ['absent', 'অনুপস্থিত'], ['none', 'ফলাফল হয়নি']].map(function (r) { return '<option value="' + r[0] + '"' + (af.res === r[0] ? ' selected' : '') + '>' + r[1] + '</option>'; }).join('') + '</select>' +
+    '<select class="sel" id="ainst"><option value="">সব প্রতিষ্ঠান (' + N(insts.length) + ')</option>' + insts.map(function (g) { return '<option value="' + esc(g.k) + '"' + (af.inst === g.k ? ' selected' : '') + '>' + esc(g.name) + ' · ' + N(g.n) + '</option>'; }).join('') + '</select>' +
+    '<input class="in" id="ainq" placeholder="প্রতিষ্ঠানের নামের অংশ লিখে খুঁজুন (যেমন ঢাকা কলেজ)" value="' + esc(af.instq) + '"></div>';
+  h += '<div class="selrow"><label class="ck"><input type="checkbox" id="selAll"> <span id="selAllTx">সব বাছাই</span></label><span class="tiny" id="selCnt"></span><span class="sp" style="flex:1"></span><span class="tiny" id="visCnt"></span>' +
+    (canSec() ? '<button class="btn sm gold" onclick="phoneCopy()">📋 নম্বর কপি</button>' : '') + '</div>';
   h += '<div class="list" id="alist"></div><div class="bulk hide" id="bulk"></div>';
   return h;
 }
 /* ---------- একসঙ্গে অনেকজন ---------- */
 function rowKey(a) { return String(a.roll || a.rid); }
 function visibleList() {
-  var af = S.af, q = af.q.trim().toLowerCase().replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); });
+  var iq = instKey(S.af.instq), af = S.af, q = af.q.trim().toLowerCase().replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); });
   return (S.boot.applicants || []).filter(function (a) {
     if (af.tab === 'test') { if (!a.test) return false; } else if (a.test || (af.tab !== 'all' && a.status !== af.tab)) return false;
     if (af.cls && a.cls !== af.cls) return false;
     if (af.subj && a.subject !== af.subj) return false;
+    if (af.res && (af.res === 'none' ? a.res : a.res !== af.res)) return false;
+    if (af.inst && instKey(a.institution) !== af.inst) return false;
+    if (iq && instKey(a.institution).indexOf(iq) === -1) return false;
     if (q && (String(a.roll) + ' ' + a.nameBn + ' ' + a.nameEn + ' ' + a.mobile).toLowerCase().indexOf(q) === -1) return false;
     return true;
   });
+}
+// প্রতিষ্ঠানের নাম মেলানো: ছোট হাতের, বাড়তি ফাঁক ও দাঁড়ি-কমা বাদ
+function instKey(s) { return String(s || '').toLowerCase().replace(/[.,'"()\-]/g, ' ').replace(/\s+/g, ' ').trim(); }
+function instGroups(A) {
+  var by = {};
+  A.forEach(function (a) { if (a.test) return; var k = instKey(a.institution); if (!k) return; var g = by[k] = by[k] || { k: k, n: 0, names: {} }; g.n++; var nm = String(a.institution).trim(); g.names[nm] = (g.names[nm] || 0) + 1; });
+  return Object.keys(by).map(function (k) { var g = by[k]; g.name = Object.keys(g.names).sort(function (x, y) { return g.names[y] - g.names[x]; })[0]; return g; }).sort(function (x, y) { return y.n - x.n || (x.name < y.name ? -1 : 1); });
+}
+// নম্বর কপি — টিক দেওয়া থাকলে তাঁদের, নইলে তালিকায় যাঁরা দেখাচ্ছেন (৩০০-র বেশি হলেও সবাই); একই নম্বর একবার
+var PHF = 'line';
+function phoneList() {
+  var keys = selKeys(), set = {}; keys.forEach(function (k) { set[k] = 1; });
+  var L = keys.length ? (S.boot.applicants || []).filter(function (a) { return set[rowKey(a)]; }) : visibleList(), seen = {}, out = [];
+  L.forEach(function (a) { var m = String(a.mobile || '').replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); }).replace(/\D/g, ''); if (!m || seen[m]) return; seen[m] = 1; out.push({ m: m, a: a }); });
+  return { list: out, picked: keys.length > 0, total: L.length };
+}
+function phoneText(P, f) {
+  if (f === 'comma') return P.list.map(function (x) { return x.m; }).join(',');
+  if (f === 'name') return P.list.map(function (x) { var a = x.a; return (a.nameBn || a.nameEn || '') + ' — ' + x.m + ' (' + (a.roll ? 'রোল ' + N(a.roll) + ' · ' : '') + a.cls + ' ' + a.subject + ')'; }).join('\n');
+  return P.list.map(function (x) { return x.m; }).join('\n');
+}
+function phoneCopy() {
+  var P = phoneList();
+  if (!P.list.length) return toast('তালিকায় কোনো নম্বর নেই');
+  modal('<div class="md" style="width:min(640px,96%)"><h3 style="margin:0 0 6px">📋 নম্বর কপি</h3><div class="tiny" style="margin-bottom:12px">' + (P.picked ? 'টিক দেওয়া ' : 'তালিকায় দেখানো ') + N(P.total) + 'জন থেকে ' + N(P.list.length) + 'টি নম্বর (একই নম্বর একবার)।</div>' +
+    '<div class="tabs" id="phf">' + [['line', 'প্রতি লাইনে একটা'], ['comma', 'কমা দিয়ে এক লাইনে'], ['name', 'নামসহ']].map(function (t) { return '<button class="' + (PHF === t[0] ? 'on' : '') + '" onclick="PHF=\'' + t[0] + '\';phoneCopy()">' + t[1] + '</button>'; }).join('') + '</div>' +
+    '<textarea class="in" id="phTx" rows="10" readonly style="font-family:monospace;font-size:13px"></textarea>' +
+    '<div class="btns" style="justify-content:flex-end;margin-top:12px"><button class="btn" onclick="closeLayer()">বন্ধ</button><button class="btn pri" onclick="copyText($(\'phTx\').value)">📋 কপি করুন</button></div></div>');
+  $('phTx').value = phoneText(P, PHF);
 }
 function selKeys() { return Object.keys(S.sel || {}).filter(function (k) { return S.sel[k]; }); }
 function toggleSel(k, on) { S.sel = S.sel || {}; S.sel[k] = on; drawBulk(); }
@@ -1004,11 +1042,15 @@ function after_applicants() {
   $('aq').oninput = function () { S.af.q = this.value; drawList(); };
   $('acls').onchange = function () { S.af.cls = this.value; S.af.subj = ''; render(); };
   $('asub').onchange = function () { S.af.subj = this.value; drawList(); };
+  $('ares').onchange = function () { S.af.res = this.value; drawList(); };
+  $('ainst').onchange = function () { S.af.inst = this.value; drawList(); };
+  $('ainq').oninput = function () { S.af.instq = this.value; drawList(); };
   $('selAll').onchange = function () { var on = this.checked; S.sel = S.sel || {}; visibleList().slice(0, 300).forEach(function (a) { S.sel[rowKey(a)] = on; }); drawList(); };
   drawList();
 }
 function drawList() {
   var L = visibleList();
+  if ($('visCnt')) $('visCnt').textContent = 'তালিকায় ' + N(L.length) + 'জন';
   var more = L.length > 300;
   S.sel = S.sel || {};
   $('alist').innerHTML = L.length ? L.slice(0, 300).map(function (a) {
