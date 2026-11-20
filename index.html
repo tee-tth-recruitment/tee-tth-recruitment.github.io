@@ -746,6 +746,47 @@ body[data-page=report] .page .ph:first-child .btn{background:var(--card2);border
   body[data-page=subjects] #subSave{position:fixed;right:14px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:25;min-height:48px;padding:0 26px;font-size:15.5px;border-radius:999px;box-shadow:0 10px 26px rgba(99,102,241,.5);backdrop-filter:none}
   body[data-page=subjects] #subSave:disabled{display:none}
 }
+
+/* প্রতিবেদন — বসের প্রথম পর্দা (ফোন): স্ক্রল ছাড়াই অবস্থা + পাঁচটা মূল সংখ্যা */
+.rx-ref{display:none}
+.rx-kpi em i.up{font-style:normal;color:#34d399;font-weight:800}
+@media (max-width:640px){
+  body[data-page=report] #page>.ph{display:none}
+  .rx-ref{display:grid;place-items:center;position:absolute;top:10px;right:10px;z-index:2;width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;padding:0}
+  .rx-ref .ic{width:16px;height:16px}
+  .rx-hero{padding:14px 16px 14px;gap:10px;border-radius:18px;margin-top:2px}
+  .rx-hl{min-width:0;padding-right:36px}
+  .rx-kick{font-size:11.5px}
+  .rx-hero h1{font-size:21px;margin:2px 0 8px}
+  .rx-now{font-size:12.5px;padding:4px 11px;gap:6px}.rx-dot{width:7px;height:7px}
+  .rx-upd{font-size:11px;margin-top:6px}
+  .rx-ring{width:100%;gap:12px;background:rgba(255,255,255,.07);border:1px solid rgba(230,199,125,.25);border-radius:14px;padding:8px 12px}
+  .rx-ringin{width:56px;height:56px;border-width:3px;box-shadow:0 0 0 4px rgba(230,199,125,.15),inset 0 0 10px rgba(0,0,0,.4);flex:none}
+  .rx-ringin b{font-size:24px}.rx-ringin span{font-size:9.5px;margin-top:0}
+  .rx-next b{font-size:15px}.rx-next span{font-size:13px}.rx-next small{font-size:11px}
+  /* সংখ্যার ঘর: আইকন আর নাম এক লাইনে — ঘর ছোট */
+  .rx-kpis{gap:8px;margin:10px 0 12px}
+  .rx-kpi{display:grid;grid-template-columns:24px minmax(0,1fr);column-gap:7px;align-items:center;padding:10px 12px 9px}
+  .rx-kpi .rx-ic{width:24px;height:24px;border-radius:7px;margin:0}.rx-kpi .rx-ic .ic{width:13px;height:13px}
+  .rx-kpi small{font-size:11.5px;line-height:1.25}
+  .rx-kpi b{grid-column:1/-1;font-size:25px;margin:3px 0 0;line-height:1.1}
+  .rx-kpi em{grid-column:1/-1;font-size:11.5px}
+  .rx-kpi::after{width:70px;height:70px;right:-24px;top:-24px}
+  /* পঞ্চমটা পুরো চওড়ায়, এক সারিতে: আইকন · নাম/নিচে টীকা · ডানে সংখ্যা */
+  .rx-kpis>:last-child:nth-child(odd){grid-template-columns:24px minmax(0,1fr) auto;row-gap:1px}
+  .rx-kpis>:last-child:nth-child(odd) b{grid-column:3;grid-row:1/span 2;margin:0;align-self:center}
+  .rx-kpis>:last-child:nth-child(odd) em{grid-column:2}
+}
+@media (max-width:640px){
+  .rx-kpi b{position:relative;z-index:1}
+  .rx-kpis>:last-child:nth-child(odd) b{padding-right:4px}
+  .rx-kpis>:last-child:nth-child(odd)::after{right:-40px;top:-40px}
+  /* ক্রম: মাথা → সংখ্যা → ধাপে ধাপে → শ্রেণি → সময়রেখা → বিস্তারিত ছক */
+  .rpx{display:flex;flex-direction:column;gap:12px}
+  .rpx>*{margin-top:0!important;margin-bottom:0!important}
+  .rpx>.rx-tlc{order:5}.rpx>.rx-tbl{order:6}
+  .rx-two{gap:12px}
+}
 </style>
 </head>
 <body>
@@ -3048,7 +3089,7 @@ function rpDraw() {
 
   // ১) মাথা — এখনকার অবস্থা + সামনের তারিখের কাউন্টডাউন
   var nx = st.next;
-  h += '<div class="rx-hero"><div class="rx-glow"></div><div class="rx-hl">' +
+  h += '<div class="rx-hero"><div class="rx-glow"></div><button class="rx-ref" onclick="rpLoad(this)" title="হালনাগাদ">' + icon('renew') + '</button><div class="rx-hl">' +
     '<div class="rx-kick">' + esc(d.title || 'শিক্ষক নিয়োগ') + '</div>' +
     '<h1>নিয়োগের অবস্থা <em>এক নজরে</em></h1>' +
     '<div class="rx-now"><span class="rx-dot"></span>' + esc(st.now) + '</div>' +
@@ -3058,7 +3099,7 @@ function rpDraw() {
 
   // ২) মূল সংখ্যা
   var K = [
-    ['users', 'মোট আবেদন', T.applied, d.today ? 'আজ +' + N(d.today) : 'আজ নতুন নেই', 'k1'],
+    ['users', 'মোট আবেদন', T.applied, d.today ? '<i class="up">আজ +' + N(d.today) + '</i>' : 'আজ নতুন নেই', 'k1'],
     ['check', 'অনুমোদিত', T.approved, N(pct(T.approved, T.applied)) + '% আবেদন', 'k2'],
     ['num', 'লিখিত পরীক্ষায় উপস্থিত', T.written, T.approved ? N(pct(T.written, T.approved)) + '% অনুমোদিত' : 'পরীক্ষা হয়নি', 'k3'],
     ['award', 'উত্তীর্ণ', T.pass, 'অপেক্ষমাণ ' + N(T.wait || 0), 'k4'],
@@ -3070,7 +3111,7 @@ function rpDraw() {
 
   // ৩) সময়রেখা
   var ev = st.events, done = ev.filter(function (e) { return e.past; }).length;
-  h += '<div class="card rx-card"><h3>' + icon('cal') + 'সময়রেখা</h3><div class="rx-tl" style="--n:' + ev.length + ';--done:' + done + '">' +
+  h += '<div class="card rx-card rx-tlc"><h3>' + icon('cal') + 'সময়রেখা</h3><div class="rx-tl" style="--n:' + ev.length + ';--done:' + done + '">' +
     '<div class="rx-line"><i style="width:' + (ev.length > 1 ? Math.min(100, Math.max(0, (done - 0.5) / (ev.length - 1) * 100)) : 0) + '%"></i></div>' +
     ev.map(function (e) {
       var isNext = nx && e.t === nx.t && e.d === nx.d;
@@ -3110,7 +3151,7 @@ function rpDraw() {
   // ৬) শ্রেণি-বিষয় ধরে — রঙের গাঢ়তা = সংখ্যা
   var colMax = {}; d.steps.forEach(function (k) { colMax[k[0]] = Math.max(1, Math.max.apply(null, d.rows.map(function (r) { return r[k[0]] || 0; }).concat([0]))); });
   var lastCls = null;
-  h += '<div class="card rx-card"><h3>' + icon('book') + 'শ্রেণি-বিষয় ধরে বিস্তারিত<span class="sp"></span><button class="btn sm" onclick="rpPrint()">' + icon('dl') + 'প্রিন্ট</button><button class="btn sm" onclick="rpCsv()">' + icon('dl') + 'এক্সেল</button></h3>' +
+  h += '<div class="card rx-card rx-tbl"><h3>' + icon('book') + 'শ্রেণি-বিষয় ধরে বিস্তারিত<span class="sp"></span><button class="btn sm" onclick="rpPrint()">' + icon('dl') + 'প্রিন্ট</button><button class="btn sm" onclick="rpCsv()">' + icon('dl') + 'এক্সেল</button></h3>' +
     '<div class="tiny mob" style="margin:0 0 6px">ডানে সরিয়ে বাকি ধাপগুলো দেখুন →</div><div class="tw"><table class="t rx-t nostk"><tr><th>শ্রেণি-বিষয়</th>' + d.steps.map(function (k) { return '<th class="r">' + esc(k[1]) + '</th>'; }).join('') + '</tr>' +
     d.rows.map(function (r) {
       var g = '';
