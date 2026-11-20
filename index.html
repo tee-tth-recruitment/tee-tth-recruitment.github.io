@@ -791,6 +791,26 @@ body[data-page=report] .page .ph:first-child .btn{background:var(--card2);border
   .rpx>.rx-tlc{order:5}.rpx>.rx-tbl{order:6}
   .rx-two{gap:12px}
 }
+
+/* শুধু প্রধান: প্রস্তুতি ও ইমেইলের হিসাব (হোম) */
+.card.own{margin-bottom:14px}
+.ownsum{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:-2px 0 10px}
+.ownsum span{font-weight:800;font-size:13px;padding:3px 10px;border-radius:999px}
+.ownsum .ok{background:var(--okb);color:var(--ok)}.ownsum .warn{background:var(--warnb);color:var(--warn)}.ownsum .bad{background:var(--badb);color:var(--bad)}
+.ownsum small{margin-left:auto;color:var(--tx3);font-size:11.5px}
+.ownl{display:flex;flex-direction:column;gap:6px}
+.ownl button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid var(--line);background:var(--card2);color:var(--tx);border-radius:12px;padding:9px 12px;cursor:pointer;font:inherit}
+.ownl button:hover{border-color:var(--line2)}
+.ownl i{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:13px}
+.ownl .ok i{background:var(--okb);color:var(--ok)}.ownl .warn i{background:var(--warnb);color:var(--warn)}.ownl .bad i{background:var(--badb);color:var(--bad)}
+.ownl .bad{border-color:rgba(248,113,113,.45)}
+.ownl span{flex:1;min-width:0}.ownl b{display:block;font-size:14px;line-height:1.35}.ownl small{display:block;color:var(--tx3);font-size:12px;line-height:1.4}
+.ownl .ic{width:16px;height:16px;transform:rotate(-90deg);opacity:.5;flex:none}
+.ownmail{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ownmail div{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.ownmail b{display:block;font-size:22px;font-weight:800;line-height:1.2}.ownmail small{color:var(--tx3);font-size:12px}
+@media (max-width:640px){.ownmail b{font-size:19px}.ownmail div{padding:8px 10px}.ownl button{padding:8px 10px}}
+.ownok{margin-top:8px}.ownok summary{cursor:pointer;color:var(--ok);font-weight:700;font-size:13px;padding:6px 2px;list-style:none}.ownok summary::-webkit-details-marker{display:none}.ownok[open] summary{margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -1077,6 +1097,7 @@ function page_home() {
   var q = S.boot.smsQueue || {};
   if (q.total && (can('sms') || can('applicants_edit'))) warn.push(N(q.total) + 'টি SMS পাঠানো বাকি — <a href="#" onclick="go(\'sms\');return false">SMS ও ইমেইল পাতা থেকে "সব বাকি SMS পাঠাও"</a> চাপুন।');
   if (warn.length) h += '<div class="note warn" style="margin-bottom:14px">⚠️ ' + warn.join('<br>⚠️ ') + '</div>';
+  if (me.owner) h += '<div id="ownBox">' + (S.own ? ownHtml(S.own) : '') + '</div>';   // শুধু প্রধান: প্রস্তুতি + ইমেইলের হিসাব
   var stt = [['মোট আবেদন', c.total, 'acc', 'all'], ['আজ', c.today, '', 'all'], ['অনুমোদিত', c.approved, 'ok', 'approved'],
             ['সমস্যা', c.problem, 'bad', 'problem'], ['অপেক্ষায়', c.pending, 'warn', 'pending'], ['বাতিল', c.cancelled, '', 'cancelled']];
   h += '<div class="stats">' + stt.map(function (x) {
@@ -1097,6 +1118,36 @@ function page_home() {
   h += '<div class="card"><h3>' + icon('book') + 'বিষয়ভিত্তিক আবেদন</h3><div class="tw" style="max-height:340px"><table class="t"><tr><th>শ্রেণি</th><th>বিষয়</th><th style="text-align:right">আবেদন</th></tr>' +
     rows.map(function (r) { return '<tr' + (r[3] ? '' : ' style="opacity:.5"') + '><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td><td style="text-align:right;font-weight:700">' + N(r[2]) + '</td></tr>'; }).join('') +
     '</table></div></div></div>';
+  return h;
+}
+
+/* ---------- শুধু প্রধান: পরীক্ষার আগে প্রস্তুতি + ইমেইলের হিসাব ---------- */
+function after_home() {
+  if (!S.boot.me.owner) return;
+  callServer('apiOwnerPanel').then(function (d) { S.own = d; if (S.page === 'home' && $('ownBox')) $('ownBox').innerHTML = ownHtml(d); }, function () {});
+}
+function ownHtml(d) {
+  var h = '', r = d.ready, m = d.mail;
+  if (r) {
+    var okN = r.items.length - r.bad - r.warn;
+    h += '<div class="card own"><h3>' + icon('check') + 'পরীক্ষার আগে প্রস্তুতি<span class="sp"></span><span class="chip ' + (r.bad ? 'bad' : r.warn ? 'warn' : 'ok') + '">' + (r.daysTo === 0 ? 'আজ পরীক্ষা' : r.daysTo === 1 ? 'কাল পরীক্ষা' : N(r.daysTo) + ' দিন বাকি') + '</span></h3>' +
+      '<div class="ownsum"><span class="ok">✓ ' + N(okN) + ' ঠিক</span>' + (r.warn ? '<span class="warn">! ' + N(r.warn) + ' বাকি</span>' : '') + (r.bad ? '<span class="bad">✕ ' + N(r.bad) + ' জরুরি</span>' : '') + '<small>🔒 শুধু আপনি দেখছেন</small></div>' +
+      (function () {
+        var row = function (x) { return '<button class="' + x.s + '" onclick="' + (x.tab ? 'S.af.tab=\'' + x.tab + '\';' : '') + 'go(\'' + x.page + '\')"><i>' + (x.s === 'ok' ? '✓' : x.s === 'bad' ? '✕' : '!') + '</i><span><b>' + esc(x.t) + '</b>' + (x.d ? '<small>' + esc(x.d) + '</small>' : '') + '</span>' + icon('down') + '</button>'; };
+        var todo = r.items.filter(function (x) { return x.s !== 'ok'; }).sort(function (a, b) { return (a.s === 'bad' ? 0 : 1) - (b.s === 'bad' ? 0 : 1); }), done = r.items.filter(function (x) { return x.s === 'ok'; });
+        // বাকি কাজ সামনে; ঠিক থাকাগুলো ভাঁজ করা (হোম লম্বা না হয়)
+        return '<div class="ownl">' + (todo.length ? todo.map(row).join('') : '<div class="tiny" style="padding:4px 2px">🎉 সব প্রস্তুত — কিছু বাকি নেই।</div>') + '</div>' +
+          (done.length ? '<details class="ownok"><summary>✓ ঠিক আছে ' + N(done.length) + 'টা — দেখুন</summary><div class="ownl">' + done.map(row).join('') + '</div></details>' : '');
+      })() + '</div>';
+  }
+  var P = m.parts, lab = [['approve', 'প্রবেশপত্র'], ['remind', 'মনে করানো'], ['result', 'ফলাফল'], ['train', 'প্রশিক্ষণ'], ['demo', 'ডেমো/নিয়োগ']];
+  h += '<div class="card own"><h3>' + icon('send') + 'ইমেইলের হিসাব<span class="sp"></span><small class="tiny">🔒 শুধু আপনি</small></h3>' +
+    '<div class="ownmail"><div><b>' + N(m.total) + '</b><small>ইমেইল পাঠানো বাকি</small></div><div><b>' + N(m.usable) + '</b><small>আজ আর পাঠানো যাবে</small></div>' +
+    '<div><b>' + (m.total ? (m.days ? '~' + N(m.days) + ' দিন' : 'আজই') : '—') + '</b><small>সব যেতে লাগবে</small></div></div>' +
+    (m.total ? '<div class="chips" style="margin-top:10px">' + lab.filter(function (x) { return P[x[0]]; }).map(function (x) { return '<span class="chip">' + x[1] + ' ' + N(P[x[0]]) + '</span>'; }).join(' ') + '</div>' : '') +
+    '<div class="tiny" style="margin-top:8px">Gmail দিনে প্রায় ১০০টা ইমেইল পাঠাতে দেয় — লগইন-কোডের জন্য ১০টা রাখা, বাকি ~' + N(m.perDay) + 'টা প্রার্থীদের। বাকিগুলো পরের দিন নিজে যায়।</div>' +
+    (m.remindShort ? '<div class="note warn" style="margin-top:10px">⚠️ মনে করানোর ইমেইল পরীক্ষার আগে সবার কাছে পৌঁছাবে না — এখন ' + N(m.remindDays) + ' দিন আগে শুরু হয়, দরকার অন্তত ' + N(m.remindNeedDays) + ' দিন। <a href="#" onclick="go(\'sms\');return false">SMS ও ইমেইল পাতা</a> থেকে দিন বাড়ান।</div>' : '') +
+    '</div>';
   return h;
 }
 
