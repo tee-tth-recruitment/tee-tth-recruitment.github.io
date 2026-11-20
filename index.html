@@ -1252,7 +1252,7 @@ function drawList() {
       '<div class="nm"><b>' + esc(a.nameBn || a.nameEn || '(নাম নেই)') + '</b><small>' + esc(a.cls) + ' · ' + esc(a.subject) + ' · ' + N(a.mobile) + (a.problems ? ' · ⚠ ' + esc(a.problems) : '') + '</small></div><span class="rch">' +
       (a.status === 'approved' ? (a.mail === 1 ? '<span class="chip ok" title="রোল ও প্রবেশপত্রের ইমেইল গেছে">ইমেইল গেছে</span>' : a.mail === 0 ? '<span class="chip warn" title="ইমেইল এখনো যায়নি — দৈনিক সীমা শেষ হলে পরদিন নিজে যাবে">ইমেইল বাকি</span>' : '<span class="chip">ইমেইল নেই</span>') +
         (a.smsApprove ? ' <span class="chip ok">SMS গেছে</span>' : ' <span class="chip" title="SMS জমা আছে — SMS পাতা থেকে পাঠানো যাবে">SMS বাকি</span>') : '') +
-      (a.test ? '<span class="chip info">🧪 টেস্ট</span> ' : '') + '<span class="chip ' + st[1] + '">' + st[0] + '</span></span></div>';
+      (a.test ? '<span class="chip info">🧪 টেস্ট</span> ' : '') + (/সন্দেহজনক/.test(a.problems || '') ? '<span class="chip bad" title="আজেবাজে বা অশালীন লেখা — দেখে অনুমোদন বা বাতিল করুন">🚩 সন্দেহজনক</span> ' : '') + '<span class="chip ' + st[1] + '">' + st[0] + '</span></span></div>';
   }).join('') + (more ? '<div class="tiny" style="text-align:center">প্রথম ৩০০ জন দেখানো হলো — খুঁজে বা ছেঁকে নির্দিষ্ট করুন।</div>' : '') : '<div class="empty">' + icon('users') + 'কোনো প্রার্থী নেই।</div>';
   drawBulk();
 }
