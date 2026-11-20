@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="assets/tth-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Baloo+Da+2:wght@700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" integrity="sha384-mZT2gIty7ZDdOGkxfP6joZcYdMW1Jvj9dRlfpTmaJAKKXTqzygtB22k7FLe+KZC1" crossorigin="anonymous"></script>
 <script>
 /* =========================================================
  *  শিক্ষক নিয়োগ ২০২৭ — অফিসের অ্যাপ
@@ -895,6 +895,12 @@ function copyText(s) {
 }
 function sw(id, on, label) { return '<label class="sw"><input type="checkbox" id="' + id + '"' + (on ? ' checked' : '') + '><i></i>' + (label || '') + '</label>'; }
 function smsParts(t) { var n = String(t || '').length; return !n ? 0 : (n <= 70 ? 1 : Math.ceil(n / 67)); }
+// এক্সেলের ঘর: প্রার্থীর লেখা "=", "+", "-", "@" দিয়ে শুরু হলে এক্সেল সেটাকে সূত্র ভেবে চালাত (CSV injection) — সামনে ' দিয়ে লেখা বানানো
+function csvCell(v) {
+  v = String(v == null ? '' : v);
+  if (/^[=+\-@\t\r]/.test(v) && !/^[+-]?\d[\d.,]*$/.test(v)) v = "'" + v;
+  return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+}
 function closeLayer() { $('layer').innerHTML = ''; }
 function modal(html, cls) {
   $('layer').innerHTML = '<div class="ov ' + (cls || 'c') + '" id="ov">' + html + '</div>';
@@ -1218,7 +1224,7 @@ function bulkCsv() {
     return [a.roll, a.nameBn, a.nameEn, a.mobile, a.cls, a.subject, a.institution, (ST[a.status] || [a.status])[0], a.problems, dtx(a.submittedAt),
             a.mail === 1 ? 'গেছে' : a.mail === 0 ? 'বাকি' : 'নেই', a.smsApprove ? 'গেছে' : 'বাকি'];
   });
-  var csv = [head].concat(rows).map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
+  var csv = [head].concat(rows).map(function (r) { return r.map(function (v) { return csvCell(v); }).join(','); }).join('\r\n');
   var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
   a.download = 'prarthi-' + new Date().toISOString().slice(0, 10) + '.csv'; a.click();
 }
@@ -2227,7 +2233,7 @@ function atDutyPrint() {
 function atCsv() {
   var L = atRows(), head = ['রোল', 'নাম', 'কক্ষ', 'শ্রেণি-বিষয়', 'অবস্থা', 'সময়', 'কে', 'কীভাবে', 'ভুল কক্ষ'];
   var csv = [head].concat(L.map(function (p) { return [p.roll, p.name, p.room, p.cs, p.present ? 'উপস্থিত' : 'অনুপস্থিত', p.present ? dtx(p.at) : '', p.by, p.how, p.wrong ? 'হ্যাঁ' : '']; }))
-    .map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
+    .map(function (r) { return r.map(function (v) { return csvCell(v); }).join(','); }).join('\r\n');
   var x = document.createElement('a'); x.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); x.download = 'upasthiti-' + AT.ev + '.csv'; x.click();
 }
 
@@ -2574,7 +2580,7 @@ function rsCsv(btn) {
   busy(btn, callServer('apiResultSheet')).then(function (d) {
     var head = ['শ্রেণি', 'বিষয়', 'মেধাক্রম', 'রোল', 'নাম', 'নম্বর', 'মোট নম্বর', 'ফল', 'অবস্থা'], rows = [];
     d.groups.forEach(function (g) { g.people.forEach(function (p) { rows.push([g.cls, g.subject, p.rank, p.roll, p.name, p.mk === null ? '' : p.mk, g.total, (RES_NAME[p.res] || RES_NAME[''])[0], g.final ? 'চূড়ান্ত' : 'খসড়া']); }); });
-    var csv = [head].concat(rows).map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
+    var csv = [head].concat(rows).map(function (r) { return r.map(function (v) { return csvCell(v); }).join(','); }).join('\r\n');
     var x = document.createElement('a'); x.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); x.download = 'falafol-sheet.csv'; x.click();
   });
 }
@@ -2751,7 +2757,7 @@ function trCsv(btn) {
   busy(btn, callServer('apiTrainList')).then(function (d) {
     var rows = [['দিন', 'সময়', 'স্থান', 'শ্রেণি', 'বিষয়', 'রোল', 'নাম', 'মোবাইল', 'লিখিত মেধাক্রম']];
     d.days.forEach(function (x) { x.list.forEach(function (p) { rows.push([x.text, x.time, x.venue, p.cls, p.subject, p.roll, p.name, p.mobile, p.wr]); }); });
-    var csv = rows.map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
+    var csv = rows.map(function (r) { return r.map(function (v) { return csvCell(v); }).join(','); }).join('\r\n');
     var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); a.download = 'proshikkhon-talika.csv'; a.click();
   });
 }
@@ -2894,7 +2900,7 @@ function pnPrint() {
 function pnCsv() {
   var b = PN.board, rows = [['শ্রেণি', 'বিষয়', 'প্যানেল', 'মেধাক্রম', 'রোল', 'নাম', 'দিন', 'সদস্যদের নম্বর', 'গড়']];
   b.groups.forEach(function (g) { g.people.forEach(function (p) { rows.push([g.cls, g.subject, g.panel, p.rank || '', p.roll, p.name, b.days[p.day] || '', g.members.map(function (m, i) { return m + ': ' + (p.tots[i] == null ? '—' : p.tots[i]); }).join(' | '), p.avg == null ? '' : p.avg]); }); });
-  var csv = rows.map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
+  var csv = rows.map(function (r) { return r.map(function (v) { return csvCell(v); }).join(','); }).join('\r\n');
   var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); a.download = 'panel-medhakrom.csv'; a.click();
 }
 
@@ -3059,7 +3065,7 @@ function dmPoolCsv() {
   var L = dmPoolRows(), hired = DM.pf.view === 'hired';
   var rows = [['রোল', 'নাম', 'শ্রেণি', 'বিষয়', 'মোবাইল', 'ইমেইল'].concat(hired ? ['শাখা', 'ব্যাচ', 'যোগদানের তারিখ'] : ['মেধাক্রম', 'প্যানেলের গড়', 'অবস্থা'])].concat(L.map(function (p) {
     return [p.roll, p.name, p.cls, p.subject, p.mobile, p.email].concat(hired ? [p.branch, p.batch, p.joinDate] : [p.rank || '', p.avg == null ? '' : p.avg, (DM_ST[p.state] || [''])[0]]); }));
-  var csv = rows.map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
+  var csv = rows.map(function (r) { return r.map(function (v) { return csvCell(v); }).join(','); }).join('\r\n');
   var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); a.download = hired ? 'shikkhok-vandar.csv' : 'reserve.csv'; a.click();
 }
 
@@ -3193,7 +3199,7 @@ function rpCsv() {
   var d = RP.d, rows = [['শ্রেণি', 'বিষয়'].concat(d.steps.map(function (k) { return k[1]; }))];
   d.rows.forEach(function (r) { rows.push([r.cls, r.subject].concat(d.steps.map(function (k) { return r[k[0]] || 0; }))); });
   rows.push(['মোট', ''].concat(d.steps.map(function (k) { return d.total[k[0]] || 0; })));
-  var csv = rows.map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\r\n');
+  var csv = rows.map(function (r) { return r.map(function (v) { return csvCell(v); }).join(','); }).join('\r\n');
   var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); a.download = 'protibedon.csv'; a.click();
 }
 
@@ -3330,7 +3336,7 @@ function lkName(x, kind) { return 'qr-' + x.key + (kind ? '-' + kind : ''); }
 function lkSave(cv, name) { var a = document.createElement('a'); a.href = cv.toDataURL('image/png'); a.download = name + '.png'; a.click(); }
 function lkJsPdf() {
   if (window.jspdf) return Promise.resolve(window.jspdf);
-  return new Promise(function (ok, no) { var sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; sc.onload = function () { ok(window.jspdf); }; sc.onerror = function () { no(new Error('PDF বানানোর ফাইল আনা যায়নি — নেট দেখে আবার চেষ্টা করুন।')); }; document.head.appendChild(sc); });
+  return new Promise(function (ok, no) { var sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; sc.integrity = 'sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk'; sc.crossOrigin = 'anonymous'; sc.onload = function () { ok(window.jspdf); }; sc.onerror = function () { no(new Error('PDF বানানোর ফাইল আনা যায়নি — নেট দেখে আবার চেষ্টা করুন।')); }; document.head.appendChild(sc); });
 }
 function lkQrPng(btn, key) { var x = lkGet(key); busy(btn, lkQrCanvas(x)).then(function (cv) { lkSave(cv, lkName(x)); }); }
 function lkPosterPng(btn, key) { var x = lkGet(key); busy(btn, lkPosterCanvas(x)).then(function (cv) { lkSave(cv, lkName(x, 'poster')); }); }
