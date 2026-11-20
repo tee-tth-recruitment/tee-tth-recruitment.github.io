@@ -39,7 +39,9 @@ applyTheme();
 /* text/plain POST — preflight লাগে না; ৪৫ সেকেন্ডে না এলে থামে */
 function callServer(fn, args) {
   var ctl = window.AbortController ? new AbortController() : null;
-  var tm = ctl ? setTimeout(function () { ctl.abort(); }, 45000) : 0;
+  // ১২০ সেকেন্ড (অন্য অ্যাপের মতো) — একসাথে ইমেইল, PDF, আসন সাজানো, ব্যাকআপে ৪৫ সেকেন্ডের বেশি লাগতে পারে
+  var tm = ctl ? setTimeout(function () { ctl.abort(); }, 120000) : 0, late = false;
+  if (ctl) ctl.signal.addEventListener('abort', function () { late = true; });
   return fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -51,6 +53,8 @@ function callServer(fn, args) {
     return r.json().catch(function () { throw new Error('সার্ভারের উত্তর বোঝা যায়নি।'); });
   }, function () {
     clearTimeout(tm);
+    // সময় পেরোলে কাজটা সার্ভারে হয়তো হয়ে গেছে — আবার চাপলে (যেমন ইমেইল) দুবার হতে পারে
+    if (late) throw new Error('সার্ভার অনেকক্ষণ উত্তর দেয়নি — কাজটা হয়তো হয়ে গেছে। আবার চাপার আগে "হালনাগাদ" করে দেখে নিন।');
     throw new Error('সার্ভারে পৌঁছানো যায়নি — ইন্টারনেট দেখুন।');
   }).then(function (j) {
     if (!j || !j.ok) throw new Error((j && j.error) || 'অজানা ত্রুটি।');
