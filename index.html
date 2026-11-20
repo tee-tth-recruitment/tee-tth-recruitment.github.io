@@ -1549,7 +1549,15 @@ function drawDrive(d) {
     return '<div class="stat ' + x[2] + '" style="cursor:default"><small>' + x[0] + '</small><b>' + N(x[1]) + '</b></div>'; }).join('') + '</div>';
   if (d.errors.length) h += '<div class="note bad" style="margin-bottom:10px">যে ছবি সরানো যায়নি:<br>' + d.errors.map(function (x) { return esc((x.roll ? N(x.roll) + ' · ' : '') + x.name + ' — ' + x.msg); }).join('<br>') + '</div>';
   h += '<div class="btns"><a class="btn pri" href="' + esc(d.url) + '" target="_blank">' + icon('ext') + 'ড্রাইভে খুলুন</a><button class="btn" onclick="driveSort(this)">' + icon('renew') + 'এখনই গোছাও</button></div>';
+  var b = d.backup || {};
+  h += '<div class="note ' + (b.at ? 'ok' : 'warn') + '" style="margin-top:12px">🛟 <b>প্রতি রাতের ব্যাকআপ</b> — রাত ২টার পরে পুরো শিটের একটা এক্সেল কপি "ব্যাকআপ" ফোল্ডারে জমা হয়, শেষ ' + N(b.keep || 14) + 'টা থাকে। ' +
+    (b.at ? 'শেষ ব্যাকআপ: <b>' + dtx(b.at) + '</b>।' : 'এখনো কোনো ব্যাকআপ হয়নি — আজ রাতে নিজে হবে, বা নিচের বোতাম চাপুন।') +
+    ' ফেরাতে হলে ফাইলটা ড্রাইভে খুলে "গুগল শিট হিসেবে সেভ" করুন।</div>' +
+    '<div class="btns" style="margin-top:8px"><button class="btn" onclick="backupNow(this)">' + icon('dl') + 'এখনই ব্যাকআপ</button>' + (b.url ? '<a class="btn" href="' + esc(b.url) + '" target="_blank">' + icon('ext') + 'ব্যাকআপ ফোল্ডার</a>' : '') + '</div>';
   $('drv').innerHTML = h;
+}
+function backupNow(btn) {
+  busy(btn, callServer('apiBackupNow')).then(function (d) { drawDrive(d); toast('ব্যাকআপ হয়েছে · ' + N(Math.round((d.backedUp.size || 0) / 1024)) + ' KB'); });
 }
 function driveSort(btn) {
   busy(btn, callServer('apiDriveSort')).then(function (d) { drawDrive(d); toast(N(d.ran.done) + 'টি ছবি গোছানো হলো' + (d.ran.errors ? ' · ' + N(d.ran.errors) + 'টিতে ভুল' : '') + (d.left ? ' · বাকি ' + N(d.left) + 'টি — আবার চাপুন' : '')); });
