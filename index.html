@@ -603,6 +603,12 @@ body[data-page=report] .page .ph:first-child .btn{background:var(--card2);border
 .qa button:hover{box-shadow:0 12px 26px rgba(11,24,56,.18);border-color:rgba(99,102,241,.5)}
 .qa .qi,:root[data-theme="light"] .qa .qi{color:#fff;background:var(--gA);box-shadow:0 4px 12px rgba(99,102,241,.3)}
 .qa button:nth-child(5n+2) .qi{background:var(--gB)}.qa button:nth-child(5n+3) .qi{background:var(--gC)}.qa button:nth-child(5n+4) .qi{background:var(--gD)}.qa button:nth-child(5n+5) .qi{background:var(--gE)}
+
+/* প্রতিবেদন: শেষ ৩ দিন — চওড়া বার */
+.rx-bars.rx-few{gap:18px;height:190px}
+.rx-bars.rx-few i{max-width:96px;border-radius:12px 12px 4px 4px}
+.rx-bars.rx-few em{font-size:16px}
+.rx-bars.rx-few small{font-size:13px;font-weight:700}
 </style>
 </head>
 <body>
@@ -2855,7 +2861,7 @@ function rpDraw() {
       return '<div class="rx-ev' + (e.past ? ' past' : '') + (isNext ? ' next' : '') + '"><span class="rx-pt">' + (e.past ? icon('check') : '') + '</span><b>' + esc(e.t) + '</b><small>' + N(ymdBn(e.d)) + '</small></div>';
     }).join('') + '</div></div>';
 
-  // ৪) ধাপে ধাপে (ফানেল) + শেষ ১৪ দিন
+  // ৪) ধাপে ধাপে (ফানেল) + শেষ ৩ দিন (সার্ভার ১৪ দিন পাঠায় — Work Hub ৭ দিন নেয়)
   var FS = ['applied', 'approved', 'written', 'pass', 'called', 'trained', 'paneled', 'demo', 'hired'];
   var name = {}; d.steps.forEach(function (k) { name[k[0]] = k[1]; });
   var top = Math.max(1, T.applied);
@@ -2865,12 +2871,12 @@ function rpDraw() {
       '<div class="rx-fs s' + i + (v ? '' : ' zero') + '"><span class="rx-fl">' + esc(name[k]) + (k === 'pass' && T.wait ? ' <small>(+ অপেক্ষমাণ ' + N(T.wait) + ')</small>' : '') + '</span>' +
       '<div class="rx-fb"><i style="width:' + w + '%"></i></div><b>' + N(v) + '</b></div>';
   }).join('') + '</div><div class="tiny" style="margin-top:8px">↓ শতাংশ = আগের ধাপের কত ভাগ পরের ধাপে গেছেন।</div></div>';
-  var rec = d.recent, rmax = Math.max(1, Math.max.apply(null, rec.map(function (x) { return x.n; }))), rsum = rec.reduce(function (a, x) { return a + x.n; }, 0);
-  h += '<div class="card rx-card"><h3>' + icon('log') + 'শেষ ১৪ দিনে আবেদন</h3>' +
-    '<div class="rx-mini"><div><b>' + N(rsum) + '</b><small>মোট</small></div><div><b>' + N(d.today || 0) + '</b><small>আজ</small></div><div><b>' + N((Math.round(rsum / 14 * 10) / 10).toString()) + '</b><small>দিনে গড়</small></div></div>' +
-    '<div class="rx-bars">' + rec.map(function (x, i) {
+  var rec = d.recent.slice(-3), rmax = Math.max(1, Math.max.apply(null, rec.map(function (x) { return x.n; }))), rsum = rec.reduce(function (a, x) { return a + x.n; }, 0);
+  h += '<div class="card rx-card"><h3>' + icon('log') + 'শেষ ৩ দিনে আবেদন</h3>' +
+    '<div class="rx-mini"><div><b>' + N(rsum) + '</b><small>মোট</small></div><div><b>' + N(d.today || 0) + '</b><small>আজ</small></div><div><b>' + N((Math.round(rsum / rec.length * 10) / 10).toString()) + '</b><small>দিনে গড়</small></div></div>' +
+    '<div class="rx-bars rx-few">' + rec.map(function (x, i) {
       var t = i === rec.length - 1;
-      return '<div class="' + (t ? 'today' : '') + '" title="' + esc(ymdBn(x.d)) + ': ' + N(x.n) + '"><em>' + (x.n ? N(x.n) : '') + '</em><i style="height:' + (x.n ? Math.max(6, Math.round(x.n / rmax * 100)) : 0) + '%"></i><small>' + N(+x.d.slice(8)) + '</small></div>';
+      return '<div class="' + (t ? 'today' : '') + '" title="' + esc(ymdBn(x.d)) + ': ' + N(x.n) + '"><em>' + (x.n ? N(x.n) : '') + '</em><i style="height:' + (x.n ? Math.max(6, Math.round(x.n / rmax * 100)) : 0) + '%"></i><small>' + (t ? 'আজ' : i === rec.length - 2 ? 'গতকাল' : N(ymdBn(x.d).slice(0, 5))) + '</small></div>';
     }).join('') + '</div></div></div>';
 
   // ৫) শ্রেণি অনুযায়ী এক নজরে
