@@ -609,6 +609,143 @@ body[data-page=report] .page .ph:first-child .btn{background:var(--card2);border
 .rx-bars.rx-few i{max-width:96px;border-radius:12px 12px 4px 4px}
 .rx-bars.rx-few em{font-size:16px}
 .rx-bars.rx-few small{font-size:13px;font-weight:700}
+
+/* ═════════ ফোনের সাজ (২০২৬-১১-২১) — প্যানেল সদস্য, বস, অফিস সবাই ফোনে চালান; কম্পিউটার যেমন ছিল ═════════ */
+@media (max-width:640px){
+  /* পাতার মাথা: ছোট ব্যানার (নাম ওপরের বারেও আছে) */
+  .page{padding:12px 12px 100px}
+  .page .ph:first-child,#page>div>.ph:first-child{padding:12px 14px;border-radius:16px;margin-bottom:12px;gap:8px}
+  .page .ph:first-child h2{font-size:21px}
+  .page .ph:first-child .crumb{font-size:11px;margin-bottom:-8px}
+  .page .ph:first-child .btn{padding:6px 10px;font-size:12.5px;border-radius:9px;gap:5px}
+  .page .ph:first-child .btn .ic{width:15px;height:15px}
+  body[data-page=report] .page .ph:first-child{padding:0}
+  /* কার্ড */
+  .card{padding:14px 14px;border-radius:16px}
+  .card+.card{margin-top:12px}
+  .card h3{font-size:16px;flex-wrap:wrap;row-gap:8px}
+  .card h3>.ic{width:28px;height:28px;padding:6px;border-radius:9px}
+  .card h3 .tabs,.card h3>.btns{margin:0}
+  .note{font-size:13px;padding:9px 11px}
+  /* ঘর: আইফোনে চাপলে বড় হয়ে যাওয়া বন্ধ (১৬px), আঙুলের মাপে */
+  .in,.sel,textarea.in{font-size:16px;padding:10px 12px}
+  .btn{min-height:38px}.btn.sm{min-height:34px}
+  .btns{gap:6px}
+  /* সংখ্যার ঘর: ছোট, দুই বা তিন কলামে */
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}
+  .stats:has(>:nth-child(3):last-child),.stats:has(>:nth-child(6):last-child){grid-template-columns:repeat(3,minmax(0,1fr))}
+  .stats:not(:has(>:nth-child(3):last-child))>:last-child:nth-child(odd){grid-column:1/-1}
+  .stat{padding:11px 12px 9px;border-radius:14px}
+  .stat small{font-size:12px;line-height:1.3}
+  .stat b{font-size:24px}
+  .stat::after{width:64px;height:64px;right:-20px;top:-20px}
+  /* হোমের দ্রুত কাজ: তিনটা করে টাইল */
+  .qa{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .qa button{align-items:center;text-align:center;padding:12px 6px;border-radius:14px}
+  .qa .qi{margin:0 0 6px}.qa b{font-size:13px;line-height:1.3}.qa small{display:none}
+  /* তালিকার সারি (প্রার্থী, উপস্থিতি…): নাম পুরো লাইনে, চিপ নিচের লাইনে */
+  .row{flex-wrap:wrap;gap:4px 10px;padding:10px 12px}
+  .row .rl{min-width:0;font-size:14px}
+  .row .nm{flex:1 1 calc(100% - 110px)}
+  .row .nm b{white-space:normal;line-height:1.35}
+  .row .nm small{display:block;font-size:12px;line-height:1.45}
+  .row>.chip{font-size:11.5px;padding:1px 8px}
+  .selrow{margin-left:4px;flex-wrap:wrap;gap:8px}
+  .bulk{bottom:78px;padding:8px 10px;gap:6px;max-height:40vh;overflow:auto}
+  /* টেবিল → কার্ড (প্রতিটা সারি এক কার্ড, ঘরের নাম ছোট করে ওপরে) */
+  .tw>table.t.stk thead,.tw>table.t.stk tr:has(>th){display:none}
+  .tw>table.t.stk,.tw>table.t.stk tbody{display:block}
+  .tw>table.t.stk tr{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 2px;border-bottom:1px solid var(--line)}
+  .tw>table.t.stk td{display:block;border:0;padding:0;text-align:left!important;font-size:13.5px}
+  .tw>table.t.stk td:first-child{flex-basis:100%;font-size:14.5px}
+  .tw>table.t.stk td[data-l]:not(:first-child)::before{content:attr(data-l);display:block;font-size:11px;font-weight:600;color:var(--tx3);line-height:1.3}
+  .tw>table.t.stk td:empty{display:none}
+  .tw>table.t.stk td[colspan],.tw>table.t.stk td.wide{flex-basis:100%}
+  .tw>table.t.stk tr.tot{background:var(--card2);border-radius:10px;padding:10px}
+  /* না-ভাঙা টেবিল: প্রথম কলাম আটকে থাকে, বাকিটা সরে */
+  .tw>table.t:not(.stk){font-size:13px}
+  .tw>table.t:not(.stk) th,.tw>table.t:not(.stk) td{padding:7px 8px}
+  /* পপআপ: নিচ থেকে ওঠা পুরো চওড়া পাতা */
+  .ov.c .md,.ov:not(.b) .md{width:100%;max-width:100%;border-radius:20px 20px 0 0;margin:auto 0 0;max-height:92vh;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
+  .ov:not(.b){align-items:flex-end;justify-content:stretch}
+  /* লিংক কার্ড: QR ছোট, বোতাম এক সারিতে */
+  .lkhd{gap:12px}
+  .lkhd .btns{flex-wrap:nowrap}
+  .lkdl{gap:6px}
+  /* প্রতিবেদন */
+  .rx-kpis{gap:8px;margin:12px 0}
+  .rx-kpi{padding:11px 12px 9px;border-radius:14px}
+  .rx-kpi b{font-size:26px}.rx-kpi small{font-size:12px;line-height:1.3}
+  .rx-kpi .rx-ic{width:28px;height:28px;border-radius:9px;margin-bottom:5px}.rx-kpi .rx-ic .ic{width:15px;height:15px}
+  .rx-kpis>:last-child:nth-child(odd){grid-column:1/-1}
+  .rx-hero{padding:16px;gap:14px;border-radius:18px}.rx-hero h1{font-size:23px;margin-bottom:8px}
+  .rx-ringin{width:92px;height:92px}.rx-ringin b{font-size:34px}
+  .rx-cls{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+}
+/* প্রার্থী তালিকা: চিপের মোড়ক, ফোনে ভাঁজ করা ছাঁকনি */
+.rch{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;flex:none}
+.mfbtn{display:none}
+@media (max-width:640px){
+  .row .rch{flex-basis:100%;padding-left:28px;gap:5px}
+  .row .rch .chip{font-size:11.5px;padding:1px 8px}
+  .mfbtn{display:inline-flex;flex:none;padding:0 12px}
+  .mfbtn.on{border-color:var(--acc);color:var(--acc)}
+  body:not(.mfo) .mf{display:none!important}
+  .bar{gap:8px;margin-bottom:10px}
+  .bar .in,.bar .sel{min-width:0;flex:1 1 calc(50% - 4px)}
+  .bar #aq{flex:1 1 calc(100% - 130px)}
+  .bar #ainq{flex-basis:100%}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -12px 10px;padding:2px 12px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs button{flex:none}
+  .rx-cls>:last-child:nth-child(odd){grid-column:1/-1}
+  .rx-bars.rx-few{height:150px}
+}
+/* ফোন: ইনপুটভরা টেবিল → ছোট ফর্ম (প্রতিটা সারি তিন ঘরের গ্রিড) */
+@media (max-width:640px){
+  .tw>table.t.stkf tr:has(>th){display:none}
+  .tw>table.t.stkf,.tw>table.t.stkf tbody{display:block}
+  .tw>table.t.stkf tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 8px;padding:12px 0;border-bottom:1px solid var(--line);align-items:end}
+  .tw>table.t.stkf td{display:block;border:0;padding:0;text-align:left!important;min-width:0}
+  .tw>table.t.stkf td[data-l]::before{content:attr(data-l);display:block;font-size:11px;font-weight:600;color:var(--tx3);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tw>table.t.stkf td .in,.tw>table.t.stkf td .sel{min-width:0!important;width:100%}
+  .tw>table.t.stkf td:has(input[type=date]),.tw>table.t.stkf td:has(input[type=datetime-local]),.tw>table.t.stkf td.wide{grid-column:span 2}
+  .tw>table.t.stkf td:last-child:not(:has(input,select)){grid-column:2/-1;display:flex;justify-content:flex-end;gap:4px}
+  .tw>table.t.stkf td:empty{display:none}
+  .tw>table.t.stkf td:last-child:not(:has(input,select))::before{display:none}
+  .tw>table.t.stkf td:first-child:has(b),.tw>table.t.stkf td:first-child:not(:has(input,select)){grid-column:1/-1;font-weight:700;font-size:14.5px}
+  .tw>table.t.stkf td:first-child:not(:has(input,select))::before{display:none}
+}
+/* ফোন: সেটিংসের "সেভ" নিচে ভাসমান — নিচের ঘর বদলে ওপরে ফিরতে হয় না */
+@media (max-width:640px){
+  body[data-page=settings] #setSave{position:fixed;right:14px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:25;min-height:48px;padding:0 26px;font-size:15.5px;border-radius:999px;box-shadow:0 10px 26px rgba(195,154,69,.5);backdrop-filter:none}
+  .dr{padding:14px 14px 90px}
+  .dr .kv{grid-template-columns:112px minmax(0,1fr);font-size:13.5px}
+}
+.kv a.call{display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:1px 10px;border-radius:999px;background:var(--okb);color:var(--ok);font-weight:700;font-size:12.5px;text-decoration:none;white-space:nowrap}
+/* ফোন: ডেমো পাতার শ্রেণি-বিষয় পাশাপাশি সরানো সারি (লম্বা তালিকার নিচে খুঁজতে হয় না) */
+@media (max-width:640px){
+  .dmsubs{display:flex;overflow-x:auto;scroll-snap-type:x proximity;gap:8px;margin:0 -14px;padding:2px 14px 6px;scrollbar-width:none;position:relative}
+  .dmsubs::-webkit-scrollbar{display:none}
+  .dmsubs button{flex:0 0 auto;max-width:230px;scroll-snap-align:start;padding:9px 12px}
+  .dmsubs b{font-size:13.5px;white-space:nowrap}.dmsubs small{font-size:11.5px;white-space:nowrap}
+  .card:has(>.dmsubs){padding:12px 14px}
+  .dmnext{flex-wrap:wrap;gap:10px}.dmnext .btn{width:100%}
+}
+/* ফোন: প্রতিবেদনের ছক — বিষয়ের নাম বাঁয়ে আটকে, বাকিটা সরে */
+@media (max-width:640px){
+  .rx-t{font-size:12.5px}
+  .rx-t th,.rx-t td{padding:7px 8px!important;white-space:nowrap}.rx-t th{white-space:normal;min-width:58px}.rx-t th:first-child{min-width:118px}
+  .rx-t tr.rx-g td{background:var(--card2)}
+  .rx-t th:first-child,.rx-t td:first-child{position:sticky;left:0;z-index:1;background:var(--card);max-width:150px;white-space:normal;box-shadow:6px 0 8px -6px rgba(0,0,0,.45)}
+  .rx-t tr.tot td:first-child,.rx-t tr.rx-g td:first-child{background:var(--card2)}
+}
+.mob{display:none}
+@media (max-width:640px){.mob{display:block}}
+@media (max-width:640px){
+  body[data-page=subjects] #subSave{position:fixed;right:14px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:25;min-height:48px;padding:0 26px;font-size:15.5px;border-radius:999px;box-shadow:0 10px 26px rgba(99,102,241,.5);backdrop-filter:none}
+  body[data-page=subjects] #subSave:disabled{display:none}
+}
 </style>
 </head>
 <body>
@@ -846,7 +983,7 @@ function render() {
   $('topMore').onclick = moreMenu;
   var cur = pageOf(S.page);
   $('topTitle').innerHTML = '<b>' + esc(cur ? cur[1] : 'শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭') + '</b><small>Control Panel · শিক্ষক-শিক্ষিকা নিয়োগ ২০২৭</small>';
-  document.body.setAttribute('data-page', S.page);
+  document.body.setAttribute('data-page', S.page); document.body.classList.toggle('mfo', !!S.mfo);
   var f = window['page_' + S.page];
   $('page').innerHTML = f ? f() : '';
   // পাতার শিরোনামের ওপরে কোন দলের পাতা
@@ -925,12 +1062,14 @@ function page_applicants() {
   h += '<div class="tabs">' + [['all', 'সব'], ['approved', 'অনুমোদিত'], ['problem', 'সমস্যা'], ['pending', 'অপেক্ষায়'], ['cancelled', 'বাতিল']].concat(S.boot.me.owner && cnt.test ? [['test', '🧪 টেস্ট']] : []).map(function (t) {
     return '<button class="' + (af.tab === t[0] ? 'on' : '') + '" onclick="S.af.tab=\'' + t[0] + '\';render()">' + t[1] + '<span>' + N(cnt[t[0]] || 0) + '</span></button>';
   }).join('') + '</div>';
+  var nf = [af.cls, af.subj, af.res, af.inst, af.instq].filter(function (x) { return x; }).length;
   h += '<div class="bar"><input class="in" id="aq" placeholder="রোল, নাম বা মোবাইল দিয়ে খুঁজুন…" value="' + esc(af.q) + '">' +
-    '<select class="sel" id="acls"><option value="">সব শ্রেণি</option>' + classes.map(function (c) { return '<option' + (af.cls === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select>' +
-    '<select class="sel" id="asub"><option value="">সব বিষয়</option>' + subs.map(function (s) { return '<option value="' + esc(s.subject) + '"' + (af.subj === s.subject ? ' selected' : '') + '>' + esc((af.cls ? '' : s.cls + ' · ') + s.subject) + '</option>'; }).join('') + '</select></div>';
+    '<button class="btn mfbtn' + (nf ? ' on' : '') + '" onclick="S.mfo=!S.mfo;document.body.classList.toggle(\'mfo\',S.mfo)">' + icon('set') + 'ছাঁকনি' + (nf ? ' · ' + N(nf) : '') + '</button>' +
+    '<select class="sel mf" id="acls"><option value="">সব শ্রেণি</option>' + classes.map(function (c) { return '<option' + (af.cls === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select>' +
+    '<select class="sel mf" id="asub"><option value="">সব বিষয়</option>' + subs.map(function (s) { return '<option value="' + esc(s.subject) + '"' + (af.subj === s.subject ? ' selected' : '') + '>' + esc((af.cls ? '' : s.cls + ' · ') + s.subject) + '</option>'; }).join('') + '</select></div>';
   // ফলাফল ও প্রতিষ্ঠান (প্রতিষ্ঠানের নাম প্রার্থীরা নিজের মতো লেখেন — তালিকা থেকে বাছুন, অথবা নামের অংশ লিখে খুঁজুন)
   var insts = instGroups(A);
-  h += '<div class="bar"><select class="sel" id="ares"><option value="">সব ফলাফল</option>' + [['pass', 'উত্তীর্ণ'], ['wait', 'অপেক্ষমাণ'], ['fail', 'অনুত্তীর্ণ'], ['absent', 'অনুপস্থিত'], ['none', 'ফলাফল হয়নি']].map(function (r) { return '<option value="' + r[0] + '"' + (af.res === r[0] ? ' selected' : '') + '>' + r[1] + '</option>'; }).join('') + '</select>' +
+  h += '<div class="bar mf"><select class="sel" id="ares"><option value="">সব ফলাফল</option>' + [['pass', 'উত্তীর্ণ'], ['wait', 'অপেক্ষমাণ'], ['fail', 'অনুত্তীর্ণ'], ['absent', 'অনুপস্থিত'], ['none', 'ফলাফল হয়নি']].map(function (r) { return '<option value="' + r[0] + '"' + (af.res === r[0] ? ' selected' : '') + '>' + r[1] + '</option>'; }).join('') + '</select>' +
     '<select class="sel" id="ainst"><option value="">সব প্রতিষ্ঠান (' + N(insts.length) + ')</option>' + insts.map(function (g) { return '<option value="' + esc(g.k) + '"' + (af.inst === g.k ? ' selected' : '') + '>' + esc(g.name) + ' · ' + N(g.n) + '</option>'; }).join('') + '</select>' +
     '<input class="in" id="ainq" placeholder="প্রতিষ্ঠানের নামের অংশ লিখে খুঁজুন (যেমন ঢাকা কলেজ)" value="' + esc(af.instq) + '"></div>';
   h += '<div class="selrow"><label class="ck"><input type="checkbox" id="selAll"> <span id="selAllTx">সব বাছাই</span></label><span class="tiny" id="selCnt"></span><span class="sp" style="flex:1"></span><span class="tiny" id="visCnt"></span>' +
@@ -1049,7 +1188,8 @@ function after_applicants() {
   drawList();
 }
 function drawList() {
-  var L = visibleList();
+  var L = visibleList(), mb = document.querySelector('.mfbtn');
+  if (mb) { var nf = [S.af.cls, S.af.subj, S.af.res, S.af.inst, S.af.instq].filter(function (x) { return x; }).length; mb.classList.toggle('on', !!nf); mb.innerHTML = icon('set') + 'ছাঁকনি' + (nf ? ' · ' + N(nf) : ''); }
   if ($('visCnt')) $('visCnt').textContent = 'তালিকায় ' + N(L.length) + 'জন';
   var more = L.length > 300;
   S.sel = S.sel || {};
@@ -1058,10 +1198,10 @@ function drawList() {
     return '<div class="row' + (S.sel[k] ? ' picked' : '') + '" onclick="openApplicant(\'' + esc(k) + '\')">' +
       '<label class="ck" onclick="event.stopPropagation()"><input type="checkbox"' + (S.sel[k] ? ' checked' : '') + ' onchange="toggleSel(\'' + esc(k) + '\',this.checked);this.closest(\'.row\').classList.toggle(\'picked\',this.checked)"></label>' +
       '<span class="rl">' + (a.roll ? N(a.roll) : '—') + '</span>' +
-      '<div class="nm"><b>' + esc(a.nameBn || a.nameEn || '(নাম নেই)') + '</b><small>' + esc(a.cls) + ' · ' + esc(a.subject) + ' · ' + N(a.mobile) + (a.problems ? ' · ⚠ ' + esc(a.problems) : '') + '</small></div>' +
+      '<div class="nm"><b>' + esc(a.nameBn || a.nameEn || '(নাম নেই)') + '</b><small>' + esc(a.cls) + ' · ' + esc(a.subject) + ' · ' + N(a.mobile) + (a.problems ? ' · ⚠ ' + esc(a.problems) : '') + '</small></div><span class="rch">' +
       (a.status === 'approved' ? (a.mail === 1 ? '<span class="chip ok" title="রোল ও প্রবেশপত্রের ইমেইল গেছে">ইমেইল গেছে</span>' : a.mail === 0 ? '<span class="chip warn" title="ইমেইল এখনো যায়নি — দৈনিক সীমা শেষ হলে পরদিন নিজে যাবে">ইমেইল বাকি</span>' : '<span class="chip">ইমেইল নেই</span>') +
         (a.smsApprove ? ' <span class="chip ok">SMS গেছে</span>' : ' <span class="chip" title="SMS জমা আছে — SMS পাতা থেকে পাঠানো যাবে">SMS বাকি</span>') : '') +
-      (a.test ? '<span class="chip info">🧪 টেস্ট</span> ' : '') + '<span class="chip ' + st[1] + '">' + st[0] + '</span></div>';
+      (a.test ? '<span class="chip info">🧪 টেস্ট</span> ' : '') + '<span class="chip ' + st[1] + '">' + st[0] + '</span></span></div>';
   }).join('') + (more ? '<div class="tiny" style="text-align:center">প্রথম ৩০০ জন দেখানো হলো — খুঁজে বা ছেঁকে নির্দিষ্ট করুন।</div>' : '') : '<div class="empty">' + icon('users') + 'কোনো প্রার্থী নেই।</div>';
   drawBulk();
 }
@@ -1097,14 +1237,14 @@ function drawApplicant(a) {
   if (S.boot.me.owner) acts.push('<button class="btn" onclick="doTest(this,\'' + esc(a.roll || a.responseId) + '\',' + !a.isTest + ')">🧪 ' + (a.isTest ? 'টেস্ট চিহ্ন তুলুন' : 'টেস্ট আবেদন হিসেবে চিহ্নিত করুন') + '</button>');
   if (ed && a.status === 'cancelled') acts.push('<button class="btn" onclick="doRestore(this,\'' + esc(a.roll || a.responseId) + '\')">' + icon('renew') + 'ফেরাও</button>');
   if (acts.length) h += '<div class="btns" style="margin-bottom:14px">' + acts.join('') + '</div>';
-  var kv = [['নাম (ইংরেজি)', a.nameEn], ['মোবাইল', N(a.mobile)], ['বিকল্প মোবাইল', N(a.mobile2)], ['ইমেইল', a.email], ['ঠিকানা', a.address],
+  var kv = [['নাম (ইংরেজি)', a.nameEn], ['মোবাইল', N(a.mobile), a.mobile], ['বিকল্প মোবাইল', N(a.mobile2), a.mobile2], ['ইমেইল', a.email], ['ঠিকানা', a.address],
             ['স্নাতক শিক্ষাপ্রতিষ্ঠান', a.institution], ['বিভাগ', a.dept], ['বর্ষ', a.year], ['SSC', a.ssc], ['HSC', a.hsc], ['মাধ্যম', a.medium], ['ফ্রি সময়', a.freeTime],
             ['অভিজ্ঞতা', a.experience], ['কীভাবে জানলেন', a.source], ['জমার সময়', dtx(a.submittedAt)], ['অনুমোদন', dtx(a.approvedAt)], ['নোট', a.note],
             ['শেষ বদল', a.updatedBy ? dtx(a.updatedAt) + ' · ' + a.updatedBy : '']];
   if (a.seatText) kv.splice(0, 0, ['আসন', a.seatText]);
   var ex = {}; try { ex = JSON.parse(a.extra || '{}') || {}; } catch (e) {}
   Object.keys(ex).forEach(function (k) { if (ex[k]) kv.push([k, ex[k]]); });
-  h += '<dl class="kv">' + kv.filter(function (x) { return x[1]; }).map(function (x) { return '<dt>' + esc(x[0]) + '</dt><dd>' + esc(x[1]) + '</dd>'; }).join('') + '</dl>';
+  h += '<dl class="kv">' + kv.filter(function (x) { return x[1]; }).map(function (x) { return '<dt>' + esc(x[0]) + '</dt><dd>' + esc(x[1]) + (x[2] ? ' <a class="call" href="tel:' + esc(String(x[2]).replace(/[^\d+]/g, '')) + '">📞 কল</a>' : '') + '</dd>'; }).join('') + '</dl>';
   $('dr').innerHTML = h; S.cur = a;
 }
 function applyRow(a) {
@@ -1150,6 +1290,39 @@ function editApplicant() {
     busy(this, callServer('apiUpdateApplicant', [a.roll || a.responseId, p])).then(function (x) { toast('সেভ হয়েছে'); after(x); });
   };
 }
+
+/* ফোন: টেবিলের প্রতিটা ঘরে কলামের নাম (data-l) — ছোট পর্দায় সারিগুলো কার্ড হয়ে যায় (style.css-এ .stk)।
+   যে টেবিল কার্ড হবে না: class="nostk" বা "rm" (ঘরভর্তি ইনপুট)। */
+(function () {
+  var pend = false;
+  function tag() {
+    pend = false;
+    document.querySelectorAll('.tw>table.t:not([data-stk])').forEach(function (t) {
+      t.setAttribute('data-stk', '1');
+      if (t.classList.contains('nostk')) return;
+      var hs = [], hr = t.querySelector('thead tr') || t.querySelector('tr');
+      if (hr && hr.querySelector('th')) Array.prototype.forEach.call(hr.children, function (th) { var n = +(th.getAttribute('colspan') || 1); for (var i = 0; i < n; i++) hs.push(th.childNodes.length && th.firstChild.nodeType === 3 ? th.firstChild.textContent.trim() : th.textContent.trim()); });
+      if (!hs.length) return;
+      // কার্ড হবে: নিজে চাওয়া (stk), ঘরভর্তি ইনপুট (rm), ৫+ কলাম, বা পর্দা ছাপিয়ে যায়
+      if (!(t.classList.contains('stk') || t.classList.contains('rm') || hs.length >= 5 || t.scrollWidth > t.parentElement.clientWidth + 2)) return;
+      // ইনপুট থাকলে ছোট ফর্মের মতো (stkf), নইলে লেখার কার্ড (stk)
+      t.classList.add(t.querySelector('tbody input, tbody select') ? 'stkf' : 'stk');
+      t._hs = hs;
+    });
+    // নতুন সারিতে নাম বসানো (ছাঁকা, খোঁজা, সারি যোগ)
+    document.querySelectorAll('.tw>table.t.stk,.tw>table.t.stkf').forEach(function (t) { if (t._hs) label(t, t._hs); });
+  }
+  function label(t, hs) {
+    t.querySelectorAll('tbody tr').forEach(function (tr) {
+      if (tr._l) return; tr._l = 1;
+      var i = 0; Array.prototype.forEach.call(tr.children, function (td) {
+        if (td.tagName === 'TD' && hs[i] && !td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i]);
+        i += +(td.getAttribute('colspan') || 1);
+      });
+    });
+  }
+  new MutationObserver(function () { if (!pend) { pend = true; requestAnimationFrame(tag); } }).observe(document.documentElement, { childList: true, subtree: true });
+})();
 
 /* ═════════════ বাকি পাতা: শ্রেণি-বিষয়, ফর্ম, সেটিংস, SMS, ব্যবহারকারী, লগ, নিরাপত্তা ═════════════ */
 
@@ -1800,9 +1973,9 @@ function seDraw() {
     '<button class="btn" onclick="sePrint(this,\'qcount\')">প্রশ্নের হিসাব</button></div>' +
     '<div class="tiny" style="margin-top:8px">নতুন জানালায় খুলবে — সেখান থেকে প্রিন্ট বা "Save as PDF"।' + (st.locked ? '' : ' ⚠️ আসন এখনো চূড়ান্ত নয় — ছাপার আগে চূড়ান্ত করে নিন।') + '</div></div>';
   // কক্ষভিত্তিক বিষয়
-  if (st.seated) h += '<div class="card"><h3>' + icon('book') + 'কোন কক্ষে কোন বিষয়</h3><div class="tw"><table class="t"><tr><th>কক্ষ</th><th>প্রার্থী</th><th>শ্রেণি-বিষয়</th></tr>' +
+  if (st.seated) h += '<div class="card"><h3>' + icon('book') + 'কোন কক্ষে কোন বিষয়</h3><div class="tw"><table class="t stk"><tr><th>কক্ষ</th><th>প্রার্থী</th><th>শ্রেণি-বিষয়</th></tr>' +
     st.rooms.filter(function (r) { return r.used; }).map(function (r) {
-      return '<tr><td style="white-space:nowrap"><b>' + esc((r.floor ? r.floor + ' তলা, ' : '') + r.name) + '</b></td><td>' + N(r.used) + '</td><td class="tiny">' +
+      return '<tr><td style="white-space:nowrap"><b>' + esc((r.floor ? r.floor + ' তলা, ' : '') + r.name) + '</b></td><td>' + N(r.used) + '</td><td class="tiny wide">' +
         Object.keys(r.subj).sort().map(function (k) { return esc(k) + ' (' + N(r.subj[k]) + ')'; }).join(' · ') + '</td></tr>';
     }).join('') + '</table></div></div>';
   $('seBox').innerHTML = h;
@@ -2081,7 +2254,7 @@ function mkDraw() {
 }
 function mkTable(L, fin) {
   if (!L.length) return '<div class="empty">কেউ নেই।</div>';
-  return '<div class="tw"><table class="t"><tr><th>রোল</th><th>নাম</th><th style="width:130px">নম্বর</th><th style="width:36px"></th></tr>' + L.map(function (p) {
+  return '<div class="tw"><table class="t nostk"><tr><th>রোল</th><th>নাম</th><th style="width:130px">নম্বর</th><th style="width:36px"></th></tr>' + L.map(function (p) {
     return '<tr><td style="font-weight:800;color:var(--acc)">' + N(p.roll) + '</td><td>' + esc(p.name) + '</td>' +
       '<td><input class="in mk" data-roll="' + p.roll + '" inputmode="decimal" autocomplete="off" value="' + (p.mk === null ? '' : p.mk) + '"' + (fin ? ' disabled' : '') + ' style="text-align:center;font-weight:700"></td>' +
       '<td id="ms' + p.roll + '" title="' + esc(p.by ? 'তুলেছেন: ' + p.by : '') + '">' + (p.mk !== null ? '<span style="color:var(--ok)">✓</span>' : '') + '</td></tr>';
@@ -2398,7 +2571,7 @@ function trDraw() {
   h += '<div class="card"><h3>' + icon('log') + 'দিন ও বেলা</h3><div class="tw"><table class="t"><tr><th>তারিখ</th><th>শুরু</th><th>শেষ</th><th>স্থান</th><th style="width:90px">সর্বোচ্চ</th><th></th></tr>' +
     TR.days.map(function (d, i) {
       return '<tr><td><input class="in" type="date" value="' + esc(d.date) + '" onchange="TR.days[' + i + '].date=this.value"></td><td><input class="in" type="time" value="' + esc(d.start) + '" onchange="TR.days[' + i + '].start=this.value"></td>' +
-        '<td><input class="in" type="time" value="' + esc(d.end) + '" onchange="TR.days[' + i + '].end=this.value"></td><td><input class="in" value="' + esc(d.venue) + '" placeholder="খালি = পরীক্ষাকেন্দ্র" onchange="TR.days[' + i + '].venue=this.value"></td>' +
+        '<td><input class="in" type="time" value="' + esc(d.end) + '" onchange="TR.days[' + i + '].end=this.value"></td><td class="wide"><input class="in" value="' + esc(d.venue) + '" placeholder="খালি = পরীক্ষাকেন্দ্র" onchange="TR.days[' + i + '].venue=this.value"></td>' +
         '<td><input class="in" type="number" min="1" value="' + esc(d.cap) + '" onchange="TR.days[' + i + '].cap=+this.value;trDraw()"></td><td><button class="btn sm ghost" title="বাদ" onclick="TR.days.splice(' + i + ',1);trDraw()">' + icon('x') + '</button></td></tr>';
     }).join('') + '</table></div><div class="btns" style="margin-top:10px"><button class="btn sm" onclick="trAddDay()">' + icon('plus') + 'দিন যোগ</button><button class="btn sm pri" onclick="trSaveDays(this)">দিন সেভ</button></div>' +
     '<div class="tiny" style="margin-top:6px">একই দিনে দুই বেলা চাইলে একই তারিখ দুবার দিন (ভিন্ন সময়ে)। "সর্বোচ্চ" = সেদিন কতজন আসতে পারবেন।</div></div>';
@@ -2734,6 +2907,7 @@ function dmQueue() {
         (sub ? '<div class="tiny">' + sub + '</div>' : '') + (hist ? '<div class="tiny" style="opacity:.8">' + hist + '</div>' : '') + '</td><td class="r">' + dmAvg(p) + '</td><td><span class="chip ' + st[1] + '">' + st[0] + '</span></td><td style="white-space:nowrap">' + act + '</td></tr>';
     }).join('') + '</table></div><div class="tiny" style="margin-top:8px">ক্রম = প্রশিক্ষণ ও ডেমো ক্লাসে প্যানেলের গড় নম্বরের মেধাক্রম। "আরেকবার সুযোগ" পেলে প্রার্থী নিজের জায়গায় আবার অপেক্ষায় থাকেন।</div></div>';
   $('dmBox').innerHTML = h;
+  var on = document.querySelector('.dmsubs button.on'); if (on && on.parentNode.scrollWidth > on.parentNode.clientWidth) on.parentNode.scrollLeft = on.offsetLeft - 14;
 }
 function dmPerson(roll) { var x = null; DM.st.subs.forEach(function (g) { g.queue.forEach(function (p) { if (p.roll === roll) x = p; }); }); return x; }
 function dmBranchOpts(sel) { return DM.st.branches.map(function (b) { return '<option' + (b === sel ? ' selected' : '') + '>' + esc(b) + '</option>'; }).join(''); }
@@ -2937,7 +3111,7 @@ function rpDraw() {
   var colMax = {}; d.steps.forEach(function (k) { colMax[k[0]] = Math.max(1, Math.max.apply(null, d.rows.map(function (r) { return r[k[0]] || 0; }).concat([0]))); });
   var lastCls = null;
   h += '<div class="card rx-card"><h3>' + icon('book') + 'শ্রেণি-বিষয় ধরে বিস্তারিত<span class="sp"></span><button class="btn sm" onclick="rpPrint()">' + icon('dl') + 'প্রিন্ট</button><button class="btn sm" onclick="rpCsv()">' + icon('dl') + 'এক্সেল</button></h3>' +
-    '<div class="tw"><table class="t rx-t"><tr><th>শ্রেণি-বিষয়</th>' + d.steps.map(function (k) { return '<th class="r">' + esc(k[1]) + '</th>'; }).join('') + '</tr>' +
+    '<div class="tiny mob" style="margin:0 0 6px">ডানে সরিয়ে বাকি ধাপগুলো দেখুন →</div><div class="tw"><table class="t rx-t nostk"><tr><th>শ্রেণি-বিষয়</th>' + d.steps.map(function (k) { return '<th class="r">' + esc(k[1]) + '</th>'; }).join('') + '</tr>' +
     d.rows.map(function (r) {
       var g = '';
       if (r.cls !== lastCls) { lastCls = r.cls; g = '<tr class="rx-g"><td colspan="' + (d.steps.length + 1) + '">' + esc(r.cls) + ' শ্রেণি</td></tr>'; }

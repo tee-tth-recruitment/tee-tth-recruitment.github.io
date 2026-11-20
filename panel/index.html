@@ -37,6 +37,10 @@ input,select,textarea{width:100%;padding:13px;border-radius:12px;border:1px soli
 .crit span{flex:1;font-weight:600}.crit span small{display:block;color:#aab6d6;font-weight:400;font-size:12.5px}
 .crit input{width:86px;text-align:center;font-size:20px;font-weight:800;padding:10px}
 .crit input.bad{border-color:#fca5a5}
+.crit{flex-wrap:wrap}
+.pk{flex-basis:100%;display:flex;gap:6px;margin-top:2px}
+.pk button{flex:1;min-width:0;height:40px;border-radius:10px;border:1px solid #2c3d6b;background:#0f1833;color:#dbe3f7;font:inherit;font-size:17px;font-weight:700;cursor:pointer;padding:0}
+.pk button.on{background:linear-gradient(180deg,#f2d68f,#c39a45);border-color:#c39a45;color:#1b1404;box-shadow:0 4px 12px rgba(195,154,69,.35)}
 .sum{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:18px}.sum b{font-size:28px;color:#e6c77d}
 .off{background:#4a3410;border:1px solid #fbbf24;border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:10px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f3d2e;border:1px solid #34d399;color:#e9eefb;padding:12px 18px;border-radius:12px;font-size:15px;z-index:30}
@@ -164,16 +168,20 @@ function openPerson(roll) {
     $('pName').textContent = p.name; $('pInfo').textContent = 'রোল ' + N(p.roll) + ' · ' + p.cs;
     if (p.photo) $('pPhoto').src = p.photo;
     $('crits').innerHTML = D.crit.map(function (c) {
-      return '<div class="crit"><span>' + esc(c.name) + '<small>সর্বোচ্চ ' + N(c.max) + '</small></span><input inputmode="decimal" data-c="' + c.id + '" data-max="' + c.max + '" value="' + (p.scores[c.id] == null ? '' : p.scores[c.id]) + '"></div>';
+      var mx = Number(c.max), pk = mx > 0 && mx <= 10 && Math.round(mx) === mx;
+      return '<div class="crit"><span>' + esc(c.name) + '<small>সর্বোচ্চ ' + N(c.max) + '</small></span><input inputmode="decimal" data-c="' + c.id + '" data-max="' + c.max + '" value="' + (p.scores[c.id] == null ? '' : p.scores[c.id]) + '">' +
+        (pk ? '<div class="pk">' + Array.apply(null, Array(mx + 1)).map(function (_, k) { return '<button type="button" data-v="' + k + '">' + N(k) + '</button>'; }).join('') + '</div>' : '') + '</div>';
     }).join('');
     $('pNote').value = p.note || '';
     $('crits').querySelectorAll('input').forEach(function (i) { i.oninput = sum; i.onkeydown = function (e) { if (e.key === 'Enter') { var n = i.parentNode.nextSibling; if (n) n.querySelector('input').focus(); else $('pSave').focus(); } }; });
+    $('crits').querySelectorAll('.pk button').forEach(function (b) { b.onclick = function () { var i = b.closest('.crit').querySelector('input'); i.value = b.getAttribute('data-v'); sum(); }; });
     sum();
   }, function (e) { $('pErr').textContent = e.message; });
 }
 function sum() {
   var t = 0, ok = true;
-  $('crits').querySelectorAll('input').forEach(function (i) { var v = en(i.value), n = Number(v), bad = v !== '' && (!isFinite(n) || n < 0 || n > +i.getAttribute('data-max')); i.classList.toggle('bad', bad); if (bad) ok = false; else if (v !== '') t += n; });
+  $('crits').querySelectorAll('input').forEach(function (i) { var v = en(i.value), n = Number(v), bad = v !== '' && (!isFinite(n) || n < 0 || n > +i.getAttribute('data-max')); i.classList.toggle('bad', bad); if (bad) ok = false; else if (v !== '') t += n;
+    i.parentNode.querySelectorAll('.pk button').forEach(function (b) { b.classList.toggle('on', v !== '' && Number(b.getAttribute('data-v')) === n); }); });
   $('pTot').textContent = N(Math.round(t * 100) / 100); return ok;
 }
 $('pSave').onclick = function () {
